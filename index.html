@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Finalook — Design Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --black:#0a0a0a;
+  --void:#111111;
+  --carbon:#1a1a1a;
+  --steel:#242424;
+  --ash:#666666;
+  --smoke:#cccccc;
+  --white:#f4f4f2;
+  --green:#1f5c2e;
+  --green-hi:#2a7a3d;
+  --green-lt:#3a9e52;
+}
+body{background:var(--black);color:var(--white);font-family:'Inter',sans-serif;font-weight:400;min-height:100vh;}
+header{background:var(--void);border-bottom:1px solid var(--carbon);padding:0 24px;height:60px;display:flex;align-items:center;}
+.logo-wrap{display:flex;align-items:center;gap:12px;}
+.logo-bar{width:4px;height:28px;background:var(--green-lt);border-radius:1px;}
+.logo-text{font-family:'Big Shoulders Display',sans-serif;font-size:28px;font-weight:900;line-height:1;letter-spacing:0.02em;}
+.logo-text .w{color:var(--white);}
+.logo-text .g{color:var(--green-lt);}
+.logo-sub{font-size:9px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;color:var(--ash);}
+.main{max-width:780px;margin:0 auto;padding:24px 16px 80px;}
+.card{background:var(--void);border:1px solid var(--carbon);border-radius:6px;padding:20px;margin-bottom:12px;}
+.card-title{font-family:'Big Shoulders Display',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:var(--green-lt);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.card-title::after{content:'';flex:1;height:1px;background:var(--carbon);}
+.sec-toggle{display:flex;align-items:center;gap:12px;margin-bottom:4px;}
+.sec-toggle .icon{font-size:18px;}
+.sec-toggle label{font-family:'Big Shoulders Display',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--white);flex:1;}
+.sec-toggle select{font-size:12px;padding:7px 10px;border:1px solid var(--steel);border-radius:4px;background:var(--carbon);color:var(--white);cursor:pointer;font-family:'Inter',sans-serif;}
+.sec-toggle select:focus{outline:1px solid var(--green);}
+.subsection{display:none;margin-top:14px;}
+.subsection.visible{display:block;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+@media(max-width:520px){.grid2,.grid3{grid-template-columns:1fr;}.compare-grid{grid-template-columns:1fr;}}
+.field label{font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--ash);display:block;margin-bottom:5px;}
+.field select{width:100%;font-size:13px;padding:8px 10px;border:1px solid var(--steel);border-radius:4px;background:var(--carbon);color:var(--white);cursor:pointer;font-family:'Inter',sans-serif;}
+.field select:focus{outline:1px solid var(--green);}
+.field-note{font-size:10px;color:var(--steel);margin-top:5px;font-style:italic;}
+textarea{width:100%;font-size:13px;padding:10px 12px;border:1px solid var(--steel);border-radius:4px;background:var(--carbon);color:var(--white);resize:vertical;min-height:68px;font-family:'Inter',sans-serif;line-height:1.5;}
+textarea:focus{outline:1px solid var(--green);}
+textarea::placeholder{color:var(--ash);}
+.upload-area{border:1.5px dashed var(--steel);border-radius:6px;padding:2rem;text-align:center;cursor:pointer;position:relative;transition:border-color 0.15s,background 0.15s;}
+.upload-area:hover{border-color:var(--green);background:#0f1a12;}
+.upload-area input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-icon{font-size:28px;margin-bottom:8px;}
+.upload-text{font-size:13px;color:var(--ash);}
+.upload-text span{display:block;font-size:11px;color:var(--steel);margin-top:3px;}
+.preview-img{width:100%;max-height:280px;object-fit:cover;border-radius:4px;margin-top:12px;display:none;}
+.generate-btn{width:100%;padding:16px;background:var(--green);color:var(--white);border:none;border-radius:4px;font-family:'Big Shoulders Display',sans-serif;font-size:18px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;margin-top:4px;}
+.generate-btn:hover{background:var(--green-hi);}
+.generate-btn:disabled{background:var(--carbon);color:var(--ash);cursor:not-allowed;}
+.status-msg{text-align:center;font-size:13px;color:var(--ash);padding:16px;display:none;}
+.status-msg.show{display:block;}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--steel);border-top-color:var(--green-lt);border-radius:50%;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.error-msg{text-align:center;font-size:13px;color:#e05555;background:#1a0f0f;border:1px solid #3a1a1a;border-radius:4px;padding:12px 16px;display:none;margin-top:10px;}
+.error-msg.show{display:block;}
+.results{display:none;}
+.results.show{display:block;}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
+.compare-item p{font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--ash);margin-bottom:6px;}
+.compare-item img{width:100%;border-radius:4px;object-fit:cover;}
+.download-btn{margin-top:12px;width:100%;padding:12px;border:1px solid var(--green);border-radius:4px;background:transparent;color:var(--green-lt);font-size:13px;font-weight:600;cursor:pointer;letter-spacing:0.08em;font-family:'Inter',sans-serif;}
+.download-btn:hover{background:var(--green);color:var(--white);}
+footer{text-align:center;font-size:10px;color:var(--steel);padding:32px 0 16px;letter-spacing:0.15em;text-transform:uppercase;}
+footer span{color:var(--green);}
+.q-input{width:100%;font-size:13px;padding:8px 10px;border:1px solid var(--steel);border-radius:4px;background:var(--carbon);color:var(--white);font-family:'Inter',sans-serif;}
+.q-input:focus{outline:1px solid var(--green);}
+.q-input::placeholder{color:var(--ash);}
+.q-add{width:100%;padding:10px;border:1px dashed var(--steel);border-radius:4px;background:transparent;color:var(--green-lt);font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;letter-spacing:0.06em;}
+.q-add:hover{border-color:var(--green);background:#0f1a12;}
+.q-row{display:grid;gap:6px;margin-bottom:8px;align-items:center;}
+.q-row.rate{grid-template-columns:1.6fr 0.7fr 0.6fr 0.9fr 28px;}
+.q-row.manual{grid-template-columns:2.2fr 1fr 28px;}
+@media(max-width:520px){.q-row.rate,.q-row.manual{grid-template-columns:1fr;}}
+.q-row input{font-size:12px;padding:7px 8px;border:1px solid var(--steel);border-radius:4px;background:var(--carbon);color:var(--white);font-family:'Inter',sans-serif;width:100%;}
+.q-row input:focus{outline:1px solid var(--green);}
+.q-row .q-del{background:transparent;border:1px solid var(--steel);border-radius:4px;color:#e05555;cursor:pointer;font-size:14px;padding:4px;line-height:1;}
+.q-row .q-del:hover{background:#1a0f0f;}
+.q-line-total{font-size:12px;color:var(--green-lt);text-align:right;font-weight:600;padding:7px 4px;}
+.qt-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;color:var(--smoke);}
+.qt-row.grand{font-family:'Big Shoulders Display',sans-serif;font-size:22px;font-weight:900;color:var(--white);border-top:1px solid var(--carbon);margin-top:6px;padding-top:12px;letter-spacing:0.04em;}
+.qt-row.grand .g{color:var(--green-lt);}
+.qt-row.dep{color:var(--green-lt);font-weight:600;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap">
+    <div class="logo-bar"></div>
+    <div>
+      <div class="logo-text"><span class="w">FINAL</span><span class="g">OOK</span></div>
+      <div class="logo-sub">AI Design Preview</div>
+    </div>
+  </div>
+</header>
+
+<div class="main">
+
+  <div class="card">
+    <div class="card-title">Customer photo</div>
+    <div class="upload-area">
+      <input type="file" id="photoInput" accept="image/*" onchange="handlePhoto(event)"/>
+      <div class="upload-icon">📷</div>
+      <div class="upload-text">Tap to upload or take a photo<span>JPG · PNG · HEIC</span></div>
+    </div>
+    <img id="previewImg" class="preview-img"/>
+  </div>
+
+  <div class="card">
+    <div class="sec-toggle">
+      <span class="icon">🪵</span>
+      <label>Fence</label>
+      <select id="fenceEnabled" onchange="toggle('fence')">
+        <option value="no">No fence</option>
+        <option value="yes">Add fence</option>
+      </select>
+    </div>
+    <div class="subsection" id="fence-section">
+      <div class="grid2">
+        <div class="field"><label>Material</label>
+          <select id="fenceMaterial" onchange="updateFenceDesigns()">
+            <option value="pt">Pressure Treated Wood</option>
+            <option value="cedar">Cedar Wood</option>
+            <option value="alum_privacy">Aluminum Privacy</option>
+            <option value="vinyl">Vinyl</option>
+            <option value="composite">Composite</option>
+            <option value="alum_picket">Aluminum Picket</option>
+          </select>
+        </div>
+        <div class="field"><label>Height</label>
+          <select id="fenceHeight">
+            <option value="4ft">4 ft</option>
+            <option value="5ft">5 ft</option>
+            <option value="6ft" selected>6 ft</option>
+            <option value="6.5ft">6.5 ft</option>
+            <option value="8ft">8 ft</option>
+          </select>
+        </div>
+      </div>
+      <div id="woodDesigns">
+        <div class="grid2">
+          <div class="field"><label>Design</label>
+            <select id="woodDesign">
+              <option value="staggered shadow box">Staggered Shadow Box</option>
+              <option value="privacy side by side">Privacy Side by Side</option>
+              <option value="full privacy overlapping boards">Full Privacy (overlapping)</option>
+              <option value="horizontal privacy boards">Horizontal Privacy</option>
+            </select>
+          </div>
+          <div class="field"><label>Lattice Top</label>
+            <select id="latticeTop">
+              <option value="no lattice">No lattice</option>
+              <option value="lattice top panel above fence">Add lattice top</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Post Size</label>
+            <select id="woodPost">
+              <option value="4x4 pressure treated posts">4x4 posts</option>
+              <option value="6x6 pressure treated posts">6x6 posts</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div id="privacyDesigns" style="display:none;">
+        <div class="grid3">
+          <div class="field"><label>Direction</label>
+            <select id="privacyDir">
+              <option value="vertical privacy boards">Vertical</option>
+              <option value="horizontal privacy boards">Horizontal</option>
+            </select>
+          </div>
+          <div class="field"><label>Color</label>
+            <select id="privacyColor">
+              <option value="white">White</option><option value="beige">Beige</option>
+              <option value="gray">Gray</option><option value="black">Black</option>
+              <option value="charcoal">Charcoal</option><option value="lava brown">Lava Brown</option>
+              <option value="hazelnut brown">Hazelnut Brown</option><option value="wood tone">Wood Tone</option>
+            </select>
+          </div>
+          <div class="field"><label>Post Size</label>
+            <select id="privacyPost">
+              <option value="2x2 aluminum posts">2x2 aluminum</option>
+              <option value="3x3 aluminum posts">3x3 aluminum</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div id="vinylDesigns" style="display:none;">
+        <div class="grid3">
+          <div class="field"><label>Direction</label>
+            <select id="vinylDir">
+              <option value="vertical privacy boards">Vertical</option>
+              <option value="horizontal privacy boards">Horizontal</option>
+            </select>
+          </div>
+          <div class="field"><label>Color</label>
+            <select id="vinylColor">
+              <option value="white">White</option><option value="beige">Beige</option>
+              <option value="gray">Gray</option><option value="black">Black</option>
+              <option value="charcoal">Charcoal</option><option value="wood tone">Wood Tone</option>
+            </select>
+          </div>
+          <div class="field"><label>Post</label>
+            <select><option>5x5 vinyl (steel reinforced)</option></select>
+          </div>
+        </div>
+      </div>
+      <div id="picketDesigns" style="display:none;">
+        <div class="grid3">
+          <div class="field"><label>Top Style</label>
+            <select id="picketTop">
+              <option value="spear top pointed pickets">Spear top</option>
+              <option value="flat top pickets">Flat top</option>
+            </select>
+          </div>
+          <div class="field"><label>Color</label>
+            <select id="picketColor">
+              <option value="black">Black</option><option value="white">White</option>
+            </select>
+          </div>
+          <div class="field"><label>Railing</label>
+            <select id="picketRailing">
+              <option value="no railing">No railing</option>
+              <option value="36 inch aluminum railing">36" railing</option>
+              <option value="42 inch aluminum railing">42" railing</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-note">Heights for aluminum picket: 4ft, 5ft, or 6ft only</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-toggle">
+      <span class="icon">🏠</span>
+      <label>Deck</label>
+      <select id="deckEnabled" onchange="toggle('deck')">
+        <option value="no">No deck</option>
+        <option value="yes">Add deck — finished render</option>
+        <option value="sub">Substructure / progress view</option>
+      </select>
+    </div>
+    <div class="subsection" id="deck-section">
+      <div class="grid2">
+        <div class="field"><label>Type</label>
+          <select id="deckType">
+            <option value="floating ground level deck">Floating (ground level)</option>
+            <option value="elevated deck">Elevated</option>
+          </select>
+        </div>
+        <div class="field"><label>Material</label>
+          <select id="deckMat">
+            <option value="pressure treated wood">Pressure Treated</option>
+            <option value="cedar wood">Cedar</option>
+            <option value="composite decking">Composite</option>
+            <option value="PVC vinyl decking">PVC / Vinyl</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Board Pattern</label>
+          <select id="deckPattern">
+            <option value="picture frame border with straight decking">Picture frame (standard)</option>
+            <option value="diagonal boards with picture frame border">Diagonal + picture frame</option>
+            <option value="straight boards no border">Straight, no border</option>
+          </select>
+        </div>
+        <div class="field"><label>Staircases</label>
+          <select id="deckStairs">
+            <option value="no stairs">No stairs</option>
+            <option value="stairs at the front">Front stairs</option>
+            <option value="stairs on the left side">Left stairs</option>
+            <option value="stairs on the right side">Right stairs</option>
+            <option value="stairs at front and left side">Front + left</option>
+            <option value="stairs at front and right side">Front + right</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Railing</label>
+          <select id="deckRailing">
+            <option value="no railing">No railing</option>
+            <option value="wood railings">Wood</option>
+            <option value="wood top and bottom rail with black aluminum pickets">Wood rail + black aluminum pickets</option>
+            <option value="black aluminum railings">Black aluminum</option>
+            <option value="white aluminum railings">White aluminum</option>
+            <option value="black aluminum railings with tempered glass panels">Black aluminum + glass</option>
+            <option value="white aluminum railings with tempered glass panels">White aluminum + glass</option>
+            <option value="frameless tempered glass railings">Frameless glass</option>
+          </select>
+        </div>
+        <div class="field"><label>Stair Railing</label>
+          <select id="stairRail">
+            <option value="no stair railing">None</option>
+            <option value="matching railing on stairs">Match deck railing</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub-section">
+      <div class="grid2">
+        <div class="field"><label>Deck Material</label>
+          <select id="subMat" onchange="autoFrameSpacing()">
+            <option value="pressure treated wood">Pressure Treated</option>
+            <option value="cedar wood">Cedar</option>
+            <option value="composite decking">Composite</option>
+            <option value="PVC vinyl decking">PVC / Vinyl</option>
+          </select>
+        </div>
+        <div class="field"><label>Frame Spacing</label>
+          <select id="subSpacing">
+            <option value="16 inches on center">16" on center (wood)</option>
+            <option value="12 inches on center">12" on center (composite)</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-note">Shows: footings poured, subframe installed, ledger against house. Decking NOT yet installed.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-toggle">
+      <span class="icon">🧱</span>
+      <label>Interlocking</label>
+      <select id="interlockEnabled" onchange="toggle('interlock')">
+        <option value="no">No interlocking</option>
+        <option value="yes">Add interlocking</option>
+      </select>
+    </div>
+    <div class="subsection" id="interlock-section">
+      <div class="grid2">
+        <div class="field"><label>Paver Size</label>
+          <select id="paverSize">
+            <option value="regular sized interlocking pavers">Regular (Windermere style)</option>
+            <option value="large format interlocking pavers">Large format (Umbriano/mega)</option>
+          </select>
+        </div>
+        <div class="field"><label>Application</label>
+          <select id="paverArea">
+            <option value="patio">Patio</option>
+            <option value="driveway">Driveway</option>
+            <option value="walkway">Walkway</option>
+            <option value="pool surround">Pool surround</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Pattern</label>
+          <select id="paverPattern">
+            <option value="random ashlar 3-stone mix">Random / Ashlar</option>
+            <option value="running bond offset rows">Running bond</option>
+            <option value="herringbone at 90 degrees">Herringbone 90°</option>
+            <option value="herringbone at 45 degrees">Herringbone 45°</option>
+            <option value="basketweave">Basketweave</option>
+            <option value="stack bond straight grid">Stack bond</option>
+            <option value="fan arc pattern">Fan pattern</option>
+          </select>
+        </div>
+        <div class="field"><label>Color</label>
+          <select id="paverColor">
+            <option value="granite">Granite</option>
+            <option value="cliffside gray">Cliffside Gray</option>
+            <option value="dusk">Dusk</option>
+            <option value="charcoal black">Charcoal / Black</option>
+            <option value="natural tan">Natural / Tan</option>
+            <option value="brown hazelnut">Brown / Hazelnut</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Border</label>
+          <select id="paverBorder">
+            <option value="no border">No border</option>
+            <option value="midnight charcoal border pavers">Midnight charcoal border</option>
+            <option value="same color concrete curb edging">Same color curb</option>
+            <option value="black concrete curb edging">Black concrete curb</option>
+            <option value="contrasting color concrete curb">Contrasting curb</option>
+          </select>
+        </div>
+        <div class="field"><label>Edge Shape</label>
+          <select id="paverEdge">
+            <option value="straight clean edges">Straight</option>
+            <option value="curved flowing edges">Curved</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-toggle">
+      <span class="icon">⬜</span>
+      <label>Concrete</label>
+      <select id="concreteEnabled" onchange="toggle('concrete')">
+        <option value="no">No concrete</option>
+        <option value="yes">Add concrete</option>
+      </select>
+    </div>
+    <div class="subsection" id="concrete-section">
+      <div class="field" style="max-width:280px;"><label>Finish</label>
+        <select id="concFinish">
+          <option value="brushed finish concrete">Brushed finish</option>
+          <option value="stamped concrete decorative pattern">Stamped concrete</option>
+          <option value="exposed aggregate concrete">Exposed aggregate</option>
+          <option value="smooth aggregate concrete finish">Aggregate finish</option>
+        </select>
+      </div>
+      <div class="field-note">Always 6 inches thick — auto-included</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-toggle">
+      <span class="icon">🛣️</span>
+      <label>Asphalt</label>
+      <select id="asphaltEnabled" onchange="toggle('asphalt')">
+        <option value="no">No asphalt</option>
+        <option value="yes">Add asphalt</option>
+      </select>
+    </div>
+    <div class="subsection" id="asphalt-section">
+      <div class="field" style="max-width:280px;"><label>Type</label>
+        <select id="asphaltType">
+          <option value="new asphalt installation">New asphalt</option>
+          <option value="asphalt resurfacing overlay">Resurfacing (overlay)</option>
+        </select>
+      </div>
+      <div class="field-note">Always 2" HL3, compacted with 1 ton roller — auto-included</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Custom notes</div>
+    <textarea id="customNotes" placeholder="e.g. Add a gate on the left, keep the large tree, add post cap lights, show summer conditions..."></textarea>
+  </div>
+
+  <button class="generate-btn" id="generateBtn" onclick="generateDesign()">Generate Design Preview</button>
+  <div class="status-msg" id="statusMsg"></div>
+  <div class="error-msg" id="errorMsg"></div>
+
+  <div class="results card" id="resultsCard" style="margin-top:12px;">
+    <div class="card-title">Your render</div>
+    <div class="compare-grid">
+      <div class="compare-item"><p>Before</p><img id="beforeImg"/></div>
+      <div class="compare-item"><p>After — AI Render</p><img id="afterImg"/></div>
+    </div>
+    <button class="download-btn" onclick="downloadResult()">⬇ Download Render</button>
+    <button class="generate-btn" style="margin-top:10px;" onclick="openQuote()">Build Quote From This Design</button>
+  </div>
+
+  <!-- QUOTE BUILDER -->
+  <div class="results card" id="quoteCard" style="margin-top:12px;">
+    <div class="card-title">Quote Builder</div>
+
+    <!-- Client / company info -->
+    <div class="grid2">
+      <div class="field"><label>Your Company Name</label><input class="q-input" id="qCompany" type="text" placeholder="ABC Contracting"/></div>
+      <div class="field"><label>Your Phone / Email</label><input class="q-input" id="qContact" type="text" placeholder="(416) 555-0123"/></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Client Name</label><input class="q-input" id="qClient" type="text" placeholder="John Smith"/></div>
+      <div class="field"><label>Project Address</label><input class="q-input" id="qAddress" type="text" placeholder="123 Main St, Toronto"/></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Template Style</label>
+        <select class="q-input" id="qTemplate">
+          <option value="executive">Executive — dark header, refined</option>
+          <option value="modern">Modern — green accent, clean</option>
+          <option value="minimal">Minimal — light, editorial</option>
+        </select>
+      </div>
+      <div class="field"><label>Quote Valid For (days)</label><input class="q-input" id="qValid" type="number" value="30"/></div>
+    </div>
+
+    <div style="height:1px;background:var(--carbon);margin:16px 0;"></div>
+
+    <!-- Rate-based line items -->
+    <div class="card-title" style="font-size:11px;">Rate-Based Items</div>
+    <div id="rateRows"></div>
+    <button class="q-add" onclick="addRateRow()">+ Add rate item (per unit)</button>
+
+    <div style="height:1px;background:var(--carbon);margin:16px 0;"></div>
+
+    <!-- Manual line items -->
+    <div class="card-title" style="font-size:11px;">Manual Line Items</div>
+    <div id="manualRows"></div>
+    <button class="q-add" onclick="addManualRow()">+ Add manual item (flat price)</button>
+
+    <div style="height:1px;background:var(--carbon);margin:16px 0;"></div>
+
+    <!-- Tax + deposit -->
+    <div class="grid2">
+      <div class="field"><label>Tax Rate (%)</label><input class="q-input" id="qTax" type="number" value="13" onchange="recalcQuote()"/></div>
+      <div class="field"><label>Deposit (%)</label><input class="q-input" id="qDeposit" type="number" value="50" onchange="recalcQuote()"/></div>
+    </div>
+
+    <!-- Totals -->
+    <div id="quoteTotals" style="margin-top:16px;"></div>
+
+    <button class="download-btn" style="margin-top:14px;" onclick="downloadQuotePDF()">⬇ Download Quote PDF</button>
+  </div>
+
+  <footer>Powered by <span>Finalook</span> · Built for Contractors</footer>
+</div>
+
+<script>
+let originalImageB64='', resultB64='';
+
+function toggle(sec){
+  const map={
+    fence:{id:'fenceEnabled',sections:{yes:['fence-section']}},
+    deck:{id:'deckEnabled',sections:{yes:['deck-section'],sub:['sub-section']}},
+    interlock:{id:'interlockEnabled',sections:{yes:['interlock-section']}},
+    concrete:{id:'concreteEnabled',sections:{yes:['concrete-section']}},
+    asphalt:{id:'asphaltEnabled',sections:{yes:['asphalt-section']}}
+  };
+  const m=map[sec], val=document.getElementById(m.id).value;
+  Object.entries(m.sections).forEach(([key,ids])=>{
+    ids.forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('visible',val===key);});
+  });
+}
+
+function updateFenceDesigns(){
+  const mat=document.getElementById('fenceMaterial').value;
+  document.getElementById('woodDesigns').style.display=(mat==='pt'||mat==='cedar')?'block':'none';
+  document.getElementById('privacyDesigns').style.display=(mat==='alum_privacy'||mat==='composite')?'block':'none';
+  document.getElementById('vinylDesigns').style.display=mat==='vinyl'?'block':'none';
+  document.getElementById('picketDesigns').style.display=mat==='alum_picket'?'block':'none';
+}
+
+function autoFrameSpacing(){
+  const mat=document.getElementById('subMat').value;
+  document.getElementById('subSpacing').value=(mat==='composite decking'||mat==='PVC vinyl decking')?'12 inches on center':'16 inches on center';
+}
+
+function handlePhoto(e){
+  const file=e.target.files[0];if(!file)return;
+  const objectUrl=URL.createObjectURL(file);
+  const img=new Image();
+  img.onload=()=>{
+    // Convert to JPEG via canvas — fixes iOS HEIC and Safari pattern errors
+    const canvas=document.createElement('canvas');
+    const MAX=1920;
+    let w=img.width,h=img.height;
+    if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+    if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
+    canvas.width=w;canvas.height=h;
+    canvas.getContext('2d').drawImage(img,0,0,w,h);
+    const dataUrl=canvas.toDataURL('image/jpeg',0.92);
+    originalImageB64=dataUrl.split(',')[1];
+    const p=document.getElementById('previewImg');
+    p.src=dataUrl;p.style.display='block';
+    document.getElementById('beforeImg').src=dataUrl;
+    URL.revokeObjectURL(objectUrl);
+  };
+  img.onerror=()=>{
+    // Fallback for browsers that can't render HEIC in canvas
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      originalImageB64=ev.target.result.split(',')[1];
+      const p=document.getElementById('previewImg');
+      p.src=ev.target.result;p.style.display='block';
+      document.getElementById('beforeImg').src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+    URL.revokeObjectURL(objectUrl);
+  };
+  img.src=objectUrl;
+}
+
+function v(id){return document.getElementById(id).value;}
+
+function fenceHeightContext(h){
+  const map={
+    '4ft':'The fence is 4 feet tall — approximately waist height on an adult. It should look low relative to the surrounding yard and house.',
+    '5ft':'The fence is 5 feet tall — approximately chest height on an adult. The top of the fence should be clearly visible above eye level from a seated position.',
+    '6ft':'The fence is 6 feet tall — full privacy height, approximately at or just above eye level for an average adult standing close to it. The fence should fully block the view of neighbouring properties.',
+    '6.5ft':'The fence is 6.5 feet tall — taller than a standard adult, providing full privacy. The top of the fence should be visibly above the head of any implied person in the scene.',
+    '8ft':'The fence is 8 feet tall — significantly taller than a standard adult. This is a large imposing fence. The full height must be visible in the frame — do not crop the top. The fence should tower over the yard, extending well above where a person\'s head would be. Scale all surrounding elements accordingly so the 8ft height reads correctly.'
+  };
+  return map[h]||'';
+}
+
+function buildPrompt(){
+  const parts=[];
+  const deckMode=v('deckEnabled');
+
+  if(deckMode==='sub'){
+    const mat=v('subMat'),spacing=v('subSpacing');
+    parts.push('Transform this backyard photo into a photorealistic construction progress render showing only the deck substructure phase.');
+    parts.push(`Remove any existing deck or structure completely. Show: concrete footings poured and cured in the ground at proper intervals, pressure treated dimensional lumber subframe and joists installed on top of the footings at ${spacing}, ledger board properly bolted flush against the house wall. The decking surface boards are NOT installed — only the raw structural frame is visible from above.`);
+    parts.push(`The finished deck material will be ${mat}. This must look exactly like a real in-progress construction photo taken on a professional job site — raw lumber, visible hardware, dirt around footings.`);
+  } else {
+    parts.push('Transform this backyard photo into a photorealistic finished renovation render showing the fully completed project.');
+  }
+
+  if(v('fenceEnabled')==='yes'){
+    const mat=v('fenceMaterial'), h=v('fenceHeight');
+    const heightCtx=fenceHeightContext(h);
+
+    const perimeterRule='The fence MUST run continuously along the full perimeter of the yard, extending completely flush into every corner. The fence must never appear to float or stop mid-yard. Every visible property boundary must have fence on it.';
+
+    if(mat==='pt'||mat==='cedar'){
+      const label=mat==='cedar'?'cedar wood':'pressure treated wood';
+      const lattice=v('latticeTop')!=='no lattice'?` with ${v('latticeTop')} added above the main fence panels`:'';
+      parts.push(`Install a brand new ${h} ${label} fence using ${v('woodPost')} with a ${v('woodDesign')} design${lattice}. ${heightCtx} ${perimeterRule} The lumber should look freshly milled and clean — bright natural wood colour, no weathering. Posts are set plumb and evenly spaced.`);
+    } else if(mat==='alum_privacy'||mat==='composite'){
+      const label=mat==='composite'?'composite':'aluminum privacy';
+      parts.push(`Install a brand new ${h} ${v('privacyColor')} ${label} fence with ${v('privacyDir')} panels and ${v('privacyPost')}. ${heightCtx} ${perimeterRule} The panels should look factory-fresh with clean lines, uniform colour, and no gaps. Posts are perfectly plumb and evenly spaced.`);
+    } else if(mat==='vinyl'){
+      parts.push(`Install a brand new ${h} ${v('vinylColor')} vinyl privacy fence with ${v('vinylDir')} panels and 5x5 vinyl posts with steel reinforcement. ${heightCtx} ${perimeterRule} The vinyl should look bright, clean and factory-fresh with no yellowing. Panels are perfectly level.`);
+    } else if(mat==='alum_picket'){
+      const railing=v('picketRailing')!=='no railing'?` Include ${v('picketRailing')} on top.`:'';
+      parts.push(`Install a brand new ${h} ${v('picketColor')} aluminum picket fence with ${v('picketTop')} style.${railing} ${heightCtx} ${perimeterRule} Pickets are evenly spaced, perfectly plumb, with crisp powder-coated finish. Rails are straight and level.`);
+    }
+  }
+
+  if(deckMode==='yes'){
+    const mat=v('deckMat');
+    const spacing=(mat==='composite decking'||mat==='PVC vinyl decking')?'12 inches on center':'16 inches on center';
+    const deckType=v('deckType');
+    const railing=v('deckRailing'), stairs=v('deckStairs'), stairRail=v('stairRail');
+    const pattern=v('deckPattern');
+
+    const deckTypeCtx=deckType==='elevated deck'
+      ? 'The deck is elevated — show visible clearance underneath, with proper rim joists and beam structure visible below the decking surface. The deck sits noticeably above grade.'
+      : 'The deck is a floating ground-level deck — it sits close to the ground with minimal clearance underneath.';
+
+    parts.push(`Build a brand new ${deckType} constructed from ${mat} with a ${pattern} board layout. Subframe joists run at ${spacing} with ledger board bolted to the house. ${deckTypeCtx}`);
+    if(stairs!=='no stairs') parts.push(`Add ${stairs} with properly framed stringers, evenly spaced treads matching the deck material, and risers that are consistent in height.`);
+    if(railing!=='no railing') parts.push(`Install ${railing} around the full perimeter of the deck. Railing posts are evenly spaced, balusters are plumb, top rail is perfectly level.`);
+    if(stairRail==='matching railing on stairs'&&stairs!=='no stairs') parts.push('Add matching railing on both sides of the stairs, continuous from deck level to ground.');
+    parts.push('The entire deck must look completely finished, professionally built, and ready to use. No raw cuts, no unfinished edges.');
+  }
+
+  if(v('interlockEnabled')==='yes'){
+    const size=v('paverSize'), area=v('paverArea'), pattern=v('paverPattern');
+    const color=v('paverColor'), border=v('paverBorder'), edge=v('paverEdge');
+    const areaCtx=area==='driveway'
+      ? 'The interlocking covers the full driveway surface from the street to the garage or house. Ensure the full driveway width and depth is shown.'
+      : area==='walkway'
+      ? 'The interlocking forms a clean defined walkway path leading to the entrance.'
+      : 'The interlocking patio covers the full open yard area, extending to all edges of the available space.';
+
+    parts.push(`Install a professionally completed ${color} ${size} ${area} laid in a ${pattern} with ${edge}${border!=='no border'?' and '+border:''}. ${areaCtx} All pavers are level, tightly jointed with polymeric sand, and cut cleanly at all edges. The surface looks freshly installed with no settling or weeds.`);
+  }
+
+  if(v('concreteEnabled')==='yes'){
+    const finish=v('concFinish');
+    const finishCtx=finish==='stamped concrete decorative pattern'
+      ? 'The stamped pattern is crisp and consistent across the entire surface with uniform colour and defined impressions.'
+      : finish==='exposed aggregate concrete'
+      ? 'The aggregate stones are uniformly exposed across the full surface, giving a textured natural appearance.'
+      : 'The surface is smooth and uniform with clean control joints at regular intervals.';
+    parts.push(`Pour a new ${finish} concrete pad at exactly 6 inches thick. ${finishCtx} Edges are clean and straight. The concrete looks freshly poured and professionally finished.`);
+  }
+
+  if(v('asphaltEnabled')==='yes'){
+    const type=v('asphaltType');
+    const typeCtx=type==='asphalt resurfacing overlay'
+      ? 'The new asphalt overlay is applied over the existing surface, resulting in a clean uniform finish that covers all cracks and imperfections.'
+      : 'The new asphalt covers the full area with clean defined edges.';
+    parts.push(`Install ${type} using 2 inch HL3 asphalt, compacted with a 1 ton roller. ${typeCtx} The asphalt is deep black, freshly laid, with a smooth rolled surface and crisp straight edges.`);
+  }
+
+  const notes=document.getElementById('customNotes').value.trim();
+  if(notes) parts.push(`Additional instructions: ${notes}`);
+  parts.push('CRITICAL: Keep the exact same camera angle, perspective, sky, trees, background and lighting. Fences must extend fully into every corner. Everything must look like a real photograph of a completed professional job — photorealistic only.');
+  return parts.join(' ');
+}
+
+async function callAPI(prompt, b64, retries=3){
+  for(let i=1;i<=retries;i++){
+    const res=await fetch('/api/generate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        contents:[{parts:[{text:prompt},{inline_data:{mime_type:'image/jpeg',data:b64}}]}],
+        generationConfig:{responseModalities:['IMAGE','TEXT']}
+      })
+    });
+    const data=await res.json();
+    if(res.status===429){
+      setStatus(`<span class="spinner"></span>Rate limit — retrying in 15s (${i}/${retries})...`);
+      await new Promise(r=>setTimeout(r,15000));continue;
+    }
+    if(!res.ok)throw new Error(data.error?.message||'API error — check your Vercel environment variable');
+    return data;
+  }
+  throw new Error('Too many retries. Please wait a minute and try again.');
+}
+
+async function generateDesign(){
+  if(!originalImageB64){showError('Please upload a customer photo first.');return;}
+  const btn=document.getElementById('generateBtn');
+  btn.disabled=true;
+  setStatus('<span class="spinner"></span>Generating your design render... 20–40 seconds');
+  document.getElementById('errorMsg').className='error-msg';
+  document.getElementById('resultsCard').className='results card';
+  try{
+    const data=await callAPI(buildPrompt(),originalImageB64);
+    const imgPart=(data.candidates?.[0]?.content?.parts||[]).find(p=>p.inlineData);
+    if(!imgPart)throw new Error('No image returned. Try adjusting your options or adding custom notes.');
+    resultB64=imgPart.inlineData.data;
+    document.getElementById('afterImg').src=`data:${imgPart.inlineData.mimeType||'image/png'};base64,${resultB64}`;
+    document.getElementById('resultsCard').className='results card show';
+    setStatus('');
+  }catch(err){
+    showError('Error: '+err.message);
+    setStatus('');
+  }
+  btn.disabled=false;
+}
+
+function setStatus(html){const el=document.getElementById('statusMsg');el.innerHTML=html;el.className=html?'status-msg show':'status-msg';}
+function showError(msg){const el=document.getElementById('errorMsg');el.textContent=msg;el.className='error-msg show';}
+function downloadResult(){
+  if(!resultB64)return;
+  const a=document.createElement('a');
+  a.href=`data:image/png;base64,${resultB64}`;
+  a.download='finalook-render.png';a.click();
+}
+
+/* ---------- QUOTE BUILDER ---------- */
+let rateRowId=0, manualRowId=0;
+
+function openQuote(){
+  document.getElementById('quoteCard').className='results card show';
+  if(document.getElementById('rateRows').children.length===0) addRateRow();
+  if(document.getElementById('manualRows').children.length===0) addManualRow();
+  document.getElementById('quoteCard').scrollIntoView({behavior:'smooth'});
+  recalcQuote();
+}
+
+function addRateRow(){
+  const id='r'+(rateRowId++);
+  const div=document.createElement('div');
+  div.className='q-row rate';
+  div.id=id;
+  div.innerHTML=`
+    <input type="text" placeholder="Description (e.g. 6ft cedar fence)" oninput="recalcQuote()"/>
+    <input type="number" placeholder="Qty" class="rq" oninput="recalcQuote()"/>
+    <input type="text" placeholder="Unit" class="ru" value="ft"/>
+    <input type="number" placeholder="Rate $" class="rr" oninput="recalcQuote()"/>
+    <button class="q-del" onclick="document.getElementById('${id}').remove();recalcQuote()">×</button>`;
+  document.getElementById('rateRows').appendChild(div);
+}
+
+function addManualRow(){
+  const id='m'+(manualRowId++);
+  const div=document.createElement('div');
+  div.className='q-row manual';
+  div.id=id;
+  div.innerHTML=`
+    <input type="text" placeholder="Description (e.g. Permit, disposal)" oninput="recalcQuote()"/>
+    <input type="number" placeholder="Price $" class="mp" oninput="recalcQuote()"/>
+    <button class="q-del" onclick="document.getElementById('${id}').remove();recalcQuote()">×</button>`;
+  document.getElementById('manualRows').appendChild(div);
+}
+
+function getQuoteData(){
+  const rateItems=[];
+  document.querySelectorAll('#rateRows .q-row').forEach(row=>{
+    const desc=row.children[0].value.trim();
+    const qty=parseFloat(row.children[1].value)||0;
+    const unit=row.children[2].value.trim()||'unit';
+    const rate=parseFloat(row.children[3].value)||0;
+    const total=qty*rate;
+    if(desc||qty||rate) rateItems.push({desc,qty,unit,rate,total});
+  });
+  const manualItems=[];
+  document.querySelectorAll('#manualRows .q-row').forEach(row=>{
+    const desc=row.children[0].value.trim();
+    const price=parseFloat(row.children[1].value)||0;
+    if(desc||price) manualItems.push({desc,price});
+  });
+  const subtotal=rateItems.reduce((s,i)=>s+i.total,0)+manualItems.reduce((s,i)=>s+i.price,0);
+  const taxRate=parseFloat(document.getElementById('qTax').value)||0;
+  const depositRate=parseFloat(document.getElementById('qDeposit').value)||0;
+  const tax=subtotal*taxRate/100;
+  const grand=subtotal+tax;
+  const deposit=grand*depositRate/100;
+  return {rateItems,manualItems,subtotal,taxRate,tax,grand,depositRate,deposit};
+}
+
+function fmt(n){return '$'+n.toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+function recalcQuote(){
+  // update per-line totals visually
+  document.querySelectorAll('#rateRows .q-row').forEach(row=>{
+    const qty=parseFloat(row.children[1].value)||0;
+    const rate=parseFloat(row.children[3].value)||0;
+    let lt=row.querySelector('.q-line-total');
+    // (line total shown in totals summary, keep rows clean)
+  });
+  const d=getQuoteData();
+  document.getElementById('quoteTotals').innerHTML=`
+    <div class="qt-row"><span>Subtotal</span><span>${fmt(d.subtotal)}</span></div>
+    <div class="qt-row"><span>Tax (${d.taxRate}%)</span><span>${fmt(d.tax)}</span></div>
+    <div class="qt-row grand"><span>TOTAL</span><span class="g">${fmt(d.grand)}</span></div>
+    <div class="qt-row dep"><span>Deposit due (${d.depositRate}%)</span><span>${fmt(d.deposit)}</span></div>`;
+}
+
+async function downloadQuotePDF(){
+  const d=getQuoteData();
+  const company=document.getElementById('qCompany').value||'Your Company';
+  const contact=document.getElementById('qContact').value||'';
+  const client=document.getElementById('qClient').value||'';
+  const address=document.getElementById('qAddress').value||'';
+  const template=document.getElementById('qTemplate').value||'executive';
+  const validDays=parseInt(document.getElementById('qValid').value)||30;
+
+  if(!window.jspdf){
+    await new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      s.onload=res;s.onerror=rej;document.head.appendChild(s);
+    });
+  }
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'pt',format:'letter'});
+  const W=doc.internal.pageSize.getWidth();
+  const H=doc.internal.pageSize.getHeight();
+  const M=48; // margin
+
+  // Quote number + dates
+  const qNum='Q-'+Date.now().toString().slice(-6);
+  const today=new Date();
+  const expiry=new Date(today.getTime()+validDays*86400000);
+  const dateStr=today.toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'});
+  const expStr=expiry.toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'});
+
+  // Template palettes
+  const palettes={
+    executive:{bar:[10,10,10],   accent:[31,92,46],  accentLt:[58,158,82], headTxt:[244,244,242], tableHead:[26,26,26]},
+    modern:   {bar:[31,92,46],   accent:[31,92,46],  accentLt:[42,122,61], headTxt:[255,255,255], tableHead:[31,92,46]},
+    minimal:  {bar:[255,255,255],accent:[31,92,46],  accentLt:[58,158,82], headTxt:[20,20,20],     tableHead:[240,240,238]}
+  };
+  const P=palettes[template];
+  let y=0;
+
+  // ---- HEADER ----
+  if(template==='minimal'){
+    y=58;
+    doc.setTextColor(20,20,20);doc.setFont('helvetica','bold');doc.setFontSize(26);
+    doc.text(company,M,y);
+    doc.setDrawColor(P.accent[0],P.accent[1],P.accent[2]);doc.setLineWidth(2);
+    doc.line(M,y+10,M+44,y+10);
+    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(120,120,120);
+    if(contact)doc.text(contact,M,y+26);
+    doc.setTextColor(20,20,20);doc.setFont('helvetica','bold');doc.setFontSize(11);
+    doc.text('QUOTATION',W-M,y-4,{align:'right'});
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(120,120,120);
+    doc.text(qNum,W-M,y+10,{align:'right'});
+    y+=50;
+  } else {
+    const barH=78;
+    doc.setFillColor(P.bar[0],P.bar[1],P.bar[2]);doc.rect(0,0,W,barH,'F');
+    // accent stripe
+    doc.setFillColor(P.accentLt[0],P.accentLt[1],P.accentLt[2]);doc.rect(0,barH,W,3,'F');
+    doc.setTextColor(P.headTxt[0],P.headTxt[1],P.headTxt[2]);doc.setFont('helvetica','bold');doc.setFontSize(24);
+    doc.text(company,M,46);
+    doc.setFont('helvetica','normal');doc.setFontSize(9);
+    doc.setTextColor(template==='modern'?220:170,template==='modern'?235:170,template==='modern'?225:170);
+    if(contact)doc.text(contact,M,62);
+    doc.setTextColor(P.headTxt[0],P.headTxt[1],P.headTxt[2]);doc.setFont('helvetica','bold');doc.setFontSize(13);
+    doc.text('QUOTATION',W-M,42,{align:'right'});
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);
+    doc.setTextColor(template==='modern'?220:180,template==='modern'?235:180,template==='modern'?225:180);
+    doc.text(qNum,W-M,58,{align:'right'});
+    y=barH+28;
+  }
+
+  // ---- META ROW (date / valid until / prepared for) ----
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(140,140,140);
+  doc.text('PREPARED FOR',M,y);
+  doc.text('DATE',W-220,y);
+  doc.text('VALID UNTIL',W-120,y);
+  y+=14;
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(25,25,25);
+  let pfY=y;
+  if(client){doc.setFont('helvetica','bold');doc.text(client,M,pfY);pfY+=13;doc.setFont('helvetica','normal');}
+  if(address){doc.setFontSize(9);doc.setTextColor(90,90,90);doc.text(address,M,pfY,{maxWidth:260});pfY+=12;}
+  doc.setFontSize(9);doc.setTextColor(60,60,60);
+  doc.text(dateStr,W-220,y);
+  doc.setTextColor(P.accent[0],P.accent[1],P.accent[2]);doc.setFont('helvetica','bold');
+  doc.text(expStr,W-120,y);
+  y=Math.max(pfY,y+12)+16;
+
+  // ---- RENDER IMAGES ----
+  try{
+    const beforeSrc=document.getElementById('beforeImg').src;
+    const afterSrc=document.getElementById('afterImg').src;
+    if(beforeSrc&&afterSrc&&afterSrc.length>100){
+      const gap=12;
+      const imgW=(W-2*M-gap)/2;
+      const imgH=imgW*0.6;
+      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(150,150,150);
+      doc.text('EXISTING',M,y);doc.text('PROPOSED DESIGN',M+imgW+gap,y);
+      y+=5;
+      doc.addImage(beforeSrc,'JPEG',M,y,imgW,imgH);
+      doc.addImage(afterSrc,'PNG',M+imgW+gap,y,imgW,imgH);
+      // thin border
+      doc.setDrawColor(220,220,218);doc.setLineWidth(0.5);
+      doc.rect(M,y,imgW,imgH);doc.rect(M+imgW+gap,y,imgW,imgH);
+      y+=imgH+22;
+    }
+  }catch(e){}
+
+  // ---- LINE ITEMS TABLE ----
+  const tableTxt=template==='minimal'?[20,20,20]:[255,255,255];
+  doc.setFillColor(P.tableHead[0],P.tableHead[1],P.tableHead[2]);doc.rect(M,y,W-2*M,24,'F');
+  doc.setTextColor(tableTxt[0],tableTxt[1],tableTxt[2]);doc.setFont('helvetica','bold');doc.setFontSize(8.5);
+  doc.text('DESCRIPTION',M+10,y+16);
+  doc.text('QTY',W-235,y+16);
+  doc.text('RATE',W-160,y+16);
+  doc.text('AMOUNT',W-M-10,y+16,{align:'right'});
+  y+=24;
+
+  const drawRow=(cols,idx,isManual)=>{
+    if(idx%2===1){doc.setFillColor(247,247,245);doc.rect(M,y,W-2*M,22,'F');}
+    doc.setTextColor(35,35,35);doc.setFont('helvetica','normal');doc.setFontSize(9.5);
+    doc.text(cols.desc||'-',M+10,y+14,{maxWidth:W-300});
+    if(!isManual){
+      doc.setTextColor(90,90,90);doc.setFontSize(9);
+      doc.text(`${cols.qty} ${cols.unit}`,W-235,y+14);
+      doc.text(fmt(cols.rate),W-160,y+14);
+    }
+    doc.setTextColor(35,35,35);doc.setFont('helvetica','bold');doc.setFontSize(9.5);
+    doc.text(fmt(cols.amount),W-M-10,y+14,{align:'right'});
+    y+=22;
+  };
+
+  let ri=0;
+  d.rateItems.forEach(it=>{drawRow({desc:it.desc,qty:it.qty,unit:it.unit,rate:it.rate,amount:it.total},ri++,false);});
+  d.manualItems.forEach(it=>{drawRow({desc:it.desc,amount:it.price},ri++,true);});
+
+  // bottom border of table
+  doc.setDrawColor(220,220,218);doc.setLineWidth(0.5);doc.line(M,y,W-M,y);
+  y+=18;
+
+  // ---- TOTALS ----
+  const lblX=W-200, valX=W-M-10;
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(70,70,70);
+  doc.text('Subtotal',lblX,y);doc.text(fmt(d.subtotal),valX,y,{align:'right'});y+=16;
+  doc.text(`Tax (${d.taxRate}%)`,lblX,y);doc.text(fmt(d.tax),valX,y,{align:'right'});y+=8;
+  doc.setDrawColor(200,200,198);doc.line(lblX,y,valX,y);y+=16;
+  // grand total band
+  doc.setFillColor(P.accent[0],P.accent[1],P.accent[2]);
+  doc.rect(lblX-12,y-13,valX-lblX+24,24,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(12);
+  doc.text('TOTAL',lblX,y+3);doc.text(fmt(d.grand),valX,y+3,{align:'right'});
+  y+=30;
+  doc.setTextColor(P.accent[0],P.accent[1],P.accent[2]);doc.setFont('helvetica','bold');doc.setFontSize(10);
+  doc.text(`Deposit Due (${d.depositRate}%)`,lblX,y);doc.text(fmt(d.deposit),valX,y,{align:'right'});
+  y+=14;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(90,90,90);
+  doc.text(`Balance on Completion`,lblX,y);doc.text(fmt(d.grand-d.deposit),valX,y,{align:'right'});
+
+  // ---- ACCEPTANCE / SIGNATURE ----
+  y+=40;
+  if(y>H-150)y=H-150;
+  doc.setDrawColor(180,180,178);doc.setLineWidth(0.5);
+  doc.line(M,y,M+200,y);
+  doc.line(W-M-160,y,W-M,y);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(120,120,120);
+  doc.text('Client Signature',M,y+12);
+  doc.text('Date',W-M-160,y+12);
+
+  // ---- DISCLAIMER + FOOTER ----
+  const disclaimer='Disclaimer: All visual renders are AI-generated representations created for illustrative and conceptual purposes only. Actual materials, colours, textures, finishes, dimensions, and final appearance may vary and may not precisely match the rendered image. Renders do not constitute an exact depiction of the finished product. Final results are subject to site conditions, material availability, and standard industry tolerances. This quotation is an estimate and may be subject to change following on-site measurement and assessment. Pricing valid for '+validDays+' days from the date of issue.';
+  doc.setFont('helvetica','italic');doc.setFontSize(6.5);doc.setTextColor(150,150,150);
+  const discLines=doc.splitTextToSize(disclaimer,W-2*M);
+  doc.text(discLines,M,H-58);
+
+  // footer line
+  doc.setDrawColor(225,225,223);doc.setLineWidth(0.5);doc.line(M,H-30,W-M,H-30);
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(160,160,160);
+  doc.text(company+(contact?'  ·  '+contact:''),M,H-18);
+  doc.setTextColor(P.accentLt[0],P.accentLt[1],P.accentLt[2]);
+  doc.text('Powered by Finalook',W-M,H-18,{align:'right'});
+
+  doc.save('quote-'+qNum+'.pdf');
+}
+</script>
+
+
+</body>
+</html>

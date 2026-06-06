@@ -1,0 +1,19 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "app.finalook.ai" }],
+      "destination": "/index.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "finalook.ai" }],
+      "destination": "/landing.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "www.finalook.ai" }],
+      "destination": "/landing.html"
+    }
+  ]
+}

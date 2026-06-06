@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Finalook — Show the Finished Job Before You Build It</title>
+<meta name="description" content="Finalook turns a photo of your client's backyard into a photorealistic render of the finished job in seconds — then builds the quote. Close more jobs. Built for contractors."/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --black:#0a0a0a; --void:#0f0f0f; --carbon:#161616; --steel:#222; --line:#1e1e1e;
+  --ash:#7a7a7a; --smoke:#cfcfcf; --white:#f4f4f2;
+  --green:#1f5c2e; --green-hi:#2a7a3d; --green-lt:#3a9e52;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--white);font-family:'Inter',sans-serif;font-weight:400;line-height:1.6;overflow-x:hidden;}
+.wrap{max-width:1120px;margin:0 auto;padding:0 28px;}
+
+/* grain + glow atmosphere */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 80% 50% at 50% -10%, rgba(31,92,46,0.18), transparent 70%);}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:50;background:rgba(10,10,10,0.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);}
+.nav-in{max-width:1120px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;}
+.logo{display:flex;align-items:center;gap:11px;}
+.logo .bar{width:4px;height:26px;background:var(--green-lt);}
+.logo .txt{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:0.04em;}
+.logo .txt .g{color:var(--green-lt);}
+.nav-links{display:flex;align-items:center;gap:30px;}
+.nav-links a{color:var(--smoke);text-decoration:none;font-size:13px;font-weight:500;letter-spacing:0.02em;transition:color .15s;}
+.nav-links a:hover{color:var(--white);}
+.nav-cta{background:var(--green);color:var(--white)!important;padding:9px 18px;border-radius:4px;font-family:'Oswald',sans-serif;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;font-size:12px!important;transition:background .15s;}
+.nav-cta:hover{background:var(--green-hi);}
+@media(max-width:760px){.nav-links a:not(.nav-cta){display:none;}}
+
+/* HERO */
+.hero{position:relative;z-index:1;padding:88px 0 64px;text-align:center;}
+.eyebrow{font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.32em;text-transform:uppercase;color:var(--green-lt);margin-bottom:24px;}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,8vw,104px);line-height:0.92;letter-spacing:0.01em;margin-bottom:24px;}
+.hero h1 .g{color:var(--green-lt);}
+.hero p.sub{font-size:clamp(15px,2vw,19px);color:var(--smoke);max-width:600px;margin:0 auto 36px;font-weight:300;}
+.hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:18px;}
+.btn-primary{background:var(--green);color:var(--white);padding:15px 32px;border-radius:5px;font-family:'Oswald',sans-serif;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;font-size:15px;text-decoration:none;transition:background .15s,transform .15s;border:none;cursor:pointer;}
+.btn-primary:hover{background:var(--green-hi);transform:translateY(-2px);}
+.btn-ghost{background:transparent;color:var(--white);padding:15px 28px;border-radius:5px;border:1px solid var(--steel);font-family:'Oswald',sans-serif;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;font-size:15px;text-decoration:none;transition:border-color .15s;}
+.btn-ghost:hover{border-color:var(--green-lt);}
+.hero .micro{font-size:12px;color:var(--ash);letter-spacing:0.04em;}
+
+/* BEFORE/AFTER SLIDER */
+.demo{position:relative;z-index:1;padding:24px 0 80px;}
+.ba{position:relative;max-width:920px;margin:0 auto;border-radius:10px;overflow:hidden;border:1px solid var(--steel);aspect-ratio:16/9;user-select:none;box-shadow:0 40px 120px -40px rgba(0,0,0,0.9);}
+.ba-layer{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.ba-after{clip-path:inset(0 0 0 50%);}
+.ba-divider{position:absolute;top:0;bottom:0;left:50%;width:2px;background:var(--green-lt);transform:translateX(-1px);z-index:3;}
+.ba-handle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:var(--green);border:3px solid var(--white);z-index:4;cursor:ew-resize;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;box-shadow:0 4px 16px rgba(0,0,0,0.5);}
+.ba-tag{position:absolute;top:14px;z-index:3;font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;padding:5px 11px;border-radius:3px;background:rgba(10,10,10,0.75);backdrop-filter:blur(4px);}
+.ba-tag.before{left:14px;color:var(--smoke);}
+.ba-tag.after{right:14px;color:var(--green-lt);}
+.ba-range{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;z-index:5;margin:0;}
+.demo-cap{text-align:center;font-size:13px;color:var(--ash);margin-top:18px;letter-spacing:0.03em;}
+
+/* PLACEHOLDER images via CSS gradient (replace with real renders) */
+.ph-before{background:linear-gradient(135deg,#2b2b28,#3a3a34 60%,#444);position:relative;}
+.ph-after{background:linear-gradient(135deg,#1f3d24,#2a5c34 55%,#3a9e52);position:relative;}
+.ph-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.35);text-align:center;padding:20px;}
+
+/* SECTION SHELL */
+section{position:relative;z-index:1;}
+.sec-pad{padding:80px 0;}
+.sec-head{text-align:center;margin-bottom:52px;}
+.sec-kicker{font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.3em;text-transform:uppercase;color:var(--green-lt);margin-bottom:14px;}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,5vw,60px);line-height:0.96;letter-spacing:0.01em;}
+.sec-sub{color:var(--ash);max-width:560px;margin:16px auto 0;font-size:15px;font-weight:300;}
+
+/* STEPS */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+@media(max-width:760px){.steps{grid-template-columns:1fr;}}
+.step{background:var(--void);border:1px solid var(--line);border-radius:9px;padding:32px 26px;position:relative;overflow:hidden;}
+.step-num{font-family:'Bebas Neue',sans-serif;font-size:60px;line-height:1;color:var(--steel);position:absolute;top:14px;right:18px;}
+.step-ico{font-size:26px;margin-bottom:16px;}
+.step h3{font-family:'Oswald',sans-serif;font-size:19px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;margin-bottom:10px;}
+.step p{color:var(--ash);font-size:14px;font-weight:300;}
+
+/* FEATURES */
+.feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+@media(max-width:760px){.feat-grid{grid-template-columns:1fr;}}
+.feat{background:linear-gradient(160deg,var(--void),var(--black));border:1px solid var(--line);border-radius:9px;padding:30px;transition:border-color .2s,transform .2s;}
+.feat:hover{border-color:var(--green);transform:translateY(-3px);}
+.feat-ico{width:44px;height:44px;border-radius:7px;background:rgba(31,92,46,0.18);display:flex;align-items:center;justify-content:center;font-size:21px;margin-bottom:16px;}
+.feat h3{font-family:'Oswald',sans-serif;font-size:18px;font-weight:600;letter-spacing:0.02em;margin-bottom:9px;}
+.feat p{color:var(--ash);font-size:14px;font-weight:300;}
+
+/* TRADES STRIP */
+.trades{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:32px 0;background:var(--void);}
+.trades-row{display:flex;flex-wrap:wrap;gap:14px 36px;justify-content:center;align-items:center;}
+.trades-row span{font-family:'Oswald',sans-serif;font-size:15px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ash);}
+.trades-row .dot{color:var(--green-lt);}
+
+/* PRICING */
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch;}
+@media(max-width:860px){.price-grid{grid-template-columns:1fr;max-width:420px;margin:0 auto;}}
+.price{background:var(--void);border:1px solid var(--line);border-radius:11px;padding:34px 28px;display:flex;flex-direction:column;position:relative;}
+.price.featured{border-color:var(--green);background:linear-gradient(180deg,rgba(31,92,46,0.12),var(--void));}
+.price-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;font-family:'Oswald',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;padding:5px 14px;border-radius:20px;}
+.price-name{font-family:'Oswald',sans-serif;font-size:15px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--smoke);margin-bottom:14px;}
+.price-amt{font-family:'Bebas Neue',sans-serif;font-size:62px;line-height:0.9;letter-spacing:0.01em;}
+.price-amt .per{font-family:'Inter',sans-serif;font-size:15px;font-weight:400;color:var(--ash);letter-spacing:0;}
+.price-desc{color:var(--ash);font-size:13px;margin:10px 0 22px;font-weight:300;min-height:34px;}
+.price ul{list-style:none;margin-bottom:26px;flex:1;}
+.price li{font-size:13.5px;color:var(--smoke);padding:8px 0;border-bottom:1px solid var(--line);display:flex;gap:9px;align-items:flex-start;}
+.price li::before{content:'✓';color:var(--green-lt);font-weight:700;flex-shrink:0;}
+.price li.off{color:var(--steel);}
+.price li.off::before{content:'—';color:var(--steel);}
+.price .btn-primary,.price .btn-ghost{text-align:center;width:100%;}
+
+/* CTA BAND */
+.cta-band{position:relative;z-index:1;text-align:center;padding:90px 0;background:radial-gradient(ellipse 70% 100% at 50% 100%,rgba(31,92,46,0.22),transparent 70%);}
+.cta-band h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,6vw,72px);line-height:0.95;margin-bottom:18px;}
+.cta-band h2 .g{color:var(--green-lt);}
+.cta-band p{color:var(--smoke);max-width:480px;margin:0 auto 32px;font-weight:300;}
+
+/* FOOTER */
+footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px 0;}
+.foot-in{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+.foot-links{display:flex;gap:24px;}
+.foot-links a{color:var(--ash);text-decoration:none;font-size:13px;transition:color .15s;}
+.foot-links a:hover{color:var(--white);}
+.foot-copy{font-size:12px;color:var(--steel);letter-spacing:0.04em;}
+
+/* reveal on scroll */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.in{opacity:1;transform:none;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-in">
+    <div class="logo"><div class="bar"></div><div class="txt">FINAL<span class="g">OOK</span></div></div>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#trial" class="nav-cta">Start Free</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow reveal">AI Design Preview · Built for Contractors</div>
+    <h1 class="reveal">SHOW THE FINISHED JOB<br><span class="g">BEFORE YOU BUILD IT.</span></h1>
+    <p class="sub reveal">Snap a photo of your client's yard. Finalook turns it into a photorealistic render of the completed fence, deck, or hardscape in seconds — then builds the quote. Close on the spot.</p>
+    <div class="hero-cta reveal">
+      <a href="#trial" class="btn-primary">Start Free Trial</a>
+      <a href="#how" class="btn-ghost">See how it works</a>
+    </div>
+    <div class="micro reveal">No credit card to start · Works on any phone</div>
+  </div>
+</header>
+
+<!-- BEFORE/AFTER DEMO -->
+<section class="demo">
+  <div class="wrap">
+    <div class="ba" id="ba">
+      <img src="/images/before.jpeg" class="ba-layer" alt="Existing yard before"/>
+      <img src="/images/after.png" class="ba-layer ba-after" id="baAfter" alt="Finalook render of finished job"/>
+      <div class="ba-tag before">Before</div>
+      <div class="ba-tag after">After</div>
+      <div class="ba-divider" id="baDiv"></div>
+      <div class="ba-handle" id="baHandle">⇄</div>
+      <input type="range" min="0" max="100" value="50" class="ba-range" id="baRange"/>
+    </div>
+    <p class="demo-cap">Drag the slider — this is what your client sees before a shovel hits the ground.</p>
+  </div>
+</section>
+
+<!-- TRADES STRIP -->
+<div class="trades">
+  <div class="wrap trades-row">
+    <span>Fencing</span><span class="dot">•</span>
+    <span>Decks</span><span class="dot">•</span>
+    <span>Interlocking</span><span class="dot">•</span>
+    <span>Concrete</span><span class="dot">•</span>
+    <span>Asphalt</span><span class="dot">•</span>
+    <span>Masonry</span><span class="dot">•</span>
+    <span>Landscaping</span>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="sec-pad" id="how">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-kicker">How it works</div>
+      <h2 class="sec-title">Three steps. Thirty seconds.</h2>
+      <p class="sec-sub">No CAD software. No design degree. No waiting weeks for a rendering.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><div class="step-num">01</div><div class="step-ico">📷</div><h3>Snap the photo</h3><p>Take a photo of the client's backyard, driveway, or front yard right from your phone.</p></div>
+      <div class="step reveal"><div class="step-num">02</div><div class="step-ico">⚙️</div><h3>Pick the build</h3><p>Choose the fence style, deck material, interlock pattern, finish — whatever you're quoting.</p></div>
+      <div class="step reveal"><div class="step-num">03</div><div class="step-ico">✦</div><h3>Show & close</h3><p>Generate a photorealistic render, build the quote, and email it — all before you leave the driveway.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="sec-pad" id="features">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-kicker">What's inside</div>
+      <h2 class="sec-title">Everything you need to close.</h2>
+    </div>
+    <div class="feat-grid">
+      <div class="feat reveal"><div class="feat-ico">🏡</div><h3>Photorealistic renders</h3><p>Turn any yard photo into a true-to-life image of the finished job — fences, decks, interlocking, concrete, masonry, landscaping and lighting.</p></div>
+      <div class="feat reveal"><div class="feat-ico">📐</div><h3>Trade-accurate detail</h3><p>Real specs, not generic AI guesses. Post sizes, railing types, paver patterns, frame spacing — built by contractors who know the work.</p></div>
+      <div class="feat reveal"><div class="feat-ico">📄</div><h3>Instant branded quotes</h3><p>Generate a professional quote with your logo, line items, warranty, terms, and the render itself — exported as a polished PDF.</p></div>
+      <div class="feat reveal"><div class="feat-ico">✉️</div><h3>Email straight to the client</h3><p>Send the render and quote to your client on the spot, right from the app, while the excitement is still fresh.</p></div>
+      <div class="feat reveal"><div class="feat-ico">🌙</div><h3>Dusk & lighting scenes</h3><p>Show off landscape lighting, post caps, and deck lights with stunning dusk and nighttime renders that sell the upgrade.</p></div>
+      <div class="feat reveal"><div class="feat-ico">📱</div><h3>Works on any phone</h3><p>No software to install. Open it on your phone in the field, on a tablet at the kitchen table, or your laptop at the shop.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="sec-pad" id="pricing">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-kicker">Pricing</div>
+      <h2 class="sec-title">One closed job pays for the year.</h2>
+      <p class="sec-sub">Start free. Upgrade when you're closing more. Cancel anytime.</p>
+    </div>
+    <div class="price-grid">
+
+      <div class="price reveal">
+        <div class="price-name">Solo</div>
+        <div class="price-amt">$49<span class="per">/mo</span></div>
+        <div class="price-desc">For the independent contractor closing jobs solo.</div>
+        <ul>
+          <li>30 renders / month</li>
+          <li>1 user</li>
+          <li>Quote generator + PDF</li>
+          <li>Email quotes to clients</li>
+          <li class="off">Saved quotes & CRM</li>
+          <li class="off">Team seats</li>
+        </ul>
+        <a href="#trial" class="btn-ghost">Start Free Trial</a>
+      </div>
+
+      <div class="price featured reveal">
+        <div class="price-badge">Most Popular</div>
+        <div class="price-name">Pro</div>
+        <div class="price-amt">$99<span class="per">/mo</span></div>
+        <div class="price-desc">For growing crews that live on closed deals.</div>
+        <ul>
+          <li>100 renders / month</li>
+          <li>Up to 3 users</li>
+          <li>Quote generator + PDF</li>
+          <li>Email quotes to clients</li>
+          <li>Saved quotes & basic CRM</li>
+          <li>Client approve / deny</li>
+        </ul>
+        <a href="#trial" class="btn-primary">Start Free Trial</a>
+      </div>
+
+      <div class="price reveal">
+        <div class="price-name">Crew</div>
+        <div class="price-amt">$199<span class="per">/mo</span></div>
+        <div class="price-desc">For established companies running multiple crews.</div>
+        <ul>
+          <li>Unlimited renders</li>
+          <li>Unlimited users</li>
+          <li>Everything in Pro</li>
+          <li>Material generator</li>
+          <li>QuickBooks invoicing</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="#trial" class="btn-ghost">Start Free Trial</a>
+      </div>
+
+    </div>
+    <p class="demo-cap" style="margin-top:26px;">All plans include a 14-day free trial. Prices in CAD.</p>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<section class="cta-band" id="trial">
+  <div class="wrap">
+    <h2>STOP LOSING JOBS TO<br><span class="g">BETTER PICTURES.</span></h2>
+    <p>Your client can't picture it. Now they can. Start your free trial and close your next job with a render they can see.</p>
+    <a href="https://app.finalook.ai" class="btn-primary">Start Your Free Trial</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap foot-in">
+    <div class="logo"><div class="bar"></div><div class="txt">FINAL<span class="g">OOK</span></div></div>
+    <div class="foot-links">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="mailto:hello@finalook.ai">Contact</a>
+    </div>
+    <div class="foot-copy">© 2026 Finalook · Built in Canada 🍁</div>
+  </div>
+</footer>
+
+<script>
+// Before/After slider
+(function(){
+  const range=document.getElementById('baRange');
+  const after=document.getElementById('baAfter');
+  const div=document.getElementById('baDiv');
+  const handle=document.getElementById('baHandle');
+  function set(v){
+    after.style.clipPath='inset(0 0 0 '+v+'%)';
+    div.style.left=v+'%';
+    handle.style.left=v+'%';
+  }
+  range.addEventListener('input',e=>set(e.target.value));
+  set(50);
+})();
+
+// Scroll reveal
+(function(){
+  const els=document.querySelectorAll('.reveal');
+  const io=new IntersectionObserver((entries)=>{
+    entries.forEach((en,i)=>{
+      if(en.isIntersecting){
+        setTimeout(()=>en.target.classList.add('in'),i%3*80);
+        io.unobserve(en.target);
+      }
+    });
+  },{threshold:0.12});
+  els.forEach(el=>io.observe(el));
+})();
+</script>
+</body>
+</html>

@@ -1,9 +1,0 @@
-{
-  "rewrites": [
-    {
-      "source": "/",
-      "has": [{ "type": "host", "value": "app.finalook.ai" }],
-      "destination": "/app.html"
-    }
-  ]
-}

@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    {
+      "source": "/((?!api/|images/|app\\.html|landing\\.html|favicon).*)",
+      "has": [{ "type": "host", "value": "app.finalook.ai" }],
+      "destination": "/app.html"
+    }
+  ]
+}

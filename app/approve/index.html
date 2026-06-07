@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Review Your Quote · Finalook</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#0a0a0a;color:#e6e6e6;font-family:'Inter',sans-serif;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px;}
+  .wrap{max-width:560px;width:100%;}
+  .card{background:#121212;border:1px solid #242424;border-radius:14px;padding:28px;margin-top:24px;}
+  .logo{height:48px;max-width:200px;object-fit:contain;margin-bottom:8px;}
+  .company{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;color:#fff;}
+  .muted{color:#8a8a8a;font-size:13px;}
+  .render{width:100%;border-radius:10px;border:1px solid #242424;margin:16px 0;display:block;}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid #1e1e1e;font-size:14px;}
+  .row .lbl{color:#9a9a9a;}
+  .total{font-size:22px;color:#fff;font-weight:700;}
+  .green{color:#3a9e52;}
+  a.pdf{display:inline-block;margin-top:6px;color:#3a9e52;font-size:13px;text-decoration:underline;}
+  textarea{width:100%;background:#0d0d0d;border:1px solid #2a2a2a;color:#ddd;border-radius:8px;padding:12px;font-family:'Inter',sans-serif;font-size:13px;margin-top:16px;resize:vertical;min-height:70px;}
+  .btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}
+  button{font-family:'Inter',sans-serif;font-size:15px;font-weight:700;padding:14px;border-radius:10px;border:none;cursor:pointer;}
+  .approve{background:#3a9e52;color:#06210f;}
+  .decline{background:transparent;border:1px solid #5a2a2a;color:#e08a8a;}
+  button:disabled{opacity:.5;cursor:default;}
+  .state{text-align:center;padding:32px 12px;}
+  .state .big{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:1px;}
+  .foot{text-align:center;color:#555;font-size:11px;margin-top:18px;}
+  .disclaimer{color:#666;font-size:11px;line-height:1.5;margin-top:14px;}
+  .spinner{display:inline-block;width:16px;height:16px;border:2px solid #333;border-top-color:#3a9e52;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="content" class="card">
+    <div class="state"><span class="spinner"></span> <span class="muted">Loading your quote…</span></div>
+  </div>
+  <div class="foot">Powered by Finalook</div>
+</div>
+
+<script>
+const params=new URLSearchParams(location.search);
+const token=params.get('token');
+const content=document.getElementById('content');
+let quote=null;
+
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function money(n,cur){return (cur||'CAD')+' '+Number(n||0).toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+async function load(){
+  if(!token){ content.innerHTML='<div class="state"><div class="big">Invalid link</div><p class="muted">This approval link is missing its token.</p></div>'; return; }
+  try{
+    const res=await fetch('/api/quote-public?token='+encodeURIComponent(token));
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error||'Could not load this quote.');
+    quote=data;
+    if(quote.status==='approved'||quote.status==='declined'){ renderDecided(quote.status); return; }
+    renderQuote();
+  }catch(e){
+    content.innerHTML='<div class="state"><div class="big">Not found</div><p class="muted">'+esc(e.message)+'</p></div>';
+  }
+}
+
+function renderQuote(){
+  const logo = quote.logo_url ? `<img class="logo" src="${esc(quote.logo_url)}" alt="logo"/>` : '';
+  const render = quote.render_url ? `<img class="render" src="${esc(quote.render_url)}" alt="Project render"/>` : '';
+  const pdf = quote.pdf_url ? `<a class="pdf" href="${esc(quote.pdf_url)}" target="_blank">View the full quote (PDF) ↗</a>` : '';
+  content.innerHTML = `
+    ${logo}
+    <div class="company">${esc(quote.company_name||'Your Contractor')}</div>
+    <div class="muted">Quote ${esc(quote.quote_number||'')}${quote.client_name?(' · for '+esc(quote.client_name)):''}</div>
+    ${render}
+    ${quote.project_address?`<div class="row"><span class="lbl">Project address</span><span>${esc(quote.project_address)}</span></div>`:''}
+    <div class="row"><span class="lbl">Total</span><span class="total green">${money(quote.total,quote.currency)}</span></div>
+    ${pdf}
+    <textarea id="note" placeholder="Add a note for your contractor (optional)"></textarea>
+    <div class="btns">
+      <button class="approve" onclick="decide('approved')">Approve quote</button>
+      <button class="decline" onclick="decide('declined')">Decline</button>
+    </div>
+    <p class="disclaimer">This quote includes AI-generated design renders for illustrative purposes only. Actual materials, colours, and final appearance may vary.</p>
+  `;
+}
+
+function renderDecided(status){
+  const approved=status==='approved';
+  content.innerHTML = `<div class="state">
+    <div class="big ${approved?'green':''}">${approved?'Approved ✓':'Declined'}</div>
+    <p class="muted">${approved?'Thank you — your contractor has been notified and will be in touch.':'This quote has been declined. Your contractor has been notified.'}</p>
+  </div>`;
+}
+
+async function decide(decision){
+  const note=(document.getElementById('note')||{}).value||'';
+  document.querySelectorAll('button').forEach(b=>b.disabled=true);
+  try{
+    const res=await fetch('/api/quote-decide',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({token,decision,note})
+    });
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error||'Could not record your decision.');
+    renderDecided(data.status||decision);
+  }catch(e){
+    alert(e.message);
+    document.querySelectorAll('button').forEach(b=>b.disabled=false);
+  }
+}
+
+load();
+</script>
+</body>
+</html>

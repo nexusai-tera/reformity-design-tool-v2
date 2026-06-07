@@ -214,7 +214,9 @@ footer span{color:var(--green);}
       <div class="logo-sub">AI Design Preview</div>
     </div>
   </div>
-  <button onclick="openProfile()" style="margin-left:auto;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Profile</button>
+  <span id="usageBadge" onclick="showUpgrade()" title="Renders left this period — click to upgrade" style="margin-left:auto;display:none;align-items:center;gap:6px;font-family:'Inter',sans-serif;font-size:12px;color:#9aa;border:1px solid #2a2a2a;border-radius:5px;padding:7px 12px;cursor:pointer;"></span>
+  <button onclick="openQuotes()" style="margin-left:auto;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">My Quotes</button>
+  <button onclick="openProfile()" style="margin-left:8px;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Profile</button>
   <button onclick="logout()" style="margin-left:8px;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Log out</button>
 </header>
 
@@ -798,6 +800,19 @@ footer span{color:var(--green);}
     <button class="generate-btn" id="emailBtn" onclick="emailQuote()">Send Quote to Client</button>
     <div class="status-msg" id="emailStatus"></div>
     <div class="error-msg" id="emailError"></div>
+
+    <!-- Phase 3: Save to account + client approval -->
+    <div style="height:1px;background:var(--carbon);margin:18px 0;"></div>
+    <button class="generate-btn" id="approveBtn" onclick="saveAndSendForApproval()" style="background:#3a9e52;color:#06210f;">✓ Save &amp; Send for Approval</button>
+    <div class="status-msg" id="approveStatus"></div>
+    <div class="error-msg" id="approveError"></div>
+    <div id="approveLinkWrap" style="display:none;margin-top:10px;padding:12px;border:1px solid var(--carbon);border-radius:8px;background:#141414;">
+      <div style="font-size:11px;color:#888;margin-bottom:6px;">Client approval link</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input id="approveLink" readonly style="flex:1;min-width:0;background:#0d0d0d;border:1px solid #2a2a2a;color:#cfd;border-radius:5px;padding:8px;font-size:12px;font-family:'Inter',sans-serif;"/>
+        <button onclick="copyApproveLink()" style="background:transparent;border:1px solid #2a2a2a;color:#9aa;border-radius:5px;padding:8px 12px;cursor:pointer;font-size:12px;">Copy</button>
+      </div>
+    </div>
   </div>
 
   <footer>Powered by <span>Finalook</span> · Built for Contractors</footer>
@@ -992,21 +1007,28 @@ function buildPrompt(){
 }
 
 async function callAPI(prompt, b64, retries=3){
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){ authGateShow(); const e=new Error('Please sign in again.'); e.auth=true; throw e; }
   for(let i=1;i<=retries;i++){
     const res=await fetch('/api/generate',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':`Bearer ${session.access_token}`
+      },
       body:JSON.stringify({
         contents:[{parts:[{text:prompt},{inline_data:{mime_type:'image/jpeg',data:b64}}]}],
         generationConfig:{responseModalities:['IMAGE','TEXT']}
       })
     });
-    const data=await res.json();
     if(res.status===429){
       setStatus(`<span class="spinner"></span>Rate limit — retrying in 15s (${i}/${retries})...`);
       await new Promise(r=>setTimeout(r,15000));continue;
     }
-    if(!res.ok)throw new Error(data.error?.message||'API error — check your Vercel environment variable');
+    const data=await res.json().catch(()=>({}));
+    if(res.status===402){ const e=new Error(data.error||'Render limit reached.'); e.quota=data; throw e; }
+    if(res.status===401){ authGateShow(); const e=new Error(data.error||'Please sign in again.'); e.auth=true; throw e; }
+    if(!res.ok)throw new Error(data.error?.message||data.error||'API error — check your Vercel environment variable');
     return data;
   }
   throw new Error('Too many retries. Please wait a minute and try again.');
@@ -1027,8 +1049,10 @@ async function generateDesign(){
     document.getElementById('afterImg').src=`data:${imgPart.inlineData.mimeType||'image/png'};base64,${resultB64}`;
     document.getElementById('resultsCard').className='results card show';
     setStatus('');
+    refreshUsage();
   }catch(err){
-    showError('Error: '+err.message);
+    if(err.quota){ showUpgrade(err.quota); setStatus(''); btn.disabled=false; refreshUsage(); return; }
+    if(!err.auth) showError('Error: '+err.message);
     setStatus('');
   }
   btn.disabled=false;
@@ -1425,9 +1449,11 @@ async function emailQuote(){
   try{
     const {doc,qNum,client,company}=await buildQuoteDoc();
     const pdfBase64=doc.output('datauristring').split(',')[1];
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session){ authGateShow(); throw new Error('Please sign in again.'); }
     const res=await fetch('/api/send-email',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
       body:JSON.stringify({
         to:email,
         clientName:client,
@@ -1517,6 +1543,8 @@ async function checkSession(){
     return;
   }
   document.getElementById('authGate').style.display='none';
+  refreshUsage();
+  handleCheckoutReturn();
 
   // Load profile
   const {data:profile,error:profErr}=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();
@@ -1637,9 +1665,246 @@ function applyProfileToQuote(){
 // allow Enter key to submit
 document.getElementById('authPassword').addEventListener('keydown',e=>{if(e.key==='Enter')authSubmit();});
 
+// ===== Phase 2D: usage badge + upgrade UI =====
+function authGateShow(){const g=document.getElementById('authGate'); if(g) g.style.display='flex';}
+
+function planLabel(sub){
+  const map={solo:'Solo',pro:'Pro',crew:'Crew',trial:'Trial'};
+  return map[(sub.plan||'').toLowerCase()] || (sub.status==='trialing'?'Trial':'Plan');
+}
+// Display-only mirror of the server-side limit logic (the DB is the source of truth).
+function effLimit(sub, usage){
+  if(sub.status==='active'){
+    const p=(sub.plan||'').toLowerCase();
+    if(p==='solo') return 30;
+    if(p==='pro')  return 100;
+    if(p==='crew') return null; // unlimited
+  }
+  return usage.render_limit ?? 30; // trial / fallback
+}
+async function refreshUsage(){
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session) return;
+    const uid=session.user.id;
+    const [usageRes, subRes]=await Promise.all([
+      sb.from('usage').select('renders_used,render_limit,limit_type,period_start').eq('user_id',uid).maybeSingle(),
+      sb.from('subscriptions').select('plan,status,trial_ends_at').eq('user_id',uid).maybeSingle()
+    ]);
+    const usage=usageRes.data, sub=subRes.data;
+    const badge=document.getElementById('usageBadge');
+    if(!badge) return;
+    if(!usage||!sub){ badge.style.display='none'; return; }
+    const limit=effLimit(sub,usage);
+    const used=usage.renders_used||0;
+    let label;
+    if(limit===null){ label=`${planLabel(sub)} · unlimited`; }
+    else { label=`${Math.max(limit-used,0)}/${limit} renders left`; }
+    if(sub.status==='trialing' && sub.trial_ends_at){
+      const days=Math.max(Math.ceil((new Date(sub.trial_ends_at)-Date.now())/86400000),0);
+      label=`Trial · ${label} · ${days}d left`;
+    }
+    badge.textContent=label;
+    badge.style.display='inline-flex';
+    const low=(limit!==null) && (limit-used)<=3;
+    badge.style.borderColor=low?'#7a3a3a':'#2a2a2a';
+    badge.style.color=low?'#e08a8a':'#9aa';
+  }catch(e){ /* non-fatal */ }
+}
+
+function showUpgrade(q){
+  const msg=document.getElementById('upgradeMsg');
+  if(q && q.error){ msg.textContent=q.error; }
+  else if(q && q.reason==='trial_expired'){ msg.textContent='Your free trial has ended. Choose a plan to keep generating renders.'; }
+  else { msg.textContent="You've reached your render limit for this period. Upgrade to keep going."; }
+  document.getElementById('upgradeGate').style.display='flex';
+}
+function hideUpgrade(){const g=document.getElementById('upgradeGate'); if(g) g.style.display='none';}
+async function startUpgrade(plan){
+  if(!plan) return; // each plan button passes its own name
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session){ authGateShow(); return; }
+    const res=await fetch('/api/create-checkout',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
+      body:JSON.stringify({plan})
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok||!data.url){ alert(data.error||'Could not start checkout. Please try again.'); return; }
+    window.location.href=data.url;
+  }catch(e){ alert('Could not start checkout: '+e.message); }
+}
+
+async function openBillingPortal(){
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session){ authGateShow(); return; }
+    const res=await fetch('/api/create-portal',{
+      method:'POST',
+      headers:{'Authorization':`Bearer ${session.access_token}`}
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok||!data.url){ alert(data.error||'No billing account yet. Choose a plan first.'); return; }
+    window.location.href=data.url;
+  }catch(e){ alert('Could not open billing: '+e.message); }
+}
+
+// After returning from Stripe Checkout (?checkout=success|cancel)
+function handleCheckoutReturn(){
+  const c=new URLSearchParams(location.search).get('checkout');
+  if(!c) return;
+  if(c==='success'){
+    hideUpgrade();
+    setTimeout(refreshUsage,1500); // give the webhook a moment to land
+    setTimeout(refreshUsage,5000);
+    alert('Thanks! Your plan is being activated — your renders will update shortly.');
+  }
+  history.replaceState({},'',location.pathname); // clean the URL
+}
+
+// ===== Phase 3: CRM (save quote + my quotes) =====
+function b64ToBlob(b64,type){
+  const bin=atob(b64),len=bin.length,arr=new Uint8Array(len);
+  for(let i=0;i<len;i++)arr[i]=bin.charCodeAt(i);
+  return new Blob([arr],{type});
+}
+function approvalUrlFor(token){ return location.origin+'/approve?token='+token; }
+function copyApproveLink(){
+  const el=document.getElementById('approveLink');
+  el.select(); try{navigator.clipboard.writeText(el.value);}catch(e){}
+}
+
+async function saveAndSendForApproval(){
+  const status=document.getElementById('approveStatus');
+  const error=document.getElementById('approveError');
+  const btn=document.getElementById('approveBtn');
+  error.className='error-msg';
+  const email=document.getElementById('qEmail').value.trim();
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session){ authGateShow(); return; }
+    btn.disabled=true;
+    status.innerHTML='<span class="spinner"></span>Saving quote…';
+    status.className='status-msg show';
+    const uid=session.user.id;
+    const {doc,qNum,client,company}=await buildQuoteDoc();
+    const d=getQuoteData();
+    const pdfB64=doc.output('datauristring').split(',')[1];
+    const address=document.getElementById('qAddress').value||'';
+    const {data:ins,error:insErr}=await sb.from('quotes').insert({
+      user_id:uid, quote_number:qNum, client_name:client||null, client_email:email||null,
+      project_address:address||null, company_name:company||null,
+      logo_url:(currentProfile&&currentProfile.logo_url)||null,
+      total:d.grand, currency:'CAD', status:'sent', sent_at:new Date().toISOString()
+    }).select('id,public_token').single();
+    if(insErr) throw new Error(insErr.message);
+    const id=ins.id, token=ins.public_token;
+    let pdfUrl=null, renderUrl=null;
+    const pdfPath=uid+'/'+id+'.pdf';
+    const up1=await sb.storage.from('quotes').upload(pdfPath, b64ToBlob(pdfB64,'application/pdf'), {upsert:true, contentType:'application/pdf'});
+    if(!up1.error){ pdfUrl=sb.storage.from('quotes').getPublicUrl(pdfPath).data.publicUrl; }
+    if(resultB64){
+      const rPath=uid+'/'+id+'.png';
+      const up2=await sb.storage.from('quotes').upload(rPath, b64ToBlob(resultB64,'image/png'), {upsert:true, contentType:'image/png'});
+      if(!up2.error){ renderUrl=sb.storage.from('quotes').getPublicUrl(rPath).data.publicUrl; }
+    }
+    if(pdfUrl||renderUrl){ await sb.from('quotes').update({pdf_url:pdfUrl, render_url:renderUrl}).eq('id',id); }
+    const link=approvalUrlFor(token);
+    document.getElementById('approveLink').value=link;
+    document.getElementById('approveLinkWrap').style.display='block';
+    let emailed=false;
+    if(email && /^[^@]+@[^@]+\.[^@]+$/.test(email)){
+      try{
+        const r=await fetch('/api/send-email',{
+          method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
+          body:JSON.stringify({to:email,clientName:client,companyName:company,quoteNumber:qNum,pdfBase64:pdfB64,approvalUrl:link,total:d.grand})
+        });
+        emailed=r.ok;
+      }catch(e){}
+    }
+    status.innerHTML = emailed ? ('✓ Saved &amp; sent to '+email) : '✓ Saved. Share the approval link below with your client.';
+    status.className='status-msg show';
+  }catch(err){
+    error.textContent='Error: '+err.message;
+    error.className='error-msg show';
+    status.className='status-msg';
+  }
+  btn.disabled=false;
+}
+
+let _quotesCache=[];
+async function openQuotes(){
+  document.getElementById('quotesGate').style.display='flex';
+  document.getElementById('quotesList').innerHTML='<div style="color:#777;font-size:13px;padding:12px;">Loading…</div>';
+  document.getElementById('quotesEmpty').style.display='none';
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session){ authGateShow(); return; }
+    const {data,error}=await sb.from('quotes')
+      .select('id,quote_number,client_name,total,currency,status,pdf_url,public_token,created_at')
+      .eq('user_id',session.user.id).order('created_at',{ascending:false});
+    if(error){ document.getElementById('quotesList').innerHTML='<div style="color:#e05555;font-size:13px;padding:12px;">'+error.message+'</div>'; return; }
+    _quotesCache=data||[];
+    renderQuotes();
+  }catch(e){ document.getElementById('quotesList').innerHTML='<div style="color:#e05555;font-size:13px;padding:12px;">'+e.message+'</div>'; }
+}
+function hideQuotes(){ document.getElementById('quotesGate').style.display='none'; }
+function quoteStatusBadge(s){
+  const map={draft:['#888','Draft'],sent:['#c9a227','Sent'],approved:['#3a9e52','Approved'],declined:['#e05555','Declined']};
+  const e=map[s]||['#888',s||'—'];
+  return '<span style="border:1px solid '+e[0]+';color:'+e[0]+';border-radius:99px;font-size:11px;padding:2px 10px;white-space:nowrap;">'+e[1]+'</span>';
+}
+function renderQuotes(){
+  const term=(document.getElementById('quotesSearch').value||'').toLowerCase();
+  const list=document.getElementById('quotesList');
+  document.getElementById('quotesEmpty').style.display=(_quotesCache.length===0)?'block':'none';
+  const items=_quotesCache.filter(x=>!term || (x.client_name||'').toLowerCase().includes(term) || (x.quote_number||'').toLowerCase().includes(term));
+  list.innerHTML=items.map(x=>{
+    const total=(x.currency||'CAD')+' '+Number(x.total||0).toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const dt=x.created_at?new Date(x.created_at).toLocaleDateString('en-CA'):'';
+    const pdf=x.pdf_url?'<a href="'+x.pdf_url+'" target="_blank" style="color:#9aa;font-size:12px;text-decoration:underline;">PDF</a>':'';
+    const link=x.public_token?'<a onclick="navigator.clipboard.writeText(approvalUrlFor(\''+x.public_token+'\'));this.textContent=\'Copied!\'" style="color:#3a9e52;font-size:12px;cursor:pointer;text-decoration:underline;">Copy link</a>':'';
+    return '<div style="border:1px solid #2a2a2a;border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;">'
+      +'<div style="flex:1;min-width:0;"><div style="color:#fff;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(x.client_name||'(no client)')+' <span style="color:#666;font-weight:400;">· '+(x.quote_number||'')+'</span></div>'
+      +'<div style="color:#888;font-size:12px;">'+total+' · '+dt+'</div></div>'
+      +quoteStatusBadge(x.status)
+      +'<div style="display:flex;gap:10px;">'+pdf+link+'</div></div>';
+  }).join('');
+}
+
 // check on load
 checkSession();
 </script>
+
+<!-- ===== Phase 2D: Upgrade / limit-reached overlay ===== -->
+<div id="upgradeGate" style="position:fixed;inset:0;z-index:1100;background:rgba(8,8,8,.85);display:none;align-items:center;justify-content:center;padding:20px;">
+  <div style="max-width:420px;width:100%;background:#121212;border:1px solid #2a2a2a;border-radius:12px;padding:28px;font-family:'Inter',sans-serif;">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;color:#fff;">UPGRADE <span style="color:#3a9e52;">FINALOOK</span></div>
+    <p id="upgradeMsg" style="color:#bbb;font-size:14px;line-height:1.6;margin:12px 0 18px;">You've reached your render limit.</p>
+    <div style="display:grid;gap:10px;">
+      <button onclick="startUpgrade('solo')" style="text-align:left;border:1px solid #2a2a2a;background:#181818;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Inter',sans-serif;"><span style="color:#fff;font-weight:600;">Solo</span><span style="color:#9aa;">$49/mo · 30 renders</span></button>
+      <button onclick="startUpgrade('pro')" style="text-align:left;border:1px solid #3a9e52;background:#13231a;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Inter',sans-serif;"><span style="color:#fff;font-weight:600;">Pro <span style="color:#3a9e52;font-weight:700;font-size:11px;">★ POPULAR</span></span><span style="color:#9aa;">$99/mo · 100 renders</span></button>
+      <button onclick="startUpgrade('crew')" style="text-align:left;border:1px solid #2a2a2a;background:#181818;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Inter',sans-serif;"><span style="color:#fff;font-weight:600;">Crew</span><span style="color:#9aa;">$199/mo · unlimited</span></button>
+    </div>
+    <p style="color:#777;font-size:11px;line-height:1.5;margin:12px 0 0;">Card required. No charge until your 14-day trial ends. Cancel anytime.</p>
+    <button onclick="hideUpgrade()" style="margin-top:14px;width:100%;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:13px;padding:10px;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;">Not now</button>
+    <div style="text-align:center;margin-top:10px;"><a onclick="openBillingPortal()" style="color:#3a9e52;font-size:12px;cursor:pointer;text-decoration:underline;">Manage existing billing</a></div>
+  </div>
+</div>
+
+<!-- ===== Phase 3: My Quotes (CRM) overlay ===== -->
+<div id="quotesGate" style="position:fixed;inset:0;z-index:1100;background:rgba(8,8,8,.9);display:none;align-items:flex-start;justify-content:center;padding:30px 20px;overflow:auto;">
+  <div style="max-width:720px;width:100%;background:#121212;border:1px solid #2a2a2a;border-radius:12px;padding:24px;font-family:'Inter',sans-serif;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:#fff;">MY QUOTES</div>
+      <button onclick="hideQuotes()" style="margin-left:auto;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:13px;padding:7px 14px;border-radius:5px;cursor:pointer;">Close</button>
+    </div>
+    <input id="quotesSearch" oninput="renderQuotes()" placeholder="Search by client or quote #" style="width:100%;background:#0d0d0d;border:1px solid #2a2a2a;color:#ddd;border-radius:6px;padding:10px;font-size:13px;font-family:'Inter',sans-serif;margin-bottom:12px;"/>
+    <div id="quotesList" style="display:grid;gap:8px;"></div>
+    <div id="quotesEmpty" style="display:none;color:#777;font-size:13px;text-align:center;padding:24px;">No saved quotes yet. Build a quote, then "Save &amp; Send for Approval".</div>
+  </div>
+</div>
 
 </body>
 </html>

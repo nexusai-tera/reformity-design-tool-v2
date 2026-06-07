@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "dependencies": {
+    "stripe": "^22.2.0"
+  }
+}

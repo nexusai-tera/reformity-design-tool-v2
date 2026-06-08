@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Finalook — Design Preview</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -152,13 +153,33 @@ footer span{color:var(--green);}
         <label style="font-size:11px;color:#888;display:block;margin-bottom:6px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Company Name *</label>
         <input id="profCompany" type="text" placeholder="ABC Contracting" class="prof-in"/>
       </div>
-      <div class="field" style="margin-bottom:14px;">
-        <label style="font-size:11px;color:#888;display:block;margin-bottom:6px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Phone / Email (shown on quotes)</label>
-        <input id="profContact" type="text" placeholder="(416) 555-0123 · you@company.com" class="prof-in"/>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div class="field">
+          <label style="font-size:11px;color:#888;display:block;margin-bottom:6px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Phone</label>
+          <input id="profPhone" type="tel" placeholder="(416) 555-0123" class="prof-in"/>
+        </div>
+        <div class="field">
+          <label style="font-size:11px;color:#888;display:block;margin-bottom:6px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Email</label>
+          <input id="profEmail" type="email" placeholder="you@company.com" class="prof-in"/>
+        </div>
       </div>
       <div class="field" style="margin-bottom:14px;">
-        <label style="font-size:11px;color:#888;display:block;margin-bottom:6px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Business Address</label>
-        <input id="profAddress" type="text" placeholder="123 Main St, Toronto, ON" class="prof-in"/>
+        <label style="font-size:11px;color:#888;display:block;margin-bottom:6px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Street Address</label>
+        <input id="profStreet" type="text" placeholder="123 Main St" class="prof-in"/>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div class="field">
+          <label style="font-size:11px;color:#888;display:block;margin-bottom:6px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">City</label>
+          <input id="profCity" type="text" placeholder="Toronto" class="prof-in"/>
+        </div>
+        <div class="field">
+          <label style="font-size:11px;color:#888;display:block;margin-bottom:6px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Province</label>
+          <input id="profProvince" type="text" placeholder="ON" class="prof-in"/>
+        </div>
+        <div class="field">
+          <label style="font-size:11px;color:#888;display:block;margin-bottom:6px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Postal</label>
+          <input id="profPostal" type="text" placeholder="M5V 2N2" class="prof-in"/>
+        </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
         <div class="field">
@@ -1572,8 +1593,12 @@ let pendingLogoFile=null;
 
 function openProfile(isOnboarding){
   document.getElementById('profCompany').value = currentProfile?.company_name || '';
-  document.getElementById('profContact').value = currentProfile?.contact_info || '';
-  document.getElementById('profAddress').value = currentProfile?.business_address || '';
+  document.getElementById('profPhone').value = currentProfile?.contact_phone || '';
+  document.getElementById('profEmail').value = currentProfile?.contact_email || '';
+  document.getElementById('profStreet').value = currentProfile?.business_address || '';
+  document.getElementById('profCity').value = currentProfile?.business_city || '';
+  document.getElementById('profProvince').value = currentProfile?.business_province || '';
+  document.getElementById('profPostal').value = currentProfile?.business_postal || '';
   document.getElementById('profTax').value = currentProfile?.default_tax_rate ?? '';
   document.getElementById('profDeposit').value = currentProfile?.default_deposit_pct ?? '';
   document.getElementById('profWarranty').value = currentProfile?.default_warranty || '';
@@ -1610,8 +1635,13 @@ function closeProfile(){
 
 async function saveProfile(){
   const company=document.getElementById('profCompany').value.trim();
-  const contact=document.getElementById('profContact').value.trim();
-  const address=document.getElementById('profAddress').value.trim();
+  const phone=document.getElementById('profPhone').value.trim();
+  const cemail=document.getElementById('profEmail').value.trim();
+  const street=document.getElementById('profStreet').value.trim();
+  const city=document.getElementById('profCity').value.trim();
+  const province=document.getElementById('profProvince').value.trim();
+  const postal=document.getElementById('profPostal').value.trim();
+  const contact=[phone,cemail].filter(Boolean).join('  ·  ');
   const tax=document.getElementById('profTax').value;
   const deposit=document.getElementById('profDeposit').value;
   const warranty=document.getElementById('profWarranty').value.trim();
@@ -1636,7 +1666,12 @@ async function saveProfile(){
   const updates={
     company_name:company,
     contact_info:contact,
-    business_address:address,
+    contact_phone:phone,
+    contact_email:cemail,
+    business_address:street,
+    business_city:city,
+    business_province:province,
+    business_postal:postal,
     default_tax_rate: tax===''?null:parseFloat(tax),
     default_deposit_pct: deposit===''?null:parseFloat(deposit),
     default_warranty:warranty,
@@ -1891,13 +1926,14 @@ function renderQuotes(){
   list.innerHTML=items.map(x=>{
     const total=(x.currency||'CAD')+' '+Number(x.total||0).toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2});
     const dt=x.created_at?new Date(x.created_at).toLocaleDateString('en-CA'):'';
-    const pdf=x.pdf_url?'<a href="'+x.pdf_url+'" target="_blank" style="color:#9aa;font-size:12px;text-decoration:underline;">PDF</a>':'';
-    const link=x.public_token?'<a onclick="navigator.clipboard.writeText(approvalUrlFor(\''+x.public_token+'\'));this.textContent=\'Copied!\'" style="color:#3a9e52;font-size:12px;cursor:pointer;text-decoration:underline;">Copy link</a>':'';
+    const openHref=x.pdf_url||(x.public_token?approvalUrlFor(x.public_token):'');
+    const open=openHref?'<a href="'+openHref+'" target="_blank" rel="noopener" style="color:#3a9e52;font-size:12px;font-weight:600;text-decoration:underline;">Open</a>':'';
+    const link=x.public_token?'<a onclick="navigator.clipboard.writeText(approvalUrlFor(\''+x.public_token+'\'));this.textContent=\'Copied!\'" style="color:#9aa;font-size:12px;cursor:pointer;text-decoration:underline;">Copy link</a>':'';
     return '<div style="border:1px solid #2a2a2a;border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;">'
       +'<div style="flex:1;min-width:0;"><div style="color:#fff;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(x.client_name||'(no client)')+' <span style="color:#666;font-weight:400;">· '+(x.quote_number||'')+'</span></div>'
       +'<div style="color:#888;font-size:12px;">'+total+' · '+dt+'</div></div>'
       +quoteStatusBadge(x.status)
-      +'<div style="display:flex;gap:10px;">'+pdf+link+'</div></div>';
+      +'<div style="display:flex;gap:12px;">'+open+link+'</div></div>';
   }).join('');
 }
 

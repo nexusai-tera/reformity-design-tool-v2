@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Finalook — Show the Finished Job Before You Build It</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
 <meta name="description" content="Finalook turns a photo of your client's backyard into a photorealistic render of the finished job in seconds — then builds the quote. Close more jobs. Built for contractors."/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -165,7 +166,16 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
 .pc li{font-size:14px;color:var(--smoke);padding:10px 0;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:flex-start;font-weight:300;}
 .pc li:last-child{border-bottom:none;}
 .pc.fit li::before{content:'✓';color:var(--green-lt);font-weight:700;flex-shrink:0;}
-.pc.not li::before{content:'•';color:var(--ash);font-weight:700;flex-shrink:0;}
+.pc.not{border-color:rgba(120,58,58,.4);}
+.pc.not h3{color:#c98a8a;}
+.pc.not li::before{content:'✕';color:#9a5a5a;font-weight:700;flex-shrink:0;}
+/* billing toggle */
+.bill-toggle{display:inline-flex;gap:4px;margin-top:22px;background:var(--void);border:1px solid var(--line);border-radius:999px;padding:4px;}
+.bt-opt{background:transparent;border:none;color:var(--ash);font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;letter-spacing:.04em;padding:8px 18px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:8px;}
+.bt-opt.active{background:var(--green);color:#fff;}
+.bt-save{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:rgba(58,158,82,.18);color:var(--green-lt);border-radius:999px;padding:2px 7px;}
+.bt-opt.active .bt-save{background:rgba(255,255,255,.2);color:#fff;}
+.price-billnote{font-size:12px;color:var(--green-lt);margin-top:6px;min-height:16px;font-weight:500;}
 
 /* TESTIMONIALS */
 .tg{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
@@ -324,32 +334,35 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
   </div>
 </section>
 
-<!-- HONEST FIT (PROS / CONS) -->
-<section class="sec-pad" id="fit">
+<!-- WITH vs WITHOUT FINALOOK -->
+<section class="sec-pad" id="why">
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="sec-kicker">The honest take</div>
-      <h2 class="sec-title">Is Finalook right for you?</h2>
-      <p class="sec-sub">We'd rather you know before you start the trial. Here's the straight version.</p>
+      <div class="sec-kicker">With vs Without</div>
+      <h2 class="sec-title">The difference Finalook makes.</h2>
+      <p class="sec-sub">Same job, same client. One of you shows up with a picture they can say yes to.</p>
     </div>
     <div class="pc-grid">
       <div class="pc fit reveal">
-        <h3>You'll love it if…</h3>
+        <h3>✓ With Finalook</h3>
         <ul>
-          <li>You quote outdoor work — fences, decks, interlock, concrete, masonry, landscaping</li>
-          <li>You sell in person or by phone and want to close on the spot</li>
-          <li>You lose jobs because clients "can't picture it"</li>
-          <li>You want professional quotes without fighting CAD software</li>
-          <li>You work off your phone in the field</li>
+          <li>Clients see the finished job before they commit — and buy with confidence</li>
+          <li>Close on the first visit, while the excitement is fresh</li>
+          <li>Branded, professional quotes out the door in minutes</li>
+          <li>You stand out from the contractor who showed up with just a clipboard</li>
+          <li>Clients approve by email or text in one tap — quotes don't go cold</li>
+          <li>Every quote saved, searchable, and tracked in one place</li>
         </ul>
       </div>
       <div class="pc not reveal">
-        <h3>It's probably not for you if…</h3>
+        <h3>✕ Without Finalook</h3>
         <ul>
-          <li>You need engineered drawings or permit-ready plans — renders are realistic previews, not specs</li>
-          <li>Your work is mostly indoors (interior renovations are on the roadmap)</li>
-          <li>You expect materials and colours to match the render exactly, every time</li>
-          <li>You rarely have a photo of the site to work from</li>
+          <li>"Let me think about it" — because they can't picture the result</li>
+          <li>Jobs lost to the competitor with the better-looking pitch</li>
+          <li>Hours burned building quotes by hand</li>
+          <li>Follow-up quotes that get ignored and go stale</li>
+          <li>No idea which quotes are still alive</li>
+          <li>Competing on price instead of the finished look</li>
         </ul>
       </div>
     </div>
@@ -357,7 +370,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
 </section>
 
 <!-- TESTIMONIALS -->
-<!-- REPLACE all three cards with real customer quotes + names before launch. Keep it honest — only use testimonials you actually have permission to publish. -->
 <section class="sec-pad" id="testimonials">
   <div class="wrap">
     <div class="sec-head reveal">
@@ -366,20 +378,20 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
       <p class="sec-sub">Real words from real trades.</p>
     </div>
     <div class="tg">
-      <div class="tcard tph reveal">
+      <div class="tcard reveal">
         <div class="stars">★★★★★</div>
-        <blockquote>"[Placeholder — paste a real customer quote here, e.g. how the render helped them close a fence job on the first visit.]"</blockquote>
-        <div class="who"><div class="ava">—</div><div><div class="nm">[Customer name]</div><div class="rl">[Company · City]</div></div></div>
+        <blockquote>"Using Finalook has significantly improved my sales operations. My sales reps are closing more deals than ever. Highly recommend."</blockquote>
+        <div class="who"><div class="ava">D</div><div><div class="nm">Dario</div><div class="rl">Ontario Terra · Burlington</div></div></div>
       </div>
-      <div class="tcard tph reveal">
+      <div class="tcard reveal">
         <div class="stars">★★★★★</div>
-        <blockquote>"[Placeholder — a second real quote, e.g. about faster quotes or clients approving on the spot.]"</blockquote>
-        <div class="who"><div class="ava">—</div><div><div class="nm">[Customer name]</div><div class="rl">[Company · City]</div></div></div>
+        <blockquote>"Our close rate has increased by over 40%. We are overbooked and are enjoying this problem! I would definitely recommend Finalook."</blockquote>
+        <div class="who"><div class="ava">M</div><div><div class="nm">Mark</div><div class="rl">Urban Fence · Vaughan</div></div></div>
       </div>
-      <div class="tcard tph reveal">
+      <div class="tcard reveal">
         <div class="stars">★★★★★</div>
-        <blockquote>"[Placeholder — a third real quote, e.g. about looking more professional than competitors.]"</blockquote>
-        <div class="who"><div class="ava">—</div><div><div class="nm">[Customer name]</div><div class="rl">[Company · City]</div></div></div>
+        <blockquote>"Our clients see their before/after pictures and this is what helps them choose us over competitors. Stand out from the competition by using Finalook!"</blockquote>
+        <div class="who"><div class="ava">J</div><div><div class="nm">Joe</div><div class="rl">Vinyl Fence Forever · Toronto</div></div></div>
       </div>
     </div>
   </div>
@@ -392,12 +404,17 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
       <div class="sec-kicker">Pricing</div>
       <h2 class="sec-title">One closed job pays for the year.</h2>
       <p class="sec-sub">Start free. Upgrade when you're closing more. Cancel anytime.</p>
+      <div class="bill-toggle reveal">
+        <button id="billMonthly" class="bt-opt active" onclick="setBilling('monthly')">Monthly</button>
+        <button id="billAnnual" class="bt-opt" onclick="setBilling('annual')">Annual <span class="bt-save">Save 25%</span></button>
+      </div>
     </div>
     <div class="price-grid">
 
       <div class="price reveal">
         <div class="price-name">Solo</div>
-        <div class="price-amt">$49<span class="per">/mo</span></div>
+        <div class="price-amt" data-mamt="$49" data-mper="/mo" data-aamt="$441" data-aper="/yr"><span class="bamt">$49</span><span class="per">/mo</span></div>
+        <div class="price-billnote" data-anote="Save $147/yr"></div>
         <div class="price-desc">For the independent contractor closing jobs solo.</div>
         <ul>
           <li>30 renders / month</li>
@@ -413,7 +430,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
       <div class="price featured reveal">
         <div class="price-badge">Most Popular</div>
         <div class="price-name">Pro</div>
-        <div class="price-amt">$99<span class="per">/mo</span></div>
+        <div class="price-amt" data-mamt="$99" data-mper="/mo" data-aamt="$891" data-aper="/yr"><span class="bamt">$99</span><span class="per">/mo</span></div>
+        <div class="price-billnote" data-anote="Save $297/yr"></div>
         <div class="price-desc">For growing crews that live on closed deals.</div>
         <ul>
           <li>100 renders / month</li>
@@ -428,7 +446,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
 
       <div class="price reveal">
         <div class="price-name">Crew</div>
-        <div class="price-amt">$199<span class="per">/mo</span></div>
+        <div class="price-amt" data-mamt="$199" data-mper="/mo" data-aamt="$1,791" data-aper="/yr"><span class="bamt">$199</span><span class="per">/mo</span></div>
+        <div class="price-billnote" data-anote="Save $597/yr"></div>
         <div class="price-desc">For established companies running multiple crews.</div>
         <ul>
           <li>Unlimited renders</li>
@@ -498,6 +517,19 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
   },{threshold:0.12});
   els.forEach(el=>io.observe(el));
 })();
+
+// Billing toggle (display only — to actually charge annually, add annual Stripe prices + pass the period to checkout)
+function setBilling(mode){
+  document.getElementById('billMonthly').classList.toggle('active',mode==='monthly');
+  document.getElementById('billAnnual').classList.toggle('active',mode==='annual');
+  document.querySelectorAll('.price-amt').forEach(el=>{
+    el.querySelector('.bamt').textContent = mode==='annual'?el.dataset.aamt:el.dataset.mamt;
+    el.querySelector('.per').textContent  = mode==='annual'?el.dataset.aper:el.dataset.mper;
+  });
+  document.querySelectorAll('.price-billnote').forEach(el=>{
+    el.textContent = mode==='annual'?(el.dataset.anote||''):'';
+  });
+}
 </script>
 </body>
 </html>

@@ -1851,7 +1851,8 @@ async function saveAndSendForApproval(){
       user_id:uid, quote_number:qNum, client_name:client||null, client_email:email||null,
       project_address:address||null, company_name:company||null,
       logo_url:(currentProfile&&currentProfile.logo_url)||null,
-      total:d.grand, currency:'CAD', status:'sent', sent_at:new Date().toISOString()
+      total:d.grand, currency:'CAD', status:'sent', sent_at:new Date().toISOString(),
+      payload: serializeQuote()
     }).select('id,public_token').single();
     if(insErr) throw new Error(insErr.message);
     const id=ins.id, token=ins.public_token;
@@ -1910,6 +1911,62 @@ function textApprovalLink(){
   s.innerHTML='Opening your Messages app… (on a phone)'; s.className='status-msg show';
 }
 
+function serializeQuote(){
+  const rows=[];
+  document.querySelectorAll('#rateRows .q-row').forEach(r=>{ rows.push({desc:r.children[0].value, qty:r.children[1].value, unit:r.children[2].value, rate:r.children[3].value}); });
+  const manual=[];
+  document.querySelectorAll('#manualRows .q-row').forEach(r=>{ manual.push({desc:r.children[0].value, price:r.children[1].value}); });
+  const v=id=>{const e=document.getElementById(id);return e?e.value:'';};
+  const chk=id=>{const e=document.getElementById(id);return e?e.checked:true;};
+  const sec={};
+  ['Scope','Incl','Pay','Warr','Terms','Notes'].forEach(k=>{ sec[k]={on:chk('sec'+k+'On'),text:v('sec'+k)}; });
+  return {company:v('qCompany'),contact:v('qContact'),client:v('qClient'),address:v('qAddress'),email:v('qEmail'),phone:v('qPhone'),template:v('qTemplate'),valid:v('qValid'),tax:v('qTax'),deposit:v('qDeposit'),rateItems:rows,manualItems:manual,sections:sec};
+}
+function loadQuoteIntoBuilder(p, keepClient){
+  if(!p) return;
+  const set=(id,val)=>{const e=document.getElementById(id); if(e) e.value=(val==null?'':val);};
+  set('qCompany',p.company); set('qContact',p.contact); set('qTemplate',p.template); set('qValid',p.valid); set('qTax',p.tax); set('qDeposit',p.deposit);
+  if(keepClient){ set('qClient',p.client); set('qAddress',p.address); set('qEmail',p.email); set('qPhone',p.phone); }
+  else { set('qClient',''); set('qAddress',''); set('qEmail',''); set('qPhone',''); }
+  const rr=document.getElementById('rateRows'); if(rr) rr.innerHTML='';
+  (p.rateItems||[]).forEach(it=>{ addRateRow(); const r=document.querySelector('#rateRows .q-row:last-child'); if(r){ r.children[0].value=it.desc||''; r.children[1].value=it.qty||''; r.children[2].value=it.unit||'ft'; r.children[3].value=it.rate||''; } });
+  const mr=document.getElementById('manualRows'); if(mr) mr.innerHTML='';
+  (p.manualItems||[]).forEach(it=>{ addManualRow(); const r=document.querySelector('#manualRows .q-row:last-child'); if(r){ r.children[0].value=it.desc||''; r.children[1].value=it.price||''; } });
+  const sec=p.sections||{};
+  Object.keys(sec).forEach(k=>{ const ta=document.getElementById('sec'+k); const cb=document.getElementById('sec'+k+'On'); if(ta) ta.value=sec[k].text||''; if(cb){ cb.checked=sec[k].on!==false; if(typeof toggleSec==='function') toggleSec(k); } });
+  if(typeof recalcQuote==='function') recalcQuote();
+}
+async function reopenQuote(id, keepClient){
+  const q=(_quotesCache||[]).find(x=>x.id===id);
+  if(!q||!q.payload) return;
+  loadQuoteIntoBuilder(q.payload, keepClient);
+  resultB64='';
+  if(q.render_url){
+    const aimg=document.getElementById('afterImg'); if(aimg) aimg.src=q.render_url;
+    try{
+      const r=await fetch(q.render_url); const b=await r.blob();
+      resultB64=await new Promise(res=>{const fr=new FileReader();fr.onloadend=()=>res(((fr.result||'')+'').split(',')[1]||'');fr.readAsDataURL(b);});
+      const rc=document.getElementById('resultsCard'); if(rc) rc.className='results card show';
+    }catch(e){}
+  }
+  hideQuotes();
+  const qc=document.getElementById('quoteCard'); if(qc){ qc.className='results card show'; qc.scrollIntoView({behavior:'smooth'}); }
+}
+function renderQuotesStats(){
+  const el=document.getElementById('quotesStats'); if(!el) return;
+  const q=_quotesCache||[];
+  const money=n=>'$'+Number(n||0).toLocaleString('en-CA',{maximumFractionDigits:0});
+  const sumT=arr=>arr.reduce((s,x)=>s+(Number(x.total)||0),0);
+  const sent=q.filter(x=>x.status==='sent'), approved=q.filter(x=>x.status==='approved'), declined=q.filter(x=>x.status==='declined');
+  const decided=approved.length+declined.length;
+  const winRate=decided?Math.round(approved.length/decided*100)+'%':'—';
+  const mk=d=>{const t=new Date(d);return t.getFullYear()+'-'+t.getMonth();};
+  const now=mk(new Date());
+  const wonMonth=approved.filter(x=>mk(x.decided_at||x.created_at)===now);
+  const card=(label,val,sub)=>'<div style="flex:1;min-width:120px;background:#181818;border:1px solid #2a2a2a;border-radius:8px;padding:12px 14px;"><div style="font-size:11px;color:#888;letter-spacing:.06em;text-transform:uppercase;">'+label+'</div><div style="font-size:20px;color:#fff;font-weight:700;margin-top:3px;">'+val+'</div>'+(sub?'<div style="font-size:11px;color:#9aa;margin-top:2px;">'+sub+'</div>':'')+'</div>';
+  el.innerHTML=card('Open quotes',money(sumT(sent)),sent.length+' awaiting reply')+card('Won',money(sumT(approved)),approved.length+' approved')+card('Win rate',winRate,decided+' decided')+card('Won this month',money(sumT(wonMonth)),wonMonth.length+' this month');
+}
+
 let _quotesCache=[];
 async function openQuotes(){
   document.getElementById('quotesGate').style.display='flex';
@@ -1919,10 +1976,11 @@ async function openQuotes(){
     const {data:{session}}=await sb.auth.getSession();
     if(!session){ authGateShow(); return; }
     const {data,error}=await sb.from('quotes')
-      .select('id,quote_number,client_name,total,currency,status,pdf_url,public_token,created_at')
+      .select('id,quote_number,client_name,total,currency,status,pdf_url,public_token,created_at,decided_at,render_url,payload')
       .eq('user_id',session.user.id).order('created_at',{ascending:false});
     if(error){ document.getElementById('quotesList').innerHTML='<div style="color:#e05555;font-size:13px;padding:12px;">'+error.message+'</div>'; return; }
     _quotesCache=data||[];
+    renderQuotesStats();
     renderQuotes();
   }catch(e){ document.getElementById('quotesList').innerHTML='<div style="color:#e05555;font-size:13px;padding:12px;">'+e.message+'</div>'; }
 }
@@ -1942,12 +2000,14 @@ function renderQuotes(){
     const dt=x.created_at?new Date(x.created_at).toLocaleDateString('en-CA'):'';
     const openHref=x.pdf_url||(x.public_token?approvalUrlFor(x.public_token):'');
     const open=openHref?'<a href="'+openHref+'" target="_blank" rel="noopener" style="color:#3a9e52;font-size:12px;font-weight:600;text-decoration:underline;">Open</a>':'';
+    const edit=x.payload?'<a onclick="reopenQuote(\''+x.id+'\',true)" style="color:#9aa;font-size:12px;cursor:pointer;text-decoration:underline;">Edit</a>':'';
+    const dup=x.payload?'<a onclick="reopenQuote(\''+x.id+'\',false)" style="color:#9aa;font-size:12px;cursor:pointer;text-decoration:underline;">Duplicate</a>':'';
     const link=x.public_token?'<a onclick="navigator.clipboard.writeText(approvalUrlFor(\''+x.public_token+'\'));this.textContent=\'Copied!\'" style="color:#9aa;font-size:12px;cursor:pointer;text-decoration:underline;">Copy link</a>':'';
     return '<div style="border:1px solid #2a2a2a;border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;">'
       +'<div style="flex:1;min-width:0;"><div style="color:#fff;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(x.client_name||'(no client)')+' <span style="color:#666;font-weight:400;">· '+(x.quote_number||'')+'</span></div>'
       +'<div style="color:#888;font-size:12px;">'+total+' · '+dt+'</div></div>'
       +quoteStatusBadge(x.status)
-      +'<div style="display:flex;gap:12px;">'+open+link+'</div></div>';
+      +'<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end;">'+open+edit+dup+link+'</div></div>';
   }).join('');
 }
 
@@ -1984,6 +2044,7 @@ checkSession();
       <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:#fff;">MY QUOTES</div>
       <button onclick="hideQuotes()" style="margin-left:auto;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:13px;padding:7px 14px;border-radius:5px;cursor:pointer;">Close</button>
     </div>
+    <div id="quotesStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;"></div>
     <input id="quotesSearch" oninput="renderQuotes()" placeholder="Search by client or quote #" style="width:100%;background:#0d0d0d;border:1px solid #2a2a2a;color:#ddd;border-radius:6px;padding:10px;font-size:13px;font-family:'Inter',sans-serif;margin-bottom:12px;"/>
     <div id="quotesList" style="display:grid;gap:8px;"></div>
     <div id="quotesEmpty" style="display:none;color:#777;font-size:13px;text-align:center;padding:24px;">No saved quotes yet. Build a quote, then "Save &amp; Send for Approval".</div>

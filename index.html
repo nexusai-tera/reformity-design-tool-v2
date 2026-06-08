@@ -188,6 +188,219 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
 .tcard .nm{font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;letter-spacing:.02em;}
 .tcard .rl{font-size:12px;color:var(--ash);}
 .tcard.tph{outline:1px dashed var(--steel);outline-offset:4px;}
+
+/* THREE-TOOL STACK */
+.stack-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch;}
+@media(max-width:980px){.stack-grid{grid-template-columns:1fr;max-width:480px;margin:0 auto;}}
+.tool{background:var(--void);border:1px solid var(--line);border-radius:11px;padding:26px;position:relative;display:flex;flex-direction:column;}
+.tool.feat{border-color:var(--green);background:linear-gradient(180deg,rgba(31,92,46,.10),var(--void) 55%);box-shadow:0 30px 80px -40px rgba(31,92,46,.45);}
+.tool-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;font-family:'Oswald',sans-serif;font-size:9.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:5px 12px;border-radius:20px;white-space:nowrap;}
+.tool-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px;}
+.tool-ico{width:44px;height:44px;border-radius:8px;background:rgba(31,92,46,.18);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.tool-head h3{font-family:'Oswald',sans-serif;font-size:19px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;margin-bottom:3px;}
+.tool-tag{color:var(--ash);font-size:12.5px;font-weight:300;}
+.tool-media{border:1px solid var(--steel);border-radius:8px;overflow:hidden;background:var(--carbon);aspect-ratio:4/3;position:relative;margin-bottom:18px;}
+.tool-body{color:var(--smoke);font-size:14px;font-weight:300;line-height:1.55;margin-bottom:16px;}
+.tool-body strong{color:var(--white);font-weight:500;}
+.tool-stat{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:14px 0;margin-bottom:16px;display:flex;align-items:center;gap:14px;}
+.tool-stat-num{font-family:'Bebas Neue',sans-serif;font-size:46px;line-height:.85;color:var(--green-lt);letter-spacing:.01em;flex-shrink:0;}
+.tool-stat-cap{color:var(--smoke);font-size:12.5px;line-height:1.45;font-weight:300;}
+.tool-list{list-style:none;margin:0;}
+.tool-list li{font-size:13px;color:var(--smoke);padding:7px 0;font-weight:300;display:flex;gap:9px;align-items:flex-start;}
+.tool-list li::before{content:'✓';color:var(--green-lt);font-weight:700;flex-shrink:0;}
+
+/* card 1 — before/after thumbnail */
+.tool-media-ba img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.tool-media-ba .ba-clip{clip-path:inset(0 0 0 50%);}
+.tool-media-ba .ba-mini-div{position:absolute;top:0;bottom:0;left:50%;width:2px;background:var(--green-lt);transform:translateX(-1px);z-index:3;}
+.tool-media-ba .ba-mini-tag{position:absolute;top:10px;font-family:'Oswald',sans-serif;font-size:9.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:4px 8px;border-radius:3px;background:rgba(10,10,10,.78);z-index:3;}
+.tool-media-ba .ba-mini-tag.b{left:10px;color:var(--smoke);}
+.tool-media-ba .ba-mini-tag.a{right:10px;color:var(--green-lt);}
+.tool-media-ba .chip-row{position:absolute;bottom:10px;left:10px;right:10px;display:flex;gap:6px;z-index:3;flex-wrap:wrap;}
+.tool-media-ba .chip{font-family:'Oswald',sans-serif;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:20px;background:rgba(10,10,10,.78);color:var(--smoke);}
+.tool-media-ba .chip.active{background:var(--green);color:#fff;}
+
+/* card 2 — virtual quote phone mockup */
+.tool-media-vq{padding:14px;background:linear-gradient(160deg,#181818,#0a0a0a);display:flex;align-items:center;justify-content:center;}
+.phone{background:#0c0c0c;border:1px solid #222;border-radius:10px;width:100%;max-width:260px;overflow:hidden;box-shadow:0 20px 60px -25px rgba(0,0,0,.9);}
+.phone-url{background:#1a1a1a;border-bottom:1px solid #222;padding:6px 10px;font-family:'Inter',sans-serif;font-size:10.5px;color:var(--ash);letter-spacing:.01em;text-align:center;}
+.phone-url::before{content:'🔒 ';font-size:9px;}
+.phone-body{padding:14px 14px 16px;}
+.phone-h{font-family:'Bebas Neue',sans-serif;font-size:18px;line-height:1.05;color:var(--white);margin-bottom:6px;letter-spacing:.02em;}
+.phone-sub{font-size:11px;color:var(--ash);margin-bottom:14px;font-weight:300;line-height:1.4;}
+.phone-sub .g{color:var(--green-lt);}
+.phone-upload{border:1.5px dashed var(--green);border-radius:7px;padding:14px 10px;text-align:center;font-size:11px;color:var(--green-lt);font-weight:500;letter-spacing:.04em;}
+.phone-upload-ico{font-size:20px;color:var(--green-lt);margin-bottom:4px;line-height:1;}
+
+/* card 3 — QR mockup */
+.tool-media-qr{padding:14px;background:linear-gradient(160deg,#181818,#0a0a0a);display:flex;flex-direction:column;justify-content:center;gap:12px;}
+.qr-banner{background:#0c0c0c;border:1px solid #222;border-radius:7px;padding:10px 12px;font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--white);text-align:center;letter-spacing:.04em;line-height:1.1;}
+.qr-banner small{font-family:'Inter',sans-serif;font-size:10px;color:var(--ash);font-weight:300;letter-spacing:0;display:block;margin-top:3px;}
+.qr-row{display:flex;gap:14px;align-items:center;}
+.qr-box{width:84px;height:84px;background:#fff;border-radius:6px;padding:5px;flex-shrink:0;}
+.qr-box svg{display:block;width:100%;height:100%;}
+.qr-steps{display:flex;flex-direction:column;gap:7px;flex:1;}
+.qr-step{font-family:'Oswald',sans-serif;font-size:11px;font-weight:500;color:var(--smoke);letter-spacing:.03em;display:flex;align-items:center;gap:9px;}
+.qr-num{width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;}
+
+/* PREMIUM HERO POLISH */
+.hero{position:relative;padding:104px 0 56px;overflow:hidden;}
+.hero::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 0%,rgba(31,92,46,.22),transparent 70%),
+    radial-gradient(circle 700px at 85% 25%,rgba(240,196,90,.05),transparent 60%),
+    radial-gradient(circle 600px at 15% 70%,rgba(78,212,121,.04),transparent 60%);}
+.hero > *{position:relative;z-index:1;}
+.hero .eyebrow{margin-bottom:28px;}
+.hero h1{margin-bottom:32px;font-weight:400;line-height:.96;}
+.hero .sub strong{color:var(--white);font-weight:500;}
+.hero-cta{margin-bottom:14px;}
+.btn-primary{box-shadow:0 12px 32px -10px rgba(31,92,46,.7),inset 0 1px 0 rgba(255,255,255,.08);}
+.btn-primary:hover{box-shadow:0 18px 44px -10px rgba(58,158,82,.9),inset 0 1px 0 rgba(255,255,255,.14);transform:translateY(-2px);}
+.btn-ghost{background:rgba(255,255,255,.015);}
+.btn-ghost:hover{background:rgba(255,255,255,.04);border-color:var(--green-lt);}
+.btn-demo{display:inline-flex;align-items:center;gap:9px;}
+.btn-demo .cal-ico{font-size:16px;line-height:1;filter:saturate(1.2);}
+
+/* HERO ROTATING HEADLINE */
+.hero-rotate{display:grid;}
+.hero-rotate .rot-line{grid-area:1/1;opacity:0;transform:translateY(22px);transition:opacity .6s cubic-bezier(.22,.7,.12,1),transform .6s cubic-bezier(.22,.7,.12,1);will-change:opacity,transform;pointer-events:none;}
+.hero-rotate .rot-line.is-active{opacity:1;transform:none;pointer-events:auto;}
+
+/* HIGHLIGHTED PHRASE — premium glow + animated underline shimmer */
+.hl{position:relative;display:inline-block;padding:0 .04em;white-space:nowrap;}
+.hl::after{content:'';position:absolute;left:.06em;right:.06em;bottom:.04em;height:.14em;border-radius:2px;opacity:.55;}
+.hl-green{color:#4ed479;text-shadow:0 0 36px rgba(78,212,121,.42),0 0 10px rgba(78,212,121,.28);}
+.hl-green::after{background:linear-gradient(90deg,rgba(78,212,121,0),rgba(78,212,121,.85) 50%,rgba(78,212,121,0));box-shadow:0 0 18px rgba(78,212,121,.75);}
+.hl-gold{color:#f0c45a;text-shadow:0 0 36px rgba(240,196,90,.44),0 0 10px rgba(240,196,90,.28);}
+.hl-gold::after{background:linear-gradient(90deg,rgba(240,196,90,0),rgba(240,196,90,.9) 50%,rgba(240,196,90,0));box-shadow:0 0 18px rgba(240,196,90,.75);}
+
+/* shimmer pulse on the active line's highlight */
+@keyframes hlShimmer{
+  0%{transform:scaleX(.4);opacity:0;}
+  35%{transform:scaleX(1);opacity:.95;}
+  85%{transform:scaleX(1);opacity:.7;}
+  100%{transform:scaleX(1);opacity:.55;}
+}
+.rot-line.is-active .hl::after{animation:hlShimmer 1.2s cubic-bezier(.22,.7,.12,1) both;transform-origin:left center;}
+
+/* FEATURES v2 — media-anchored 2-col cards */
+.feat-grid-v2{grid-template-columns:repeat(2,1fr);gap:16px;}
+@media(max-width:760px){.feat-grid-v2{grid-template-columns:1fr;}}
+.feat-grid-v2 .feat{padding:0;background:linear-gradient(165deg,var(--void),#0c0c0c);border:1px solid var(--line);border-radius:12px;overflow:hidden;transition:border-color .2s,transform .2s,box-shadow .25s;}
+.feat-grid-v2 .feat:hover{border-color:rgba(58,158,82,.5);transform:translateY(-3px);box-shadow:0 24px 60px -28px rgba(31,92,46,.55);}
+.feat-media-block{aspect-ratio:16/9;background:var(--carbon);position:relative;overflow:hidden;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:center;}
+.feat-media-block img{width:100%;height:100%;object-fit:cover;display:block;}
+.feat-media-block.placeholder{background:linear-gradient(135deg,#101010,#0a0a0a);padding:18px;}
+.feat-content{padding:16px 20px 18px;}
+.feat-grid-v2 .feat h3{font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px;color:var(--white);}
+.feat-grid-v2 .feat p{color:var(--smoke);font-size:13px;font-weight:300;line-height:1.55;margin:0;}
+
+/* "video coming" media slot ribbon (delete once video is added) */
+.media-slot{position:absolute;top:9px;right:9px;background:rgba(10,10,10,.78);color:var(--ash);font-family:'Oswald',sans-serif;font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:4px 9px;border-radius:20px;border:1px solid rgba(255,255,255,.06);}
+
+/* Virtual Quote mini phone placeholder */
+.ph-vq{background:linear-gradient(160deg,#0e1a12,#080808);}
+.ph-phone-mini{background:#0c0c0c;border:1px solid #222;border-radius:8px;width:78%;max-width:240px;overflow:hidden;box-shadow:0 16px 40px -20px rgba(0,0,0,.9);}
+.ph-phone-mini .ph-url{background:#1a1a1a;border-bottom:1px solid #222;padding:5px 10px;font-size:10px;color:var(--ash);text-align:center;letter-spacing:.01em;}
+.ph-phone-mini .ph-url::before{content:'🔒 ';font-size:9px;}
+.ph-phone-mini .ph-up{padding:18px 12px;text-align:center;font-size:11px;color:var(--green-lt);font-weight:500;letter-spacing:.04em;border:1.5px dashed var(--green);margin:10px;border-radius:6px;}
+
+/* QR placeholder */
+.ph-qr{background:radial-gradient(circle at 50% 50%,rgba(31,92,46,.18),transparent 70%),linear-gradient(160deg,#0e1a12,#080808);}
+.ph-qr-svg{width:90px;height:90px;background:#f4f4f2;border-radius:6px;padding:5px;}
+
+/* Follow-up status stack placeholder */
+.ph-followup{background:linear-gradient(160deg,#0e1a12,#080808);}
+.ph-stack{display:flex;flex-direction:column;gap:7px;width:80%;max-width:280px;}
+.ph-pill{background:rgba(20,20,20,.85);border:1px solid #222;border-radius:6px;padding:8px 12px;font-family:'Oswald',sans-serif;font-size:11px;color:var(--smoke);letter-spacing:.03em;display:flex;align-items:center;gap:9px;}
+.ph-pill .ph-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.ph-pill .ph-dot.ok{background:var(--green-lt);box-shadow:0 0 10px rgba(78,212,121,.7);}
+.ph-pill .ph-dot.pending{background:#f0c45a;}
+.ph-pill .ph-dot.off{background:#9a5a5a;}
+
+/* Delivery placeholder */
+.ph-delivery{background:linear-gradient(160deg,#0e1a12,#080808);}
+.ph-deliver-row{display:flex;gap:12px;}
+.ph-deliver-chip{background:rgba(31,92,46,.18);border:1px solid rgba(58,158,82,.35);color:var(--white);font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:10px 18px;border-radius:8px;display:flex;align-items:center;gap:8px;}
+.ph-deliver-chip span{font-size:14px;}
+
+/* Specs placeholder */
+.ph-specs{background:linear-gradient(160deg,#0e1a12,#080808);}
+.ph-specs-rows{display:flex;flex-direction:column;gap:5px;width:84%;max-width:300px;}
+.ph-spec-row{background:rgba(20,20,20,.85);border:1px solid #222;border-radius:5px;padding:6px 11px;font-size:11px;display:flex;justify-content:space-between;align-items:center;}
+.ph-spec-row span{color:var(--ash);font-family:'Oswald',sans-serif;letter-spacing:.1em;text-transform:uppercase;font-size:9.5px;font-weight:600;}
+.ph-spec-row b{color:var(--smoke);font-weight:500;font-family:'Inter',sans-serif;font-size:11px;}
+
+/* HOW IT WORKS — denser cards with chips + time tag */
+.step{padding:28px 24px;}
+.step-meta{list-style:none;margin:14px 0 0;display:flex;flex-wrap:wrap;gap:6px;}
+.step-meta li{font-family:'Oswald',sans-serif;font-size:10.5px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--smoke);background:rgba(31,92,46,.14);border:1px solid rgba(58,158,82,.25);padding:4px 9px;border-radius:20px;}
+.step-time{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--green-lt);letter-spacing:.04em;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;}
+.step-time-ico{font-size:14px;line-height:1;color:var(--ash);}
+
+/* PRICING v2 — 2-tier SmileViz-style */
+.price-grid-2{grid-template-columns:repeat(2,1fr);gap:22px;max-width:920px;margin:0 auto;}
+@media(max-width:760px){.price-grid-2{grid-template-columns:1fr;max-width:440px;}}
+.price-card-v2{padding:32px 28px;border-radius:14px;background:linear-gradient(180deg,#141414,var(--void) 60%);border-color:#1c1c1c;}
+.price-card-v2.featured{border-color:rgba(58,158,82,.6);background:linear-gradient(180deg,rgba(31,92,46,.18),var(--void) 55%);box-shadow:0 40px 100px -35px rgba(31,92,46,.55);}
+.price-card-v2 .price-name{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.02em;color:var(--white);text-transform:none;font-weight:400;margin-bottom:6px;line-height:1;}
+.price-tag{color:var(--ash);font-size:13.5px;font-weight:300;line-height:1.5;margin:8px 0 22px;min-height:42px;}
+.price-card-v2 .price-amt{display:flex;align-items:baseline;gap:0;margin-bottom:0;}
+.price-card-v2 .price-amt .bamt{font-family:'Bebas Neue',sans-serif;font-size:72px;line-height:.9;letter-spacing:.01em;color:var(--white);}
+.price-card-v2 .price-amt .per{font-family:'Inter',sans-serif;font-size:14px;font-weight:400;color:var(--ash);letter-spacing:0;margin-left:8px;}
+.price-card-v2 .price-billnote{font-size:12px;color:var(--green-lt);margin-top:4px;min-height:16px;font-weight:500;letter-spacing:.04em;}
+
+/* CTA row + Core (muted) vs Pro (brand green) button distinction */
+.price-cta-row{display:flex;gap:10px;margin:22px 0 28px;}
+.price-cta-row a{flex:1;text-align:center;padding:13px 16px;font-family:'Oswald',sans-serif;font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:13.5px;text-decoration:none;border-radius:6px;transition:all .15s ease;}
+.btn-core{background:#0a0a0a;color:var(--white);border:1px solid #2a2a2a;}
+.btn-core:hover{background:#161616;border-color:var(--green-lt);transform:translateY(-1px);}
+.price-cta-row .btn-primary{padding:13px 16px;font-size:13.5px;}
+.price-cta-row .btn-ghost{padding:13px 16px;font-size:13.5px;font-weight:500;}
+
+.price-incl-h{font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--ash);margin-bottom:12px;}
+.price-incl{list-style:none;margin:0;}
+.price-incl li{font-size:13.5px;color:var(--smoke);padding:7px 0;display:flex;gap:10px;align-items:flex-start;font-weight:300;line-height:1.55;border-bottom:none;}
+.price-incl li::before{content:'✓';color:var(--green-lt);font-weight:700;flex-shrink:0;font-size:14px;line-height:1.55;}
+.price-incl li strong{color:var(--white);font-weight:500;}
+
+.price-sub{margin-top:22px;padding-top:20px;border-top:1px solid var(--line);}
+.price-sub-h{font-family:'Inter',sans-serif;font-size:14px;color:var(--white);margin-bottom:8px;display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;}
+.price-sub-h strong{font-weight:600;font-size:16px;color:var(--green-lt);letter-spacing:.01em;}
+.sub-tag{font-family:'Oswald',sans-serif;font-size:9.5px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--ash);}
+
+.upsell-box{margin-top:26px;background:rgba(31,92,46,.10);border:1px solid rgba(58,158,82,.28);border-radius:9px;padding:16px 18px;}
+.upsell-h{font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;letter-spacing:.04em;color:var(--white);margin-bottom:6px;}
+.upsell-box p{font-size:12.5px;color:var(--smoke);line-height:1.55;font-weight:300;margin-bottom:10px;}
+.upsell-box p strong{color:var(--white);font-weight:500;}
+.upsell-link{color:var(--green-lt);font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;text-decoration:none;}
+.upsell-link:hover{color:#5fd87a;}
+
+.price-card-v2 .price-badge{background:linear-gradient(135deg,var(--green),var(--green-lt));display:inline-flex;align-items:center;gap:6px;padding:5px 14px;top:-12px;}
+.badge-ico{font-size:11px;line-height:1;}
+
+/* CURSOR-FOLLOWING AMBIENT LIGHT */
+.cursor-glow{
+  position:fixed;top:0;left:0;
+  width:620px;height:620px;
+  pointer-events:none;
+  z-index:9999;
+  background:radial-gradient(circle,
+    rgba(78,212,121,0.20) 0%,
+    rgba(58,158,82,0.10) 28%,
+    rgba(31,92,46,0.04) 50%,
+    transparent 70%);
+  border-radius:50%;
+  opacity:0;
+  transition:opacity .9s ease;
+  mix-blend-mode:screen;
+  will-change:transform;
+  transform:translate3d(-9999px,-9999px,0);
+  filter:blur(2px);
+}
+.cursor-glow.show{opacity:1;}
+@media (hover:none),(prefers-reduced-motion:reduce){.cursor-glow{display:none;}}
 </style>
 </head>
 <body>
@@ -209,29 +422,184 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
 <header class="hero">
   <div class="wrap">
     <div class="eyebrow reveal">AI Design Preview · Built for Contractors</div>
-    <h1 class="reveal">SHOW THE FINISHED JOB<br><span class="g">BEFORE YOU BUILD IT.</span></h1>
-    <p class="sub reveal">Snap a photo of your client's yard. Finalook turns it into a photorealistic render of the completed fence, deck, or hardscape in seconds — then builds the quote. Close on the spot.</p>
+    <h1 class="reveal hero-rotate">
+      <span class="rot-line is-active">Show clients their <span class="hl hl-green">Transformed&nbsp;Landscapes.</span></span>
+      <span class="rot-line">Close <span class="hl hl-gold">3X more</span> jobs.</span>
+      <span class="rot-line">Let the transformation <span class="hl hl-green">sell&nbsp;itself.</span></span>
+    </h1>
+    <p class="sub reveal">Photorealistic yard renders in seconds. Branded quotes in minutes. <strong>When clients see it, they say yes.</strong></p>
     <div class="hero-cta reveal">
-      <a href="#trial" class="btn-primary">Start Free Trial</a>
-      <a href="#how" class="btn-ghost">See how it works</a>
+      <a href="https://app.finalook.ai" class="btn-primary">Get Access Now</a>
+      <a href="https://calendly.com/finalook/demo" class="btn-ghost btn-demo"><span class="cal-ico">📅</span> Book a Demo</a>
     </div>
-    <div class="micro reveal">Try it free for 14 days · Works on any phone</div>
+    <div class="micro reveal">Try free for 14 days · Works on any phone</div>
   </div>
 </header>
 
-<!-- BEFORE/AFTER DEMO -->
-<section class="demo">
+<!-- THREE-TOOL STACK -->
+<section class="sec-pad" id="stack">
   <div class="wrap">
-    <div class="ba" id="ba">
-      <img src="images/before.jpeg" class="ba-layer" alt="Existing yard before"/>
-      <img src="images/after.png" class="ba-layer ba-after" id="baAfter" alt="Finalook render of finished job"/>
-      <div class="ba-tag before">Before</div>
-      <div class="ba-tag after">After</div>
-      <div class="ba-divider" id="baDiv"></div>
-      <div class="ba-handle" id="baHandle">⇄</div>
-      <input type="range" min="0" max="100" value="50" class="ba-range" id="baRange"/>
+    <div class="sec-head reveal">
+      <div class="sec-kicker">The Finalook stack</div>
+      <h2 class="sec-title">Three tools. One Finalook.</h2>
+      <p class="sec-sub">Close in person. Capture leads while you sleep. Let homeowners self-render from a sign.</p>
     </div>
-    <p class="demo-cap">Drag the slider — this is what your client sees before a shovel hits the ground.</p>
+    <div class="stack-grid">
+
+      <!-- Card 1: Live Render & Quote -->
+      <div class="tool reveal">
+        <div class="tool-head">
+          <div class="tool-ico">📷</div>
+          <div>
+            <h3>Live Render</h3>
+            <div class="tool-tag">Close on the spot in ~90 seconds</div>
+          </div>
+        </div>
+        <div class="tool-media tool-media-ba">
+          <img src="images/before.jpeg" alt="Yard before"/>
+          <img src="images/after.png" class="ba-clip" alt="Render of finished job"/>
+          <div class="ba-mini-div"></div>
+          <span class="ba-mini-tag b">Before</span>
+          <span class="ba-mini-tag a">After</span>
+          <div class="chip-row">
+            <span class="chip">Fence</span>
+            <span class="chip active">Deck</span>
+            <span class="chip">Interlock</span>
+            <span class="chip">Patio</span>
+          </div>
+        </div>
+        <p class="tool-body">Snap a photo of the yard, pick the build, and show a photorealistic <strong>before &amp; after in 90 seconds</strong>.</p>
+        <div class="tool-stat">
+          <div class="tool-stat-num">3×</div>
+          <div class="tool-stat-cap">higher close rate when clients see their finished yard</div>
+        </div>
+        <ul class="tool-list">
+          <li>Any trade — fence, deck, hardscape, masonry</li>
+          <li>Branded quote PDF, emailed or texted on the spot</li>
+        </ul>
+      </div>
+
+      <!-- Card 2: Virtual Quote (featured / coming soon) -->
+      <div class="tool feat reveal">
+        <span class="tool-badge">Coming · Pro tier</span>
+        <div class="tool-head">
+          <div class="tool-ico">🔗</div>
+          <div>
+            <h3>Virtual Quote</h3>
+            <div class="tool-tag">Capture leads while you sleep</div>
+          </div>
+        </div>
+        <div class="tool-media tool-media-vq">
+          <div class="phone">
+            <div class="phone-url">finalook.ai/q/urbanfence</div>
+            <div class="phone-body">
+              <div class="phone-h">Want a free yard preview?</div>
+              <div class="phone-sub">See your finished fence, deck, or patio — <span class="g">in 90 seconds.</span></div>
+              <div class="phone-upload">
+                <div class="phone-upload-ico">↑</div>
+                Add a photo of your yard
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="tool-body">A <strong>branded lead page in 5 seconds</strong>. Homeowners upload a yard photo; you reply with a render and a quote — straight from your CRM.</p>
+        <div class="tool-stat">
+          <div class="tool-stat-num">5×</div>
+          <div class="tool-stat-cap">more website visitors converted into booked quotes</div>
+        </div>
+        <ul class="tool-list">
+          <li>Your branded page on a Finalook URL — live in 5 seconds</li>
+          <li>Reply with a render, a full quote, or a video</li>
+        </ul>
+      </div>
+
+      <!-- Card 3: Yard QR (coming soon) -->
+      <div class="tool reveal">
+        <span class="tool-badge">Coming · Crew tier</span>
+        <div class="tool-head">
+          <div class="tool-ico">▥</div>
+          <div>
+            <h3>Self-Sim</h3>
+            <div class="tool-tag">Homeowners try it themselves</div>
+          </div>
+        </div>
+        <div class="tool-media tool-media-qr">
+          <div class="qr-banner">See your yard transformed<small>Scan with your phone · free &amp; instant</small></div>
+          <div class="qr-row">
+            <div class="qr-box">
+              <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+                <rect width="21" height="21" fill="#fff"/>
+                <rect x="0" y="0" width="7" height="7" fill="#000"/>
+                <rect x="1" y="1" width="5" height="5" fill="#fff"/>
+                <rect x="2" y="2" width="3" height="3" fill="#000"/>
+                <rect x="14" y="0" width="7" height="7" fill="#000"/>
+                <rect x="15" y="1" width="5" height="5" fill="#fff"/>
+                <rect x="16" y="2" width="3" height="3" fill="#000"/>
+                <rect x="0" y="14" width="7" height="7" fill="#000"/>
+                <rect x="1" y="15" width="5" height="5" fill="#fff"/>
+                <rect x="2" y="16" width="3" height="3" fill="#000"/>
+                <rect x="8" y="2" width="1" height="1" fill="#000"/>
+                <rect x="10" y="3" width="1" height="1" fill="#000"/>
+                <rect x="12" y="2" width="1" height="1" fill="#000"/>
+                <rect x="8" y="5" width="2" height="1" fill="#000"/>
+                <rect x="11" y="5" width="1" height="1" fill="#000"/>
+                <rect x="2" y="8" width="1" height="1" fill="#000"/>
+                <rect x="4" y="8" width="1" height="1" fill="#000"/>
+                <rect x="6" y="8" width="1" height="1" fill="#000"/>
+                <rect x="8" y="8" width="1" height="1" fill="#000"/>
+                <rect x="10" y="8" width="2" height="1" fill="#000"/>
+                <rect x="13" y="8" width="1" height="1" fill="#000"/>
+                <rect x="15" y="8" width="1" height="1" fill="#000"/>
+                <rect x="17" y="8" width="1" height="1" fill="#000"/>
+                <rect x="19" y="8" width="1" height="1" fill="#000"/>
+                <rect x="8" y="10" width="1" height="1" fill="#000"/>
+                <rect x="10" y="10" width="1" height="1" fill="#000"/>
+                <rect x="12" y="10" width="2" height="1" fill="#000"/>
+                <rect x="16" y="10" width="1" height="1" fill="#000"/>
+                <rect x="18" y="10" width="1" height="1" fill="#000"/>
+                <rect x="8" y="12" width="3" height="1" fill="#000"/>
+                <rect x="13" y="12" width="1" height="1" fill="#000"/>
+                <rect x="15" y="12" width="2" height="1" fill="#000"/>
+                <rect x="19" y="12" width="1" height="1" fill="#000"/>
+                <rect x="8" y="14" width="1" height="1" fill="#000"/>
+                <rect x="10" y="14" width="1" height="1" fill="#000"/>
+                <rect x="14" y="14" width="1" height="1" fill="#000"/>
+                <rect x="16" y="14" width="2" height="1" fill="#000"/>
+                <rect x="19" y="14" width="1" height="1" fill="#000"/>
+                <rect x="9" y="16" width="1" height="1" fill="#000"/>
+                <rect x="12" y="16" width="1" height="1" fill="#000"/>
+                <rect x="14" y="16" width="2" height="1" fill="#000"/>
+                <rect x="18" y="16" width="1" height="1" fill="#000"/>
+                <rect x="8" y="18" width="2" height="1" fill="#000"/>
+                <rect x="12" y="18" width="1" height="1" fill="#000"/>
+                <rect x="14" y="18" width="1" height="1" fill="#000"/>
+                <rect x="16" y="18" width="1" height="1" fill="#000"/>
+                <rect x="19" y="18" width="1" height="1" fill="#000"/>
+                <rect x="8" y="20" width="1" height="1" fill="#000"/>
+                <rect x="10" y="20" width="1" height="1" fill="#000"/>
+                <rect x="13" y="20" width="2" height="1" fill="#000"/>
+                <rect x="17" y="20" width="1" height="1" fill="#000"/>
+              </svg>
+            </div>
+            <div class="qr-steps">
+              <div class="qr-step"><span class="qr-num">1</span> Scan the code</div>
+              <div class="qr-step"><span class="qr-num">2</span> Snap your yard</div>
+              <div class="qr-step"><span class="qr-num">3</span> See the result</div>
+            </div>
+          </div>
+        </div>
+        <p class="tool-body">A <strong>pre-branded QR code</strong> for your truck, lawn signs, and business cards. Homeowners scan, self-render, and become inbound leads — straight to your CRM.</p>
+        <div class="tool-stat">
+          <div class="tool-stat-num">$0</div>
+          <div class="tool-stat-cap">cost per lead — every scan turns curiosity into your customer</div>
+        </div>
+        <ul class="tool-list">
+          <li>Pre-branded QR for any sign, truck or door hanger</li>
+          <li>Source tracking — see which signs are working</li>
+        </ul>
+      </div>
+
+    </div>
   </div>
 </section>
 
@@ -239,8 +607,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
 <!-- Replace "30%" with your own verified figure before public launch. -->
 <section class="statband">
   <div class="wrap reveal">
-    <div class="big">+30%</div>
-    <p class="lead">Close up to 30% more jobs when clients can see the finished result before they commit. Showing the render turns "let me think about it" into "let's book it."</p>
+    <div class="big">3× More Closes</div>
+    <p class="lead">Close 3× more jobs when clients can see the finished result before they commit. Showing the render turns "let me think about it" into "let's book it."</p>
     <p class="fine">Seeing beats imagining — give every quote a picture your client can say yes to.</p>
   </div>
 </section>
@@ -267,9 +635,42 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
       <p class="sec-sub">No CAD software. No design degree. No waiting weeks for a rendering.</p>
     </div>
     <div class="steps">
-      <div class="step reveal"><div class="step-num">01</div><div class="step-ico">📷</div><h3>Snap the photo</h3><p>Take a photo of the client's backyard, driveway, or front yard right from your phone.</p></div>
-      <div class="step reveal"><div class="step-num">02</div><div class="step-ico">⚙️</div><h3>Pick the build</h3><p>Choose the fence style, deck material, interlock pattern, finish — whatever you're quoting.</p></div>
-      <div class="step reveal"><div class="step-num">03</div><div class="step-ico">✦</div><h3>Show & close</h3><p>Generate a photorealistic render, build the quote, and email it — all before you leave the driveway.</p></div>
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <div class="step-ico">📷</div>
+        <h3>Snap the photo</h3>
+        <p>From the client's backyard, driveway, or front. Right from your phone.</p>
+        <ul class="step-meta">
+          <li>Any phone</li>
+          <li>Any angle</li>
+          <li>JPG · PNG · HEIC</li>
+        </ul>
+        <div class="step-time"><span class="step-time-ico">⏱</span> ~ 10 sec</div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">02</div>
+        <div class="step-ico">⚙️</div>
+        <h3>Pick the build</h3>
+        <p>Style, material, pattern, finish — whatever you're quoting today.</p>
+        <ul class="step-meta">
+          <li>7 trades</li>
+          <li>Day · dusk · night</li>
+          <li>Trade-accurate specs</li>
+        </ul>
+        <div class="step-time"><span class="step-time-ico">⏱</span> ~ 20 sec</div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">03</div>
+        <div class="step-ico">✦</div>
+        <h3>Show &amp; close</h3>
+        <p>Render, branded quote, email or text — before you leave the driveway.</p>
+        <ul class="step-meta">
+          <li>3 PDF templates</li>
+          <li>One-tap approval</li>
+          <li>Instant yes/no alert</li>
+        </ul>
+        <div class="step-time"><span class="step-time-ico">⏱</span> ~ 60 sec</div>
+      </div>
     </div>
   </div>
 </section>
@@ -281,13 +682,126 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
       <div class="sec-kicker">What's inside</div>
       <h2 class="sec-title">Everything you need to close.</h2>
     </div>
-    <div class="feat-grid">
-      <div class="feat reveal"><div class="feat-ico">🏡</div><h3>Photorealistic renders</h3><p>Turn any yard photo into a true-to-life image of the finished job — fences, decks, interlocking, concrete, masonry, landscaping and lighting.</p></div>
-      <div class="feat reveal"><div class="feat-ico">📐</div><h3>Trade-accurate detail</h3><p>Real specs, not generic AI guesses. Post sizes, railing types, paver patterns, frame spacing — built by contractors who know the work.</p></div>
-      <div class="feat reveal"><div class="feat-ico">📄</div><h3>Instant branded quotes</h3><p>Generate a professional quote with your logo, line items, warranty, terms, and the render itself — exported as a polished PDF.</p></div>
-      <div class="feat reveal"><div class="feat-ico">✉️</div><h3>Email straight to the client</h3><p>Send the render and quote to your client on the spot, right from the app, while the excitement is still fresh.</p></div>
-      <div class="feat reveal"><div class="feat-ico">🌙</div><h3>Dusk & lighting scenes</h3><p>Show off landscape lighting, post caps, and deck lights with stunning dusk and nighttime renders that sell the upgrade.</p></div>
-      <div class="feat reveal"><div class="feat-ico">📱</div><h3>Works on any phone</h3><p>No software to install. Open it on your phone in the field, on a tablet at the kitchen table, or your laptop at the shop.</p></div>
+    <div class="feat-grid feat-grid-v2">
+
+      <!-- Live Render — uses after render image -->
+      <div class="feat reveal">
+        <div class="feat-media-block"><img src="images/after.png" alt="Photorealistic yard render"/></div>
+        <div class="feat-content">
+          <h3>Live Render</h3>
+          <p>Snap a yard photo → photorealistic before &amp; after in ~90 seconds. Fence, deck, interlock, concrete, masonry, landscaping — day, dusk, or night.</p>
+        </div>
+      </div>
+
+      <!-- Branded Quote PDF — uses quote sample image -->
+      <div class="feat reveal">
+        <div class="feat-media-block"><img src="images/quote-sample.png" alt="Branded Finalook quote PDF"/></div>
+        <div class="feat-content">
+          <h3>Branded Quote PDF</h3>
+          <p>Logo, line items, tax, deposit, warranty, terms — render embedded. Polished quote in under a minute, ready to email or text.</p>
+        </div>
+      </div>
+
+      <!-- Virtual Quote — placeholder for usage video -->
+      <div class="feat reveal">
+        <div class="feat-media-block placeholder ph-vq">
+          <div class="ph-phone-mini">
+            <div class="ph-url">finalook.ai/q/yourbrand</div>
+            <div class="ph-up">↑ Add a photo</div>
+          </div>
+          <span class="media-slot">video coming</span>
+        </div>
+        <div class="feat-content">
+          <h3>Virtual Quote</h3>
+          <p>A branded landing page on your URL. Homeowners upload a yard photo — you reply with a render and a quote, straight from your CRM.</p>
+        </div>
+      </div>
+
+      <!-- Self-Sim QR — placeholder for usage video -->
+      <div class="feat reveal">
+        <div class="feat-media-block placeholder ph-qr">
+          <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" class="ph-qr-svg">
+            <rect width="21" height="21" fill="#f4f4f2"/>
+            <rect x="0" y="0" width="7" height="7" fill="#0a0a0a"/><rect x="1" y="1" width="5" height="5" fill="#f4f4f2"/><rect x="2" y="2" width="3" height="3" fill="#0a0a0a"/>
+            <rect x="14" y="0" width="7" height="7" fill="#0a0a0a"/><rect x="15" y="1" width="5" height="5" fill="#f4f4f2"/><rect x="16" y="2" width="3" height="3" fill="#0a0a0a"/>
+            <rect x="0" y="14" width="7" height="7" fill="#0a0a0a"/><rect x="1" y="15" width="5" height="5" fill="#f4f4f2"/><rect x="2" y="16" width="3" height="3" fill="#0a0a0a"/>
+            <rect x="8" y="2" width="1" height="1" fill="#0a0a0a"/><rect x="10" y="3" width="1" height="1" fill="#0a0a0a"/><rect x="12" y="2" width="1" height="1" fill="#0a0a0a"/>
+            <rect x="8" y="5" width="2" height="1" fill="#0a0a0a"/><rect x="11" y="5" width="1" height="1" fill="#0a0a0a"/>
+            <rect x="2" y="8" width="1" height="1" fill="#0a0a0a"/><rect x="4" y="8" width="1" height="1" fill="#0a0a0a"/><rect x="6" y="8" width="1" height="1" fill="#0a0a0a"/>
+            <rect x="8" y="8" width="1" height="1" fill="#0a0a0a"/><rect x="10" y="8" width="2" height="1" fill="#0a0a0a"/><rect x="13" y="8" width="1" height="1" fill="#0a0a0a"/>
+            <rect x="15" y="8" width="1" height="1" fill="#0a0a0a"/><rect x="17" y="8" width="1" height="1" fill="#0a0a0a"/><rect x="19" y="8" width="1" height="1" fill="#0a0a0a"/>
+            <rect x="8" y="10" width="1" height="1" fill="#0a0a0a"/><rect x="10" y="10" width="1" height="1" fill="#0a0a0a"/><rect x="12" y="10" width="2" height="1" fill="#0a0a0a"/>
+            <rect x="16" y="10" width="1" height="1" fill="#0a0a0a"/><rect x="18" y="10" width="1" height="1" fill="#0a0a0a"/>
+            <rect x="8" y="12" width="3" height="1" fill="#0a0a0a"/><rect x="13" y="12" width="1" height="1" fill="#0a0a0a"/><rect x="15" y="12" width="2" height="1" fill="#0a0a0a"/><rect x="19" y="12" width="1" height="1" fill="#0a0a0a"/>
+            <rect x="8" y="14" width="1" height="1" fill="#0a0a0a"/><rect x="10" y="14" width="1" height="1" fill="#0a0a0a"/><rect x="14" y="14" width="1" height="1" fill="#0a0a0a"/><rect x="16" y="14" width="2" height="1" fill="#0a0a0a"/><rect x="19" y="14" width="1" height="1" fill="#0a0a0a"/>
+            <rect x="9" y="16" width="1" height="1" fill="#0a0a0a"/><rect x="12" y="16" width="1" height="1" fill="#0a0a0a"/><rect x="14" y="16" width="2" height="1" fill="#0a0a0a"/><rect x="18" y="16" width="1" height="1" fill="#0a0a0a"/>
+            <rect x="8" y="18" width="2" height="1" fill="#0a0a0a"/><rect x="12" y="18" width="1" height="1" fill="#0a0a0a"/><rect x="14" y="18" width="1" height="1" fill="#0a0a0a"/><rect x="16" y="18" width="1" height="1" fill="#0a0a0a"/><rect x="19" y="18" width="1" height="1" fill="#0a0a0a"/>
+          </svg>
+          <span class="media-slot">video coming</span>
+        </div>
+        <div class="feat-content">
+          <h3>Self-Sim QR</h3>
+          <p>Pre-branded QR for your truck, lawn signs, and business cards. Homeowners scan, self-render, and become inbound leads.</p>
+        </div>
+      </div>
+
+      <!-- CRM — uses approval preview image -->
+      <div class="feat reveal">
+        <div class="feat-media-block"><img src="images/approval-preview.svg" alt="Built-in CRM and client approval" style="background:#0c0c0c;object-fit:contain;padding:18px;"/></div>
+        <div class="feat-content">
+          <h3>Built-in CRM</h3>
+          <p>Every quote saved, searchable, status-tagged. Sent, approved, declined — at a glance. Re-open or duplicate any quote.</p>
+        </div>
+      </div>
+
+      <!-- Follow-up — placeholder for video -->
+      <div class="feat reveal">
+        <div class="feat-media-block placeholder ph-followup">
+          <div class="ph-stack">
+            <div class="ph-pill"><span class="ph-dot ok"></span> Approved · 2 min ago</div>
+            <div class="ph-pill"><span class="ph-dot pending"></span> Sent · awaiting response</div>
+            <div class="ph-pill"><span class="ph-dot off"></span> Declined · note attached</div>
+          </div>
+          <span class="media-slot">video coming</span>
+        </div>
+        <div class="feat-content">
+          <h3>Follow-up Tracking</h3>
+          <p>Auto-notified the second a client approves, declines, or leaves a note. Pipeline stays warm — no quote goes cold.</p>
+        </div>
+      </div>
+
+      <!-- Email + SMS delivery -->
+      <div class="feat reveal">
+        <div class="feat-media-block placeholder ph-delivery">
+          <div class="ph-deliver-row">
+            <div class="ph-deliver-chip"><span>✉</span> Email</div>
+            <div class="ph-deliver-chip"><span>💬</span> Text</div>
+          </div>
+          <span class="media-slot">video coming</span>
+        </div>
+        <div class="feat-content">
+          <h3>Email &amp; SMS Delivery</h3>
+          <p>Send render + branded quote on the spot — while the excitement is still fresh. Approval link tap-ready.</p>
+        </div>
+      </div>
+
+      <!-- Trade-accurate specs -->
+      <div class="feat reveal">
+        <div class="feat-media-block placeholder ph-specs">
+          <div class="ph-specs-rows">
+            <div class="ph-spec-row"><span>Post</span><b>6×6 pressure-treated</b></div>
+            <div class="ph-spec-row"><span>Frame</span><b>16" o.c.</b></div>
+            <div class="ph-spec-row"><span>Paver</span><b>Holland · running bond</b></div>
+            <div class="ph-spec-row"><span>Edge</span><b>Aluminum restraint</b></div>
+          </div>
+          <span class="media-slot">video coming</span>
+        </div>
+        <div class="feat-content">
+          <h3>Trade-accurate Specs</h3>
+          <p>Post sizes, railings, paver patterns, frame spacing — built into every render. Real specs, not generic AI guesses.</p>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -409,55 +923,67 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
         <button id="billAnnual" class="bt-opt" onclick="setBilling('annual')">Annual <span class="bt-save">Save 25%</span></button>
       </div>
     </div>
-    <div class="price-grid">
+    <div class="price-grid price-grid-2">
 
-      <div class="price reveal">
-        <div class="price-name">Solo</div>
-        <div class="price-amt" data-mamt="$49" data-mper="/mo" data-aamt="$441" data-aper="/yr"><span class="bamt">$49</span><span class="per">/mo</span></div>
-        <div class="price-billnote" data-anote="Save $147/yr"></div>
-        <div class="price-desc">For the independent contractor closing jobs solo.</div>
-        <ul>
-          <li>30 renders / month</li>
-          <li>1 user</li>
-          <li>Quote generator + PDF</li>
-          <li>Email quotes to clients</li>
-          <li class="off">Saved quotes & CRM</li>
-          <li class="off">Team seats</li>
+      <!-- FINALOOK CORE -->
+      <div class="price price-card-v2 reveal">
+        <div class="price-name">Finalook Core</div>
+        <p class="price-tag">Win the job on-site — show clients their finished yard and close on the spot.</p>
+        <div class="price-amt" data-mamt="$199" data-mper="/month" data-aamt="$1,791" data-aper="/year"><span class="bamt">$199</span><span class="per">/month</span></div>
+        <div class="price-billnote" data-anote="Save $597/year"></div>
+        <div class="price-cta-row">
+          <a href="https://app.finalook.ai" class="btn-core">Get Access</a>
+          <a href="https://calendly.com/finalook/demo" class="btn-ghost">Free Demo</a>
+        </div>
+        <div class="price-incl-h">What's included</div>
+        <ul class="price-incl">
+          <li><strong>Live Render</strong>, all trades</li>
+          <li><strong>30 render credits</strong> / month, top up 30 for $59</li>
+          <li>Branded quote PDF + email &amp; text delivery</li>
+          <li>Built-in CRM with one-tap client approval</li>
+          <li>Email support</li>
         </ul>
-        <a href="#trial" class="btn-ghost">Start Free Trial</a>
+        <div class="upsell-box">
+          <div class="upsell-h">Want lead-gen tools?</div>
+          <p>Add <strong>Virtual Quote</strong> and <strong>Self-Sim</strong> by stepping up to Finalook Pro.</p>
+          <a href="#pricing-pro" class="upsell-link">See what's in Pro →</a>
+        </div>
       </div>
 
-      <div class="price featured reveal">
-        <div class="price-badge">Most Popular</div>
-        <div class="price-name">Pro</div>
-        <div class="price-amt" data-mamt="$99" data-mper="/mo" data-aamt="$891" data-aper="/yr"><span class="bamt">$99</span><span class="per">/mo</span></div>
-        <div class="price-billnote" data-anote="Save $297/yr"></div>
-        <div class="price-desc">For growing crews that live on closed deals.</div>
-        <ul>
-          <li>100 renders / month</li>
-          <li>Up to 3 users</li>
-          <li>Quote generator + PDF</li>
-          <li>Email quotes to clients</li>
-          <li>Saved quotes & basic CRM</li>
-          <li>Client approve / deny</li>
-        </ul>
-        <a href="#trial" class="btn-primary">Start Free Trial</a>
-      </div>
-
-      <div class="price reveal">
-        <div class="price-name">Crew</div>
-        <div class="price-amt" data-mamt="$199" data-mper="/mo" data-aamt="$1,791" data-aper="/yr"><span class="bamt">$199</span><span class="per">/mo</span></div>
-        <div class="price-billnote" data-anote="Save $597/yr"></div>
-        <div class="price-desc">For established companies running multiple crews.</div>
-        <ul>
-          <li>Unlimited renders</li>
-          <li>Unlimited users</li>
-          <li>Everything in Pro</li>
-          <li>Material generator <span class="soon">Coming soon</span></li>
-          <li>QuickBooks invoicing <span class="soon">Coming soon</span></li>
+      <!-- FINALOOK PRO -->
+      <div class="price price-card-v2 featured reveal" id="pricing-pro">
+        <div class="price-badge"><span class="badge-ico">✦</span> Most Popular</div>
+        <div class="price-name">Finalook Pro</div>
+        <p class="price-tag">Capture, convert, and close everywhere — before, during, and after the sales call.</p>
+        <div class="price-amt" data-mamt="$299" data-mper="/month" data-aamt="$2,691" data-aper="/year"><span class="bamt">$299</span><span class="per">/month</span></div>
+        <div class="price-billnote" data-anote="Save $897/year"></div>
+        <div class="price-cta-row">
+          <a href="https://app.finalook.ai" class="btn-primary">Get Access</a>
+          <a href="https://calendly.com/finalook/demo" class="btn-ghost">Free Demo</a>
+        </div>
+        <div class="price-incl-h">What's included</div>
+        <ul class="price-incl">
+          <li><strong>Everything in Core</strong></li>
+          <li><strong>100 render credits</strong> / month, top up anytime for $39</li>
           <li>Priority support</li>
         </ul>
-        <a href="#trial" class="btn-ghost">Start Free Trial</a>
+
+        <div class="price-sub">
+          <div class="price-sub-h"><strong>Virtual Quote</strong><span class="sub-tag">for your website &amp; socials</span></div>
+          <ul class="price-incl">
+            <li>Free <strong>branded landing page</strong>, live in 5 seconds</li>
+            <li>Built-in <strong>homeowner lead management</strong></li>
+            <li>Brings <strong>high-intent buyers</strong> to your business</li>
+          </ul>
+        </div>
+
+        <div class="price-sub">
+          <div class="price-sub-h"><strong>Self-Sim</strong><span class="sub-tag">for trucks, lawn signs &amp; cards</span></div>
+          <ul class="price-incl">
+            <li><strong>Pre-branded QR code</strong>, print &amp; post anywhere</li>
+            <li>Homeowners <strong>self-render</strong> &amp; self-inspire</li>
+          </ul>
+        </div>
       </div>
 
     </div>
@@ -489,19 +1015,43 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
 </footer>
 
 <script>
-// Before/After slider
+// Hero rotating headline
 (function(){
-  const range=document.getElementById('baRange');
-  const after=document.getElementById('baAfter');
-  const div=document.getElementById('baDiv');
-  const handle=document.getElementById('baHandle');
-  function set(v){
-    after.style.clipPath='inset(0 0 0 '+v+'%)';
-    div.style.left=v+'%';
-    handle.style.left=v+'%';
+  const lines=document.querySelectorAll('.hero-rotate .rot-line');
+  if(lines.length<2) return;
+  let i=0;
+  setInterval(()=>{
+    lines[i].classList.remove('is-active');
+    i=(i+1)%lines.length;
+    lines[i].classList.add('is-active');
+  },3200);
+})();
+
+// Cursor-following ambient green light
+(function(){
+  if(!window.matchMedia) return;
+  if(window.matchMedia('(hover: none)').matches) return;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const glow=document.createElement('div');
+  glow.className='cursor-glow';
+  document.body.appendChild(glow);
+  const HALF=310; // half of 620px
+  let tx=window.innerWidth/2, ty=window.innerHeight/2;
+  let cx=tx, cy=ty;
+  let shown=false;
+  function tick(){
+    cx+=(tx-cx)*0.16;
+    cy+=(ty-cy)*0.16;
+    glow.style.transform='translate3d('+(cx-HALF)+'px,'+(cy-HALF)+'px,0)';
+    requestAnimationFrame(tick);
   }
-  range.addEventListener('input',e=>set(e.target.value));
-  set(50);
+  window.addEventListener('mousemove',e=>{
+    tx=e.clientX; ty=e.clientY;
+    if(!shown){ glow.classList.add('show'); shown=true; }
+  },{passive:true});
+  document.addEventListener('mouseleave',()=>glow.classList.remove('show'));
+  document.addEventListener('mouseenter',()=>{ if(shown) glow.classList.add('show'); });
+  tick();
 })();
 
 // Scroll reveal

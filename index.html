@@ -113,6 +113,7 @@ section{position:relative;z-index:1;}
 .price li::before{content:'✓';color:var(--green-lt);font-weight:700;flex-shrink:0;}
 .price li.off{color:var(--steel);}
 .price li.off::before{content:'—';color:var(--steel);}
+.price li .soon{font-family:'Oswald',sans-serif;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--green-lt);border:1px solid var(--steel);border-radius:20px;padding:2px 8px;margin-left:auto;white-space:nowrap;}
 .price .btn-primary,.price .btn-ghost{text-align:center;width:100%;}
 
 /* CTA BAND */
@@ -132,6 +133,51 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
 /* reveal on scroll */
 .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
 .reveal.in{opacity:1;transform:none;}
+
+/* STAT BAND */
+.statband{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:radial-gradient(ellipse 60% 130% at 50% 0,rgba(31,92,46,.16),transparent 70%),var(--void);padding:60px 0;text-align:center;}
+.statband .big{font-family:'Bebas Neue',sans-serif;font-size:clamp(66px,12vw,132px);line-height:.88;color:var(--green-lt);}
+.statband .lead{font-family:'Oswald',sans-serif;font-size:clamp(16px,2.4vw,22px);font-weight:500;letter-spacing:.01em;color:var(--white);max-width:680px;margin:10px auto 0;}
+.statband .fine{font-size:12px;color:var(--ash);margin-top:14px;font-weight:300;}
+
+/* SHOWCASE ROWS */
+.showcase{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;margin-bottom:60px;}
+.showcase:last-child{margin-bottom:0;}
+.showcase.flip .sc-media{order:2;}
+@media(max-width:820px){.showcase{grid-template-columns:1fr;gap:24px;}.showcase.flip .sc-media{order:0;}}
+.sc-media{border:1px solid var(--steel);border-radius:11px;overflow:hidden;background:var(--void);aspect-ratio:4/3;position:relative;box-shadow:0 30px 80px -40px rgba(0,0,0,.9);}
+.sc-media img{width:100%;height:100%;object-fit:cover;display:block;}
+.sc-kick{font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--green-lt);margin-bottom:12px;}
+.sc-body h3{font-family:'Bebas Neue',sans-serif;font-size:clamp(30px,4vw,46px);line-height:1;margin-bottom:14px;}
+.sc-body p{color:var(--ash);font-size:15px;font-weight:300;margin-bottom:16px;}
+.sc-list{list-style:none;}
+.sc-list li{font-size:14px;color:var(--smoke);padding:7px 0;display:flex;gap:10px;align-items:flex-start;font-weight:300;}
+.sc-list li::before{content:'✓';color:var(--green-lt);font-weight:700;flex-shrink:0;}
+
+/* PROS / CONS */
+.pc-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+@media(max-width:760px){.pc-grid{grid-template-columns:1fr;}}
+.pc{background:var(--void);border:1px solid var(--line);border-radius:11px;padding:30px;}
+.pc.fit{border-color:rgba(42,122,61,.5);}
+.pc h3{font-family:'Oswald',sans-serif;font-size:16px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px;}
+.pc.fit h3{color:var(--green-lt);}
+.pc ul{list-style:none;}
+.pc li{font-size:14px;color:var(--smoke);padding:10px 0;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:flex-start;font-weight:300;}
+.pc li:last-child{border-bottom:none;}
+.pc.fit li::before{content:'✓';color:var(--green-lt);font-weight:700;flex-shrink:0;}
+.pc.not li::before{content:'•';color:var(--ash);font-weight:700;flex-shrink:0;}
+
+/* TESTIMONIALS */
+.tg{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+@media(max-width:860px){.tg{grid-template-columns:1fr;}}
+.tcard{background:linear-gradient(160deg,var(--void),var(--black));border:1px solid var(--line);border-radius:11px;padding:28px;}
+.tcard .stars{color:var(--green-lt);font-size:14px;letter-spacing:4px;margin-bottom:14px;}
+.tcard blockquote{font-size:15px;color:var(--smoke);font-weight:300;line-height:1.6;margin-bottom:18px;}
+.tcard .who{display:flex;align-items:center;gap:12px;}
+.tcard .ava{width:40px;height:40px;border-radius:50%;background:var(--steel);display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;color:var(--smoke);font-size:15px;flex-shrink:0;}
+.tcard .nm{font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;letter-spacing:.02em;}
+.tcard .rl{font-size:12px;color:var(--ash);}
+.tcard.tph{outline:1px dashed var(--steel);outline-offset:4px;}
 </style>
 </head>
 <body>
@@ -179,6 +225,16 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
   </div>
 </section>
 
+<!-- STAT BAND -->
+<!-- Replace "30%" with your own verified figure before public launch. -->
+<section class="statband">
+  <div class="wrap reveal">
+    <div class="big">+30%</div>
+    <p class="lead">Close up to 30% more jobs when clients can see the finished result before they commit. Showing the render turns "let me think about it" into "let's book it."</p>
+    <p class="fine">Seeing beats imagining — give every quote a picture your client can say yes to.</p>
+  </div>
+</section>
+
 <!-- TRADES STRIP -->
 <div class="trades">
   <div class="wrap trades-row">
@@ -222,6 +278,109 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
       <div class="feat reveal"><div class="feat-ico">✉️</div><h3>Email straight to the client</h3><p>Send the render and quote to your client on the spot, right from the app, while the excitement is still fresh.</p></div>
       <div class="feat reveal"><div class="feat-ico">🌙</div><h3>Dusk & lighting scenes</h3><p>Show off landscape lighting, post caps, and deck lights with stunning dusk and nighttime renders that sell the upgrade.</p></div>
       <div class="feat reveal"><div class="feat-ico">📱</div><h3>Works on any phone</h3><p>No software to install. Open it on your phone in the field, on a tablet at the kitchen table, or your laptop at the shop.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- SHOWCASE: QUOTE GENERATOR + CRM -->
+<!-- Swap the placeholder media for real screenshots of your quote PDF and the client approval screen when you have them. -->
+<section class="sec-pad" id="showcase">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-kicker">Render → Quote → Signed</div>
+      <h2 class="sec-title">Not just a pretty picture.</h2>
+      <p class="sec-sub">Finalook carries the job from the first photo all the way to a signed yes — without leaving the app.</p>
+    </div>
+
+    <div class="showcase reveal">
+      <div class="sc-media"><div class="ph-after" style="width:100%;height:100%;"><div class="ph-label">Quote PDF preview<br>(drop a screenshot here)</div></div></div>
+      <div class="sc-body">
+        <div class="sc-kick">Quote Generator</div>
+        <h3>A branded quote in under a minute.</h3>
+        <p>Add your line items and Finalook builds a clean, professional PDF — your logo, tax, deposit, warranty and terms already filled in from your profile.</p>
+        <ul class="sc-list">
+          <li>Rate-based line items, tax and deposit calculated live</li>
+          <li>Three polished PDF templates</li>
+          <li>Your before/after render embedded right in the quote</li>
+          <li>Your logo and company details on every page</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="showcase flip reveal">
+      <div class="sc-media"><div class="ph-before" style="width:100%;height:100%;"><div class="ph-label">Client approval screen<br>Approve / Decline (drop a screenshot here)</div></div></div>
+      <div class="sc-body">
+        <div class="sc-kick">Built-in CRM + Client Approvals</div>
+        <h3>Send it. Track it. Get the yes.</h3>
+        <p>Every quote is saved to your account. Send the client a link by email or text — they approve or decline with one tap, and you're notified the moment they do.</p>
+        <ul class="sc-list">
+          <li>Searchable history of every quote you've sent</li>
+          <li>Status at a glance — sent, approved, declined</li>
+          <li>One-tap client approval — no login, nothing to download</li>
+          <li>Instant notification the second a client says yes</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HONEST FIT (PROS / CONS) -->
+<section class="sec-pad" id="fit">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-kicker">The honest take</div>
+      <h2 class="sec-title">Is Finalook right for you?</h2>
+      <p class="sec-sub">We'd rather you know before you start the trial. Here's the straight version.</p>
+    </div>
+    <div class="pc-grid">
+      <div class="pc fit reveal">
+        <h3>You'll love it if…</h3>
+        <ul>
+          <li>You quote outdoor work — fences, decks, interlock, concrete, masonry, landscaping</li>
+          <li>You sell in person or by phone and want to close on the spot</li>
+          <li>You lose jobs because clients "can't picture it"</li>
+          <li>You want professional quotes without fighting CAD software</li>
+          <li>You work off your phone in the field</li>
+        </ul>
+      </div>
+      <div class="pc not reveal">
+        <h3>It's probably not for you if…</h3>
+        <ul>
+          <li>You need engineered drawings or permit-ready plans — renders are realistic previews, not specs</li>
+          <li>Your work is mostly indoors (interior renovations are on the roadmap)</li>
+          <li>You expect materials and colours to match the render exactly, every time</li>
+          <li>You rarely have a photo of the site to work from</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<!-- REPLACE all three cards with real customer quotes + names before launch. Keep it honest — only use testimonials you actually have permission to publish. -->
+<section class="sec-pad" id="testimonials">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-kicker">From the field</div>
+      <h2 class="sec-title">Contractors are closing more.</h2>
+      <p class="sec-sub">Real words from real trades.</p>
+    </div>
+    <div class="tg">
+      <div class="tcard tph reveal">
+        <div class="stars">★★★★★</div>
+        <blockquote>"[Placeholder — paste a real customer quote here, e.g. how the render helped them close a fence job on the first visit.]"</blockquote>
+        <div class="who"><div class="ava">—</div><div><div class="nm">[Customer name]</div><div class="rl">[Company · City]</div></div></div>
+      </div>
+      <div class="tcard tph reveal">
+        <div class="stars">★★★★★</div>
+        <blockquote>"[Placeholder — a second real quote, e.g. about faster quotes or clients approving on the spot.]"</blockquote>
+        <div class="who"><div class="ava">—</div><div><div class="nm">[Customer name]</div><div class="rl">[Company · City]</div></div></div>
+      </div>
+      <div class="tcard tph reveal">
+        <div class="stars">★★★★★</div>
+        <blockquote>"[Placeholder — a third real quote, e.g. about looking more professional than competitors.]"</blockquote>
+        <div class="who"><div class="ava">—</div><div><div class="nm">[Customer name]</div><div class="rl">[Company · City]</div></div></div>
+      </div>
     </div>
   </div>
 </section>
@@ -275,8 +434,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
           <li>Unlimited renders</li>
           <li>Unlimited users</li>
           <li>Everything in Pro</li>
-          <li>Material generator</li>
-          <li>QuickBooks invoicing</li>
+          <li>Material generator <span class="soon">Coming soon</span></li>
+          <li>QuickBooks invoicing <span class="soon">Coming soon</span></li>
           <li>Priority support</li>
         </ul>
         <a href="#trial" class="btn-ghost">Start Free Trial</a>

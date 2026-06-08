@@ -794,24 +794,30 @@ footer span{color:var(--green);}
 
     <button class="download-btn" onclick="downloadQuotePDF()">⬇ Download Quote PDF</button>
 
-    <!-- Email -->
-    <div class="card-title" style="font-size:11px;margin-top:18px;">Email to Client</div>
+    <!-- Client contact -->
+    <div class="card-title" style="font-size:11px;margin-top:18px;">Client Contact</div>
     <div class="field" style="margin-bottom:8px;"><label>Client Email Address</label><input class="q-input" id="qEmail" type="email" placeholder="client@email.com"/></div>
-    <button class="generate-btn" id="emailBtn" onclick="emailQuote()">Send Quote to Client</button>
+    <div class="field" style="margin-bottom:8px;"><label>Client Mobile (to text the quote)</label><input class="q-input" id="qPhone" type="tel" placeholder="(416) 555-0199"/></div>
+    <button class="generate-btn" id="emailBtn" onclick="emailQuote()">Email Quote PDF to Client</button>
     <div class="status-msg" id="emailStatus"></div>
     <div class="error-msg" id="emailError"></div>
 
     <!-- Phase 3: Save to account + client approval -->
     <div style="height:1px;background:var(--carbon);margin:18px 0;"></div>
-    <button class="generate-btn" id="approveBtn" onclick="saveAndSendForApproval()" style="background:#3a9e52;color:#06210f;">✓ Save &amp; Send for Approval</button>
+    <button class="generate-btn" id="approveBtn" onclick="saveAndSendForApproval()" style="background:#3a9e52;color:#06210f;">✓ Save &amp; Create Client Link</button>
     <div class="status-msg" id="approveStatus"></div>
     <div class="error-msg" id="approveError"></div>
     <div id="approveLinkWrap" style="display:none;margin-top:10px;padding:12px;border:1px solid var(--carbon);border-radius:8px;background:#141414;">
-      <div style="font-size:11px;color:#888;margin-bottom:6px;">Client approval link</div>
-      <div style="display:flex;gap:8px;align-items:center;">
+      <div style="font-size:11px;color:#888;margin-bottom:6px;">Client approval link — send it to your client</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
         <input id="approveLink" readonly style="flex:1;min-width:0;background:#0d0d0d;border:1px solid #2a2a2a;color:#cfd;border-radius:5px;padding:8px;font-size:12px;font-family:'Inter',sans-serif;"/>
-        <button onclick="copyApproveLink()" style="background:transparent;border:1px solid #2a2a2a;color:#9aa;border-radius:5px;padding:8px 12px;cursor:pointer;font-size:12px;">Copy</button>
+        <button onclick="copyApproveLink()" style="background:transparent;border:1px solid #2a2a2a;color:#9aa;border-radius:5px;padding:8px 12px;cursor:pointer;font-size:12px;white-space:nowrap;">Copy</button>
       </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="emailApprovalLink()" style="flex:1;background:#3a9e52;border:none;color:#06210f;font-weight:700;border-radius:5px;padding:9px;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;">✉ Email it</button>
+        <button onclick="textApprovalLink()" style="flex:1;background:transparent;border:1px solid #3a9e52;color:#3a9e52;font-weight:700;border-radius:5px;padding:9px;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;">💬 Text it</button>
+      </div>
+      <div class="status-msg" id="sendStatus" style="margin-top:8px;"></div>
     </div>
   </div>
 
@@ -1813,17 +1819,9 @@ async function saveAndSendForApproval(){
     const link=approvalUrlFor(token);
     document.getElementById('approveLink').value=link;
     document.getElementById('approveLinkWrap').style.display='block';
-    let emailed=false;
-    if(email && /^[^@]+@[^@]+\.[^@]+$/.test(email)){
-      try{
-        const r=await fetch('/api/send-email',{
-          method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
-          body:JSON.stringify({to:email,clientName:client,companyName:company,quoteNumber:qNum,pdfBase64:pdfB64,approvalUrl:link,total:d.grand})
-        });
-        emailed=r.ok;
-      }catch(e){}
-    }
-    status.innerHTML = emailed ? ('✓ Saved &amp; sent to '+email) : '✓ Saved. Share the approval link below with your client.';
+    _lastQuote={link, pdfB64, qNum, client, company, email, phone:document.getElementById('qPhone').value.trim(), total:d.grand};
+    document.getElementById('sendStatus').className='status-msg';
+    status.innerHTML='✓ Saved. Now send it to your client — Email or Text below.';
     status.className='status-msg show';
   }catch(err){
     error.textContent='Error: '+err.message;
@@ -1831,6 +1829,36 @@ async function saveAndSendForApproval(){
     status.className='status-msg';
   }
   btn.disabled=false;
+}
+
+let _lastQuote=null;
+async function emailApprovalLink(){
+  const s=document.getElementById('sendStatus');
+  if(!_lastQuote) return;
+  const email=document.getElementById('qEmail').value.trim()||_lastQuote.email;
+  if(!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)){ s.textContent='Enter the client’s email above first.'; s.className='error-msg show'; return; }
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session){ authGateShow(); return; }
+    s.innerHTML='<span class="spinner"></span>Emailing…'; s.className='status-msg show';
+    const r=await fetch('/api/send-email',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
+      body:JSON.stringify({to:email,clientName:_lastQuote.client,companyName:_lastQuote.company,quoteNumber:_lastQuote.qNum,pdfBase64:_lastQuote.pdfB64,approvalUrl:_lastQuote.link,total:_lastQuote.total})
+    });
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(data.error||'Failed to send');
+    s.innerHTML='✓ Emailed to '+email; s.className='status-msg show';
+  }catch(e){ s.textContent='Email failed: '+e.message; s.className='error-msg show'; }
+}
+function textApprovalLink(){
+  const s=document.getElementById('sendStatus');
+  if(!_lastQuote) return;
+  const phone=(document.getElementById('qPhone').value.trim()||_lastQuote.phone||'').replace(/[^\d+]/g,'');
+  const msg=`Hi${_lastQuote.client?(' '+_lastQuote.client):''}, here’s your quote from ${_lastQuote.company||'us'}: ${_lastQuote.link}`;
+  // Opens the contractor's OWN Messages app, prefilled — sends from their number. Best on mobile.
+  window.location.href='sms:'+phone+'?&body='+encodeURIComponent(msg);
+  s.innerHTML='Opening your Messages app… (on a phone)'; s.className='status-msg show';
 }
 
 let _quotesCache=[];

@@ -2084,7 +2084,10 @@ function renderLeads(){
       +'<div style="display:flex;gap:6px;flex-shrink:0;">'+ph+rn+'</div>'
       +'<div style="flex:1;min-width:0;"><div style="color:#fff;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(x.name||'(no name)')+' <span style="color:#666;font-weight:400;">· '+(x.trade||'')+via+'</span></div>'
       +'<div style="color:#9aa;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+contact+'</div><div style="color:#777;font-size:11px;">'+dt+'</div></div>'
-      +'<span style="border:1px solid #c9a227;color:#c9a227;border-radius:99px;font-size:11px;padding:2px 10px;white-space:nowrap;">'+(x.status||'new')+'</span></div>';
+      +'<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0;">'
+      +'<span style="border:1px solid #c9a227;color:#c9a227;border-radius:99px;font-size:11px;padding:2px 10px;white-space:nowrap;">'+(x.status||'new')+'</span>'
+      +'<button onclick="createQuoteFromLead(\''+x.id+'\')" style="background:#3a9e52;border:none;color:#06210f;font-weight:700;border-radius:6px;padding:6px 11px;cursor:pointer;font-size:12px;white-space:nowrap;">Create Quote</button>'
+      +'</div></div>';
   }).join('');
 }
 function makeQR(){
@@ -2102,6 +2105,23 @@ function downloadQR(){
   const dataUrl = cv ? cv.toDataURL('image/png') : (im ? im.src : null);
   if(!dataUrl) return;
   const a=document.createElement('a'); a.href=dataUrl; a.download='finalook-qr.png'; a.click();
+}
+async function urlToDataUrl(url){
+  try{ const r=await fetch(url); const b=await r.blob(); return await new Promise(res=>{const fr=new FileReader();fr.onloadend=()=>res(fr.result);fr.readAsDataURL(b);}); }catch(e){ return null; }
+}
+// Turn a captured lead into a quote: pre-fill the builder with the homeowner's
+// details, their before photo + render, and a starter line item for the trade.
+async function createQuoteFromLead(id){
+  const L=(_leads||[]).find(x=>x.id===id); if(!L) return;
+  const set=(i,v)=>{const e=document.getElementById(i); if(e) e.value=(v==null?'':v);};
+  set('qClient',L.name); set('qEmail',L.email); set('qPhone',L.phone);
+  resultB64=''; originalImageB64='';
+  if(L.render_url){ const d=await urlToDataUrl(L.render_url); if(d){ const a=document.getElementById('afterImg'); if(a) a.src=d; resultB64=(d.split(',')[1]||''); const rc=document.getElementById('resultsCard'); if(rc) rc.className='results card show'; } }
+  if(L.photo_url){ const d=await urlToDataUrl(L.photo_url); if(d){ const bi=document.getElementById('beforeImg'); if(bi) bi.src=d; originalImageB64=(d.split(',')[1]||''); } }
+  if(L.trade && !document.querySelector('#rateRows .q-row')){ addRateRow(); const r=document.querySelector('#rateRows .q-row:last-child'); if(r) r.children[0].value=L.trade.charAt(0).toUpperCase()+L.trade.slice(1)+' — supply & install'; }
+  if(typeof recalcQuote==='function') recalcQuote();
+  hideLeads();
+  const qc=document.getElementById('quoteCard'); if(qc){ qc.className='results card show'; qc.scrollIntoView({behavior:'smooth'}); }
 }
 
 // check on load

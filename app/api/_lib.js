@@ -64,3 +64,20 @@ export async function sbPatch(path, body) {
   try { data = JSON.parse(text); } catch { data = text; }
   return { ok: r.ok, status: r.status, data };
 }
+
+// Call a Postgres function via PostgREST RPC with the service_role key. Returns { ok, status, data }.
+export async function rpc(name, args) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
+    method: 'POST',
+    headers: {
+      apikey: SERVICE_ROLE,
+      Authorization: `Bearer ${SERVICE_ROLE}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(args),
+  });
+  const text = await r.text();
+  let data;
+  try { data = JSON.parse(text); } catch { data = text; }
+  return { ok: r.ok, status: r.status, data };
+}

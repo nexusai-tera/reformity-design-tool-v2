@@ -102,6 +102,7 @@ footer span{color:var(--green);}
 .q-area.disabled{opacity:0.35;pointer-events:none;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -181,6 +182,12 @@ footer span{color:var(--green);}
           <input id="profPostal" type="text" placeholder="M5V 2N2" class="prof-in"/>
         </div>
       </div>
+      <div class="field" style="margin-bottom:14px;">
+        <label style="font-size:11px;color:#888;display:block;margin-bottom:6px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Virtual Quote link <span style="color:#3a9e52;">· Pro+</span></label>
+        <div style="display:flex;gap:8px;align-items:center;"><span style="color:#666;font-size:13px;white-space:nowrap;">/q/?s=</span><input id="profSlug" type="text" placeholder="urbanfence" class="prof-in" style="flex:1;" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')"/></div>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:8px;color:#cfcfcf;font-size:13px;cursor:pointer;"><input type="checkbox" id="profPublic"/> Enable my public Virtual Quote page</label>
+        <div id="profSlugLink" style="font-size:12px;color:#3a9e52;margin-top:6px;display:none;word-break:break-all;"></div>
+      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
         <div class="field">
           <label style="font-size:11px;color:#888;display:block;margin-bottom:6px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Default Tax %</label>
@@ -237,6 +244,7 @@ footer span{color:var(--green);}
   </div>
   <span id="usageBadge" onclick="showUpgrade()" title="Renders left this period — click to upgrade" style="margin-left:auto;display:none;align-items:center;gap:6px;font-family:'Inter',sans-serif;font-size:12px;color:#9aa;border:1px solid #2a2a2a;border-radius:5px;padding:7px 12px;cursor:pointer;"></span>
   <button onclick="openQuotes()" style="margin-left:auto;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">My Quotes</button>
+  <button onclick="openLeads()" style="margin-left:8px;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Leads</button>
   <button onclick="openProfile()" style="margin-left:8px;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Profile</button>
   <button onclick="logout()" style="margin-left:8px;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Log out</button>
 </header>
@@ -1617,6 +1625,10 @@ function openProfile(isOnboarding){
   document.getElementById('profCity').value = currentProfile?.business_city || '';
   document.getElementById('profProvince').value = currentProfile?.business_province || '';
   document.getElementById('profPostal').value = currentProfile?.business_postal || '';
+  document.getElementById('profSlug').value = currentProfile?.slug || '';
+  document.getElementById('profPublic').checked = !!currentProfile?.public_quote_enabled;
+  const _sl=document.getElementById('profSlugLink');
+  if(currentProfile?.slug){ _sl.style.display='block'; _sl.textContent='Your link: '+location.origin+'/q/?s='+currentProfile.slug; } else { _sl.style.display='none'; }
   document.getElementById('profTax').value = currentProfile?.default_tax_rate ?? '';
   document.getElementById('profDeposit').value = currentProfile?.default_deposit_pct ?? '';
   document.getElementById('profWarranty').value = currentProfile?.default_warranty || '';
@@ -1659,6 +1671,8 @@ async function saveProfile(){
   const city=document.getElementById('profCity').value.trim();
   const province=document.getElementById('profProvince').value.trim();
   const postal=document.getElementById('profPostal').value.trim();
+  const slug=(document.getElementById('profSlug').value||'').trim().toLowerCase().replace(/[^a-z0-9-]/g,'');
+  const publicEnabled=document.getElementById('profPublic').checked;
   const contact=[phone,cemail].filter(Boolean).join('  ·  ');
   const tax=document.getElementById('profTax').value;
   const deposit=document.getElementById('profDeposit').value;
@@ -1690,6 +1704,8 @@ async function saveProfile(){
     business_city:city,
     business_province:province,
     business_postal:postal,
+    slug: slug||null,
+    public_quote_enabled: publicEnabled,
     default_tax_rate: tax===''?null:parseFloat(tax),
     default_deposit_pct: deposit===''?null:parseFloat(deposit),
     default_warranty:warranty,
@@ -2029,6 +2045,65 @@ function renderQuotes(){
   }).join('');
 }
 
+// ===== Phase 4: Leads inbox =====
+let _leads=[];
+async function openLeads(){
+  document.getElementById('leadsGate').style.display='flex';
+  document.getElementById('leadsList').innerHTML='<div style="color:#777;font-size:13px;padding:12px;">Loading…</div>';
+  document.getElementById('leadsEmpty').style.display='none';
+  const share=document.getElementById('leadsShare');
+  if(currentProfile&&currentProfile.slug&&currentProfile.public_quote_enabled){
+    const url=location.origin+'/q/?s='+currentProfile.slug;
+    share.innerHTML='Your Virtual Quote link: <a href="'+url+'" target="_blank" style="color:#3a9e52;">'+url+'</a> · <a onclick="navigator.clipboard.writeText(\''+url+'\');this.textContent=\'Copied!\'" style="color:#9aa;cursor:pointer;text-decoration:underline;">Copy</a>';
+  } else {
+    share.innerHTML='Set a slug and enable your Virtual Quote page in <a onclick="hideLeads();openProfile()" style="color:#3a9e52;cursor:pointer;">Profile</a> to start collecting leads.';
+  }
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session){ authGateShow(); return; }
+    const {data,error}=await sb.from('leads').select('id,name,email,phone,trade,photo_url,render_url,status,created_at').eq('user_id',session.user.id).order('created_at',{ascending:false});
+    if(error){ document.getElementById('leadsList').innerHTML='<div style="color:#e05555;font-size:13px;padding:12px;">'+error.message+'</div>'; return; }
+    _leads=data||[];
+    renderLeads();
+  }catch(e){ document.getElementById('leadsList').innerHTML='<div style="color:#e05555;font-size:13px;padding:12px;">'+e.message+'</div>'; }
+}
+function hideLeads(){ document.getElementById('leadsGate').style.display='none'; }
+function renderLeads(){
+  const list=document.getElementById('leadsList');
+  document.getElementById('leadsEmpty').style.display=(_leads.length===0)?'block':'none';
+  const counts={}; _leads.forEach(x=>{ const s=(x.source||'direct'); counts[s]=(counts[s]||0)+1; });
+  const srcEl=document.getElementById('leadsSrc');
+  if(srcEl){ srcEl.innerHTML=_leads.length?('<b style="color:#cfd;">'+_leads.length+' leads</b>   ·   '+Object.keys(counts).map(k=>k+': '+counts[k]).join('   ·   ')):''; }
+  list.innerHTML=_leads.map(x=>{
+    const dt=x.created_at?new Date(x.created_at).toLocaleDateString('en-CA'):'';
+    const ph=x.photo_url?'<a href="'+x.photo_url+'" target="_blank"><img src="'+x.photo_url+'" style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:1px solid #2a2a2a;"></a>':'';
+    const rn=x.render_url?'<a href="'+x.render_url+'" target="_blank"><img src="'+x.render_url+'" style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:1px solid #2a2a2a;"></a>':'';
+    const contact=[x.email,x.phone].filter(Boolean).join('  ·  ');
+    const via=x.source?(' · via '+x.source):'';
+    return '<div style="border:1px solid #2a2a2a;border-radius:8px;padding:12px;display:flex;gap:12px;align-items:center;">'
+      +'<div style="display:flex;gap:6px;flex-shrink:0;">'+ph+rn+'</div>'
+      +'<div style="flex:1;min-width:0;"><div style="color:#fff;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(x.name||'(no name)')+' <span style="color:#666;font-weight:400;">· '+(x.trade||'')+via+'</span></div>'
+      +'<div style="color:#9aa;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+contact+'</div><div style="color:#777;font-size:11px;">'+dt+'</div></div>'
+      +'<span style="border:1px solid #c9a227;color:#c9a227;border-radius:99px;font-size:11px;padding:2px 10px;white-space:nowrap;">'+(x.status||'new')+'</span></div>';
+  }).join('');
+}
+function makeQR(){
+  if(!(currentProfile&&currentProfile.slug&&currentProfile.public_quote_enabled)){ alert('Set a slug and enable your Virtual Quote page in Profile first.'); return; }
+  if(typeof QRCode==='undefined'){ alert('QR library is still loading — try again in a moment.'); return; }
+  const src=(document.getElementById('qrSrc').value||'').toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,40);
+  const url=location.origin+'/q/?s='+currentProfile.slug+(src?('&src='+src):'');
+  const box=document.getElementById('qrCanvas'); box.innerHTML='';
+  new QRCode(box,{text:url,width:200,height:200,correctLevel:QRCode.CorrectLevel.M});
+  document.getElementById('qrUrl').textContent=url;
+  document.getElementById('qrOut').style.display='block';
+}
+function downloadQR(){
+  const cv=document.querySelector('#qrCanvas canvas'); const im=document.querySelector('#qrCanvas img');
+  const dataUrl = cv ? cv.toDataURL('image/png') : (im ? im.src : null);
+  if(!dataUrl) return;
+  const a=document.createElement('a'); a.href=dataUrl; a.download='finalook-qr.png'; a.click();
+}
+
 // check on load
 checkSession();
 </script>
@@ -2066,6 +2141,32 @@ checkSession();
     <input id="quotesSearch" oninput="renderQuotes()" placeholder="Search by client or quote #" style="width:100%;background:#0d0d0d;border:1px solid #2a2a2a;color:#ddd;border-radius:6px;padding:10px;font-size:13px;font-family:'Inter',sans-serif;margin-bottom:12px;"/>
     <div id="quotesList" style="display:grid;gap:8px;"></div>
     <div id="quotesEmpty" style="display:none;color:#777;font-size:13px;text-align:center;padding:24px;">No saved quotes yet. Build a quote, then "Save &amp; Send for Approval".</div>
+  </div>
+</div>
+
+<!-- ===== Phase 4: Leads inbox ===== -->
+<div id="leadsGate" style="position:fixed;inset:0;z-index:1100;background:rgba(8,8,8,.9);display:none;align-items:flex-start;justify-content:center;padding:30px 20px;overflow:auto;">
+  <div style="max-width:760px;width:100%;background:#121212;border:1px solid #2a2a2a;border-radius:12px;padding:24px;font-family:'Inter',sans-serif;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:#fff;">LEADS</div>
+      <button onclick="hideLeads()" style="margin-left:auto;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:13px;padding:7px 14px;border-radius:5px;cursor:pointer;">Close</button>
+    </div>
+    <div id="leadsShare" style="font-size:12px;color:#9aa;margin-bottom:14px;line-height:1.6;"></div>
+    <div id="qrBox" style="border:1px solid #2a2a2a;border-radius:8px;padding:14px;margin-bottom:14px;background:#0f0f0f;">
+      <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:8px;">QR code for signs, trucks &amp; cards</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input id="qrSrc" placeholder="Where will it go? e.g. truck, lawn-sign" style="flex:1;min-width:160px;background:#0d0d0d;border:1px solid #2a2a2a;color:#ddd;border-radius:6px;padding:9px;font-size:13px;font-family:'Inter',sans-serif;"/>
+        <button onclick="makeQR()" style="background:#3a9e52;border:none;color:#06210f;font-weight:700;border-radius:6px;padding:9px 14px;cursor:pointer;font-size:13px;">Generate QR</button>
+      </div>
+      <div id="qrOut" style="display:none;margin-top:12px;text-align:center;">
+        <div id="qrCanvas" style="display:inline-block;background:#fff;padding:10px;border-radius:8px;"></div>
+        <div id="qrUrl" style="font-size:11px;color:#9aa;margin-top:8px;word-break:break-all;"></div>
+        <button onclick="downloadQR()" style="margin-top:8px;background:transparent;border:1px solid #3a9e52;color:#3a9e52;border-radius:6px;padding:7px 14px;cursor:pointer;font-size:12px;">Download PNG</button>
+      </div>
+    </div>
+    <div id="leadsSrc" style="font-size:12px;color:#9aa;margin-bottom:12px;"></div>
+    <div id="leadsList" style="display:grid;gap:10px;"></div>
+    <div id="leadsEmpty" style="display:none;color:#777;font-size:13px;text-align:center;padding:24px;">No leads yet. Turn on your Virtual Quote page in Profile and share your link.</div>
   </div>
 </div>
 

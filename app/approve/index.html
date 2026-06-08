@@ -30,6 +30,20 @@
   .state .big{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:1px;}
   .foot{text-align:center;color:#555;font-size:11px;margin-top:18px;}
   .disclaimer{color:#666;font-size:11px;line-height:1.5;margin-top:14px;}
+  .contractor{margin-top:10px;padding-top:10px;border-top:1px solid #1e1e1e;color:#9a9a9a;font-size:13px;line-height:1.5;}
+  .contractor .addr{color:#7a7a7a;font-size:12px;}
+  .qtbl{width:100%;border-collapse:collapse;margin:18px 0 8px;font-size:13px;}
+  .qtbl th{text-align:left;color:#8a8a8a;font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;border-bottom:1px solid #242424;padding:8px 6px;}
+  .qtbl td{color:#ddd;padding:9px 6px;border-bottom:1px solid #1a1a1a;vertical-align:top;}
+  .qtbl .r{text-align:right;white-space:nowrap;color:#bdbdbd;}
+  .qtbl td.r:last-child{color:#fff;font-weight:600;}
+  .qtot{margin:10px 0 4px;}
+  .qtot-row{display:flex;justify-content:space-between;padding:5px 6px;font-size:13px;color:#bdbdbd;}
+  .qtot-row.sub{color:#8a8a8a;font-size:12px;}
+  .qtot-row.grand{border-top:1px solid #242424;margin-top:4px;padding-top:10px;color:#fff;font-size:16px;font-weight:700;}
+  .qsec{margin-top:16px;}
+  .qsec-h{color:#3a9e52;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+  .qsec-b{color:#9a9a9a;font-size:12.5px;line-height:1.6;}
   .spinner{display:inline-block;width:16px;height:16px;border:2px solid #333;border-top-color:#3a9e52;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;}
   @keyframes spin{to{transform:rotate(360deg);}}
 </style>
@@ -66,16 +80,53 @@ async function load(){
 }
 
 function renderQuote(){
+  const c = quote.contractor || {};
+  let contactLine = [c.contact_phone, c.contact_email].filter(Boolean).map(esc).join('  ·  ');
+  if(!contactLine && c.contact_info) contactLine = esc(c.contact_info);
+  const bizAddr = [c.business_address, c.business_city, c.business_province, c.business_postal].filter(Boolean).map(esc).join(', ');
+  const contractorBlock = (contactLine||bizAddr)
+    ? `<div class="contractor">${contactLine?`<div>${contactLine}</div>`:''}${bizAddr?`<div class="addr">${bizAddr}</div>`:''}</div>` : '';
+
   const logo = quote.logo_url ? `<img class="logo" src="${esc(quote.logo_url)}" alt="logo"/>` : '';
   const render = quote.render_url ? `<img class="render" src="${esc(quote.render_url)}" alt="Project render"/>` : '';
-  const pdf = quote.pdf_url ? `<a class="pdf" href="${esc(quote.pdf_url)}" target="_blank">View the full quote (PDF) ↗</a>` : '';
+  const pdf = quote.pdf_url ? `<a class="pdf" href="${esc(quote.pdf_url)}" target="_blank">Download the formal PDF ↗</a>` : '';
+
+  const p = quote.payload;
+  let full = '';
+  if(p){
+    const cur = quote.currency || 'CAD';
+    const m = n => cur + ' ' + Number(n||0).toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const num = v => { const x = parseFloat(v); return isNaN(x)?0:x; };
+    let subtotal = 0; const rows = [];
+    (p.rateItems||[]).forEach(it=>{ const amt=num(it.qty)*num(it.rate); if(it.desc||it.qty||it.rate){ subtotal+=amt; rows.push(`<tr><td>${esc(it.desc||'')}</td><td class="r">${esc(((it.qty||'')+' '+(it.unit||'')).trim())} @ ${m(num(it.rate))}</td><td class="r">${m(amt)}</td></tr>`); } });
+    (p.manualItems||[]).forEach(it=>{ const amt=num(it.price); if(it.desc||it.price){ subtotal+=amt; rows.push(`<tr><td>${esc(it.desc||'')}</td><td class="r"></td><td class="r">${m(amt)}</td></tr>`); } });
+    const taxRate=num(p.tax), depRate=num(p.deposit);
+    const tax=subtotal*taxRate/100, grand=subtotal+tax, dep=grand*depRate/100;
+    const secMap=[['Scope','Scope of Work'],['Incl','Inclusions & Exclusions'],['Pay','Payment Schedule'],['Warr','Warranty'],['Terms','Terms & Conditions'],['Notes','Notes']];
+    let secs='';
+    if(p.sections) secMap.forEach(([k,title])=>{ const s=p.sections[k]; if(s&&s.on!==false&&(s.text||'').trim()){ secs+=`<div class="qsec"><div class="qsec-h">${title}</div><div class="qsec-b">${esc(s.text).replace(/\n/g,'<br>')}</div></div>`; } });
+    full = `
+      <table class="qtbl"><thead><tr><th>Description</th><th class="r">Qty / Rate</th><th class="r">Amount</th></tr></thead><tbody>${rows.join('')||'<tr><td colspan="3" style="color:#777;">No line items.</td></tr>'}</tbody></table>
+      <div class="qtot">
+        <div class="qtot-row"><span>Subtotal</span><span>${m(subtotal)}</span></div>
+        <div class="qtot-row"><span>Tax (${taxRate}%)</span><span>${m(tax)}</span></div>
+        <div class="qtot-row grand"><span>Total</span><span class="green">${m(grand)}</span></div>
+        <div class="qtot-row"><span>Deposit due (${depRate}%)</span><span>${m(dep)}</span></div>
+        <div class="qtot-row sub"><span>Balance on completion</span><span>${m(grand-dep)}</span></div>
+      </div>
+      ${secs}`;
+  } else {
+    full = `<div class="row"><span class="lbl">Total</span><span class="total green">${money(quote.total,quote.currency)}</span></div>`;
+  }
+
   content.innerHTML = `
     ${logo}
-    <div class="company">${esc(quote.company_name||'Your Contractor')}</div>
+    <div class="company">${esc(quote.company_name||c.company_name||'Your Contractor')}</div>
     <div class="muted">Quote ${esc(quote.quote_number||'')}${quote.client_name?(' · for '+esc(quote.client_name)):''}</div>
+    ${contractorBlock}
     ${render}
     ${quote.project_address?`<div class="row"><span class="lbl">Project address</span><span>${esc(quote.project_address)}</span></div>`:''}
-    <div class="row"><span class="lbl">Total</span><span class="total green">${money(quote.total,quote.currency)}</span></div>
+    ${full}
     ${pdf}
     <textarea id="note" placeholder="Add a note for your contractor (optional)"></textarea>
     <div class="btns">

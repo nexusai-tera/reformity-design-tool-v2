@@ -17,9 +17,22 @@ export default async function handler(req, res) {
 
   const rows = await sbGet(
     `quotes?public_token=eq.${encodeURIComponent(token)}` +
-      `&select=quote_number,client_name,project_address,company_name,logo_url,total,currency,pdf_url,render_url,status,client_note&limit=1`
+      `&select=user_id,quote_number,client_name,project_address,company_name,logo_url,total,currency,pdf_url,render_url,status,client_note,payload&limit=1`
   );
   if (!Array.isArray(rows) || !rows[0]) return res.status(404).json({ error: 'Quote not found.' });
 
-  return res.status(200).json(rows[0]);
+  const q = rows[0];
+  const uid = q.user_id;
+  delete q.user_id; // never expose the owner id to the public page
+
+  // Attach the contractor's contact details so the client knows who's quoting and how to reach them.
+  if (uid) {
+    const pr = await sbGet(
+      `profiles?id=eq.${encodeURIComponent(uid)}` +
+        `&select=company_name,contact_phone,contact_email,contact_info,business_address,business_city,business_province,business_postal&limit=1`
+    );
+    if (Array.isArray(pr) && pr[0]) q.contractor = pr[0];
+  }
+
+  return res.status(200).json(q);
 }

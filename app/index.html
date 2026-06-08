@@ -245,6 +245,7 @@ footer span{color:var(--green);}
   <span id="usageBadge" onclick="showUpgrade()" title="Renders left this period — click to upgrade" style="margin-left:auto;display:none;align-items:center;gap:6px;font-family:'Inter',sans-serif;font-size:12px;color:#9aa;border:1px solid #2a2a2a;border-radius:5px;padding:7px 12px;cursor:pointer;"></span>
   <button onclick="openQuotes()" style="margin-left:auto;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">My Quotes</button>
   <button onclick="openLeads()" style="margin-left:8px;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Leads</button>
+  <button id="teamBtn" onclick="openTeam()" style="margin-left:8px;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Team</button>
   <button onclick="openProfile()" style="margin-left:8px;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Profile</button>
   <button onclick="logout()" style="margin-left:8px;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Log out</button>
 </header>
@@ -1533,6 +1534,8 @@ async function emailQuote(){
 const SUPABASE_URL='https://uywzmgjmlnodjlbnwyty.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5d3ptZ2ptbG5vZGpsYm53eXR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3Nzg4NDgsImV4cCI6MjA5NjM1NDg0OH0.6QkKWqpEe_jnKXmBJOUhmCSqOcG5sDJwStky3_88kms';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+let _accountId=null, _isMember=false, _plan=null;
+function applyMemberUI(){ const tb=document.getElementById('teamBtn'); if(tb) tb.style.display=_isMember?'none':''; }
 
 let authMode='signin'; // or 'signup'
 
@@ -1596,19 +1599,25 @@ async function checkSession(){
     return;
   }
   document.getElementById('authGate').style.display='none';
+  // Team seats: auto-accept a pending invite, then resolve the effective account.
+  try{ await sb.rpc('accept_pending_invite'); }catch(e){}
+  const {data:me}=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();
+  _isMember = !!(me && me.owner_id);
+  _accountId = (me && me.owner_id) ? me.owner_id : session.user.id;
+  if(_isMember){
+    const {data:owner}=await sb.from('profiles').select('*').eq('id',_accountId).maybeSingle();
+    currentProfile = owner || me;
+  } else {
+    currentProfile = me;
+  }
+  applyMemberUI();
   refreshUsage();
   handleCheckoutReturn();
 
-  // Load profile
-  const {data:profile,error:profErr}=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();
-  if(profErr){
-    console.error('Profile load error:',profErr);
-  }
-  currentProfile=profile;
-
-  const hasCompany = profile && profile.company_name && profile.company_name.trim().length>0;
-  if(!hasCompany){
-    // first time — show onboarding (not cancellable)
+  const hasCompany = currentProfile && currentProfile.company_name && currentProfile.company_name.trim().length>0;
+  if(_isMember){
+    applyProfileToQuote();
+  } else if(!hasCompany){
     openProfile(true);
   } else {
     applyProfileToQuote();
@@ -1688,7 +1697,7 @@ async function saveProfile(){
   if(pendingLogoFile){
     msg.textContent='Uploading logo...';msg.style.color='#888';msg.style.display='block';
     const ext=pendingLogoFile.name.split('.').pop().toLowerCase();
-    const path=`${session.user.id}/logo.${ext}`;
+    const path=`${_accountId||session.user.id}/logo.${ext}`;
     const {error:upErr}=await sb.storage.from('logos').upload(path,pendingLogoFile,{upsert:true,contentType:pendingLogoFile.type});
     if(upErr){msg.textContent='Logo upload failed: '+upErr.message;msg.style.color='#e05555';return;}
     const {data:pub}=sb.storage.from('logos').getPublicUrl(path);
@@ -1713,7 +1722,7 @@ async function saveProfile(){
     logo_url:logoUrl
   };
 
-  const {error}=await sb.from('profiles').update(updates).eq('id',session.user.id);
+  const {error}=await sb.from('profiles').update(updates).eq('id',_accountId||session.user.id);
   if(error){msg.textContent=error.message;msg.style.color='#e05555';msg.style.display='block';return;}
 
   currentProfile={...currentProfile,...updates};
@@ -1761,12 +1770,13 @@ async function refreshUsage(){
   try{
     const {data:{session}}=await sb.auth.getSession();
     if(!session) return;
-    const uid=session.user.id;
+    const uid=_accountId||session.user.id;
     const [usageRes, subRes]=await Promise.all([
       sb.from('usage').select('renders_used,render_limit,limit_type,period_start').eq('user_id',uid).maybeSingle(),
       sb.from('subscriptions').select('plan,status,trial_ends_at').eq('user_id',uid).maybeSingle()
     ]);
     const usage=usageRes.data, sub=subRes.data;
+    _plan = sub ? sub.plan : null;
     const badge=document.getElementById('usageBadge');
     if(!badge) return;
     if(!usage||!sub){ badge.style.display='none'; return; }
@@ -1810,6 +1820,7 @@ function setUpgPeriod(p){
 }
 
 async function startUpgrade(plan){
+  if(_isMember){ alert('Your team owner manages the plan and billing.'); return; }
   if(!plan) return; // each plan button passes its own name
   try{
     const {data:{session}}=await sb.auth.getSession();
@@ -1826,6 +1837,7 @@ async function startUpgrade(plan){
 }
 
 async function openBillingPortal(){
+  if(_isMember){ alert('Your team owner manages billing.'); return; }
   try{
     const {data:{session}}=await sb.auth.getSession();
     if(!session){ authGateShow(); return; }
@@ -1876,7 +1888,7 @@ async function saveAndSendForApproval(){
     btn.disabled=true;
     status.innerHTML='<span class="spinner"></span>Saving quote…';
     status.className='status-msg show';
-    const uid=session.user.id;
+    const uid=_accountId||session.user.id;
     const {doc,qNum,client,company}=await buildQuoteDoc();
     const d=getQuoteData();
     const pdfB64=doc.output('datauristring').split(',')[1];
@@ -2011,7 +2023,7 @@ async function openQuotes(){
     if(!session){ authGateShow(); return; }
     const {data,error}=await sb.from('quotes')
       .select('id,quote_number,client_name,total,currency,status,pdf_url,public_token,created_at,decided_at,render_url,payload')
-      .eq('user_id',session.user.id).order('created_at',{ascending:false});
+      .eq('user_id',_accountId||session.user.id).order('created_at',{ascending:false});
     if(error){ document.getElementById('quotesList').innerHTML='<div style="color:#e05555;font-size:13px;padding:12px;">'+error.message+'</div>'; return; }
     _quotesCache=data||[];
     renderQuotesStats();
@@ -2061,7 +2073,7 @@ async function openLeads(){
   try{
     const {data:{session}}=await sb.auth.getSession();
     if(!session){ authGateShow(); return; }
-    const {data,error}=await sb.from('leads').select('id,name,email,phone,trade,photo_url,render_url,status,created_at').eq('user_id',session.user.id).order('created_at',{ascending:false});
+    const {data,error}=await sb.from('leads').select('id,name,email,phone,trade,photo_url,render_url,status,created_at').eq('user_id',_accountId||session.user.id).order('created_at',{ascending:false});
     if(error){ document.getElementById('leadsList').innerHTML='<div style="color:#e05555;font-size:13px;padding:12px;">'+error.message+'</div>'; return; }
     _leads=data||[];
     renderLeads();
@@ -2122,6 +2134,48 @@ async function createQuoteFromLead(id){
   if(typeof recalcQuote==='function') recalcQuote();
   hideLeads();
   const qc=document.getElementById('quoteCard'); if(qc){ qc.className='results card show'; qc.scrollIntoView({behavior:'smooth'}); }
+}
+
+// ===== Phase 6: Team management =====
+function hideTeam(){ document.getElementById('teamGate').style.display='none'; }
+async function openTeam(){
+  if(_isMember) return;
+  document.getElementById('teamGate').style.display='flex';
+  document.getElementById('teamMsg').textContent='';
+  document.getElementById('teamList').innerHTML='<div style="color:#777;font-size:13px;">Loading…</div>';
+  const capNum=_plan==='crew'?9999:(_plan==='pro'?3:1);
+  const capTxt=_plan==='crew'?'unlimited':String(capNum);
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    const [memRes,invRes]=await Promise.all([
+      sb.from('profiles').select('id,email').eq('owner_id',session.user.id),
+      sb.from('team_invites').select('id,email,status').eq('owner_id',session.user.id).order('created_at',{ascending:false})
+    ]);
+    const members=memRes.data||[];
+    const pending=(invRes.data||[]).filter(x=>x.status==='pending');
+    const used=1+members.length;
+    document.getElementById('teamSeats').innerHTML='<b style="color:#cfd;">'+used+'</b> of '+capTxt+' seats used   ·   '+(_plan?(_plan.charAt(0).toUpperCase()+_plan.slice(1)):'Trial')+' plan';
+    let html='<div style="border:1px solid #2a2a2a;border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;">You (owner) <span style="color:#9aa;">· '+((currentProfile&&currentProfile.email)||'')+'</span></div>';
+    html+=members.map(m=>'<div style="border:1px solid #2a2a2a;border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;">'+(m.email||'member')+' <span style="color:#3a9e52;font-size:11px;">· active</span></div>').join('');
+    html+=pending.map(p=>'<div style="border:1px solid #2a2a2a;border-radius:8px;padding:10px 12px;color:#bdbdbd;font-size:13px;">'+(p.email||'')+' <span style="color:#c9a227;font-size:11px;">· invited</span></div>').join('');
+    document.getElementById('teamList').innerHTML=html;
+    const full=_plan!=='crew' && used>=capNum;
+    document.getElementById('teamInviteWrap').style.display=full?'none':'block';
+    if(full) document.getElementById('teamMsg').innerHTML='<span style="color:#9aa;">All seats used — upgrade to add more.</span>';
+  }catch(e){ document.getElementById('teamList').innerHTML='<div style="color:#e05555;font-size:13px;">'+e.message+'</div>'; }
+}
+async function inviteMember(){
+  const email=(document.getElementById('teamEmail').value||'').trim().toLowerCase();
+  const s=document.getElementById('teamMsg');
+  if(!/^[^@]+@[^@]+\.[^@]+$/.test(email)){ s.style.color='#e05555'; s.textContent='Enter a valid email.'; return; }
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    const {error}=await sb.from('team_invites').insert({owner_id:session.user.id, email});
+    if(error) throw new Error(error.message);
+    document.getElementById('teamEmail').value='';
+    s.style.color='#3a9e52'; s.textContent='Invited '+email+'.';
+    openTeam();
+  }catch(e){ s.style.color='#e05555'; s.textContent=e.message; }
 }
 
 // check on load
@@ -2187,6 +2241,27 @@ checkSession();
     <div id="leadsSrc" style="font-size:12px;color:#9aa;margin-bottom:12px;"></div>
     <div id="leadsList" style="display:grid;gap:10px;"></div>
     <div id="leadsEmpty" style="display:none;color:#777;font-size:13px;text-align:center;padding:24px;">No leads yet. Turn on your Virtual Quote page in Profile and share your link.</div>
+  </div>
+</div>
+
+<!-- ===== Phase 6: Team modal ===== -->
+<div id="teamGate" style="position:fixed;inset:0;z-index:1100;background:rgba(8,8,8,.9);display:none;align-items:flex-start;justify-content:center;padding:30px 20px;overflow:auto;">
+  <div style="max-width:520px;width:100%;background:#121212;border:1px solid #2a2a2a;border-radius:12px;padding:24px;font-family:'Inter',sans-serif;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:#fff;">TEAM</div>
+      <button onclick="hideTeam()" style="margin-left:auto;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:13px;padding:7px 14px;border-radius:5px;cursor:pointer;">Close</button>
+    </div>
+    <div id="teamSeats" style="font-size:13px;color:#9aa;margin-bottom:14px;"></div>
+    <div id="teamList" style="display:grid;gap:8px;margin-bottom:14px;"></div>
+    <div id="teamInviteWrap">
+      <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:6px;">Invite a teammate</div>
+      <div style="display:flex;gap:8px;">
+        <input id="teamEmail" type="email" placeholder="teammate@email.com" style="flex:1;background:#0d0d0d;border:1px solid #2a2a2a;color:#ddd;border-radius:6px;padding:10px;font-size:13px;font-family:'Inter',sans-serif;"/>
+        <button onclick="inviteMember()" style="background:#3a9e52;border:none;color:#06210f;font-weight:700;border-radius:6px;padding:10px 16px;cursor:pointer;font-size:13px;">Invite</button>
+      </div>
+      <p style="font-size:11px;color:#777;margin-top:6px;">They join your team automatically when they sign up at app.finalook.ai with that email.</p>
+    </div>
+    <div id="teamMsg" style="font-size:13px;margin-top:10px;"></div>
   </div>
 </div>
 

@@ -1288,11 +1288,11 @@ async function buildQuoteDoc(){
   const dateStr=today.toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'});
   const expStr=expiry.toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'});
 
-  // Template palettes
+  // Template palettes (bold & branded: strong header band, accent total + table)
   const palettes={
-    executive:{bar:[10,10,10],   accent:[31,92,46],  accentLt:[58,158,82], headTxt:[244,244,242], tableHead:[26,26,26]},
-    modern:   {bar:[31,92,46],   accent:[31,92,46],  accentLt:[42,122,61], headTxt:[255,255,255], tableHead:[31,92,46]},
-    minimal:  {bar:[255,255,255],accent:[31,92,46],  accentLt:[58,158,82], headTxt:[20,20,20],     tableHead:[240,240,238]}
+    executive:{bar:[17,17,19],   accent:[31,92,46], accentLt:[58,158,82], headTxt:[255,255,255], headSub:[170,172,178], tableHead:[24,24,26],   tableTxt:[255,255,255]},
+    modern:   {bar:[31,92,46],   accent:[31,92,46], accentLt:[58,158,82], headTxt:[255,255,255], headSub:[205,228,210], tableHead:[31,92,46],   tableTxt:[255,255,255]},
+    minimal:  {bar:[248,248,246],accent:[31,92,46], accentLt:[58,158,82], headTxt:[24,24,26],     headSub:[120,122,128], tableHead:[238,238,236], tableTxt:[30,30,32]}
   };
   let P;
   if(template==='brand'){
@@ -1300,7 +1300,7 @@ async function buildQuoteDoc(){
     if(raw){
       const brand=darkenForContrast(raw);
       const cap=v=>Math.min(v+45,255);
-      P={bar:brand, accent:brand, accentLt:[cap(brand[0]),cap(brand[1]),cap(brand[2])], headTxt:[255,255,255], tableHead:brand};
+      P={bar:brand, accent:brand, accentLt:[cap(brand[0]),cap(brand[1]),cap(brand[2])], headTxt:[255,255,255], headSub:[225,230,226], tableHead:brand, tableTxt:[255,255,255]};
     } else {
       P=palettes.executive; // no logo to sample — fall back to the dark template
     }
@@ -1309,65 +1309,40 @@ async function buildQuoteDoc(){
   }
   let y=0;
 
-  // ---- HEADER ----
-  if(template==='minimal'){
-    y=58;
-    // logo top-right
-    if(logoData){ try{ doc.addImage(logoData,logoFmt,W-M-54,28,54,40); }catch(e){} }
-    doc.setTextColor(20,20,20);doc.setFont('helvetica','bold');doc.setFontSize(26);
-    doc.text(company,M,y);
-    doc.setDrawColor(P.accent[0],P.accent[1],P.accent[2]);doc.setLineWidth(2);
-    doc.line(M,y+10,M+44,y+10);
-    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(120,120,120);
-    if(contact)doc.text(contact,M,y+26);
-    doc.setTextColor(20,20,20);doc.setFont('helvetica','bold');doc.setFontSize(11);
-    doc.text('QUOTATION',W-M,y+22,{align:'right'});
-    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(120,120,120);
-    doc.text(qNum,W-M,y+34,{align:'right'});
-    y+=58;
-  } else {
-    const barH=78;
-    doc.setFillColor(P.bar[0],P.bar[1],P.bar[2]);doc.rect(0,0,W,barH,'F');
-    // accent stripe
-    doc.setFillColor(P.accentLt[0],P.accentLt[1],P.accentLt[2]);doc.rect(0,barH,W,3,'F');
-    // logo on the right side of the bar
-    if(logoData){ try{ doc.addImage(logoData,logoFmt,W-M-50,18,50,42); }catch(e){} }
-    doc.setTextColor(P.headTxt[0],P.headTxt[1],P.headTxt[2]);doc.setFont('helvetica','bold');doc.setFontSize(24);
-    doc.text(company,M,46);
-    doc.setFont('helvetica','normal');doc.setFontSize(9);
-    doc.setTextColor(template==='modern'?220:170,template==='modern'?235:170,template==='modern'?225:170);
-    if(contact)doc.text(contact,M,62);
-    // QUOTATION label moves left of logo if logo present
-    const qx = logoData ? W-M-60 : W-M;
-    const qa = logoData ? 'right' : 'right';
-    doc.setTextColor(P.headTxt[0],P.headTxt[1],P.headTxt[2]);doc.setFont('helvetica','bold');doc.setFontSize(13);
-    if(!logoData){ doc.text('QUOTATION',W-M,42,{align:'right'});
-      doc.setFont('helvetica','normal');doc.setFontSize(8.5);
-      doc.setTextColor(template==='modern'?220:180,template==='modern'?235:180,template==='modern'?225:180);
-      doc.text(qNum,W-M,58,{align:'right'});
-    } else {
-      doc.setFont('helvetica','normal');doc.setFontSize(8);
-      doc.setTextColor(template==='modern'?220:180,template==='modern'?235:180,template==='modern'?225:180);
-      doc.text(qNum,W-M,72,{align:'right'});
-    }
-    y=barH+28;
-  }
+  // ---- HEADER BAND (shared by all templates) ----
+  const bandH=112;
+  doc.setFillColor(P.bar[0],P.bar[1],P.bar[2]);doc.rect(0,0,W,bandH,'F');
+  doc.setFillColor(P.accentLt[0],P.accentLt[1],P.accentLt[2]);doc.rect(0,bandH,W,5,'F');
+  let logoShown=false;
+  if(logoData){ try{ doc.setFillColor(255,255,255);doc.roundedRect(W-M-60,22,60,48,5,5,'F'); doc.addImage(logoData,logoFmt,W-M-56,26,52,40); logoShown=true; }catch(e){} }
+  doc.setTextColor(P.headTxt[0],P.headTxt[1],P.headTxt[2]);doc.setFont('helvetica','bold');doc.setFontSize(27);
+  doc.text(company,M,54);
+  doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(P.headSub[0],P.headSub[1],P.headSub[2]);
+  let hy=75; if(contact){ doc.text(contact,M,hy); hy+=14; }
+  const bizAddr=[currentProfile?.business_address,currentProfile?.business_city,currentProfile?.business_province,currentProfile?.business_postal].filter(Boolean).join(', ');
+  if(bizAddr){ doc.text(bizAddr,M,hy); }
+  doc.setTextColor(P.headTxt[0],P.headTxt[1],P.headTxt[2]);doc.setFont('helvetica','bold');doc.setFontSize(10);
+  doc.text('QUOTATION',W-M,logoShown?86:46,{align:'right'});
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(P.headSub[0],P.headSub[1],P.headSub[2]);
+  doc.text(qNum,W-M,logoShown?100:60,{align:'right'});
+  y=bandH+40;
 
-  // ---- META ROW (date / valid until / prepared for) ----
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(140,140,140);
+  // ---- META ROW (prepared for / date / valid until) ----
+  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(128,130,136);
   doc.text('PREPARED FOR',M,y);
-  doc.text('DATE',W-220,y);
-  doc.text('VALID UNTIL',W-120,y);
-  y+=14;
-  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(25,25,25);
+  doc.text('DATE',W-205,y);
+  doc.text('VALID UNTIL',W-110,y);
+  y+=15;
+  doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(30,30,32);
   let pfY=y;
-  if(client){doc.setFont('helvetica','bold');doc.text(client,M,pfY);pfY+=13;doc.setFont('helvetica','normal');}
-  if(address){doc.setFontSize(9);doc.setTextColor(90,90,90);doc.text(address,M,pfY,{maxWidth:260});pfY+=12;}
-  doc.setFontSize(9);doc.setTextColor(60,60,60);
-  doc.text(dateStr,W-220,y);
+  if(client){doc.text(client,M,pfY);pfY+=14;}
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(125,127,133);
+  if(address){doc.text(doc.splitTextToSize(address,250),M,pfY);pfY+=12;}
+  doc.setFontSize(9.5);doc.setTextColor(30,30,32);doc.setFont('helvetica','normal');
+  doc.text(dateStr,W-205,y);
   doc.setTextColor(P.accent[0],P.accent[1],P.accent[2]);doc.setFont('helvetica','bold');
-  doc.text(expStr,W-120,y);
-  y=Math.max(pfY,y+12)+16;
+  doc.text(expStr,W-110,y);
+  y=Math.max(pfY,y+12)+22;
 
   // ---- RENDER IMAGES ----
   try{
@@ -1390,53 +1365,46 @@ async function buildQuoteDoc(){
   }catch(e){}
 
   // ---- LINE ITEMS TABLE ----
-  const tableTxt=template==='minimal'?[20,20,20]:[255,255,255];
-  doc.setFillColor(P.tableHead[0],P.tableHead[1],P.tableHead[2]);doc.rect(M,y,W-2*M,24,'F');
+  const tableTxt=P.tableTxt||[255,255,255];
+  doc.setFillColor(P.tableHead[0],P.tableHead[1],P.tableHead[2]);doc.rect(M,y,W-2*M,26,'F');
   doc.setTextColor(tableTxt[0],tableTxt[1],tableTxt[2]);doc.setFont('helvetica','bold');doc.setFontSize(8.5);
-  doc.text('DESCRIPTION',M+10,y+16);
-  doc.text('QTY',W-235,y+16);
-  doc.text('RATE',W-160,y+16);
-  doc.text('AMOUNT',W-M-10,y+16,{align:'right'});
-  y+=24;
+  doc.text('DESCRIPTION',M+12,y+17);
+  doc.text('QTY / RATE',W-200,y+17);
+  doc.text('AMOUNT',W-M-12,y+17,{align:'right'});
+  y+=26;
 
-  const drawRow=(cols,idx,isManual)=>{
-    if(idx%2===1){doc.setFillColor(247,247,245);doc.rect(M,y,W-2*M,22,'F');}
-    doc.setTextColor(35,35,35);doc.setFont('helvetica','normal');doc.setFontSize(9.5);
-    doc.text(cols.desc||'-',M+10,y+14,{maxWidth:W-300});
-    if(!isManual){
-      doc.setTextColor(90,90,90);doc.setFontSize(9);
-      doc.text(`${cols.qty} ${cols.unit}`,W-235,y+14);
-      doc.text(fmt(cols.rate),W-160,y+14);
-    }
-    doc.setTextColor(35,35,35);doc.setFont('helvetica','bold');doc.setFontSize(9.5);
-    doc.text(fmt(cols.amount),W-M-10,y+14,{align:'right'});
-    y+=22;
+  let ri=0; const rowH=24;
+  const drawRow=(desc,qr,amount)=>{
+    if(ri%2===1){doc.setFillColor(248,248,247);doc.rect(M,y,W-2*M,rowH,'F');}
+    doc.setTextColor(30,30,32);doc.setFont('helvetica','normal');doc.setFontSize(9.5);
+    doc.text(doc.splitTextToSize(desc||'-',W-260),M+12,y+15);
+    if(qr){doc.setTextColor(128,130,136);doc.setFontSize(9);doc.text(qr,W-200,y+15);}
+    doc.setTextColor(30,30,32);doc.setFont('helvetica','bold');doc.setFontSize(9.5);
+    doc.text(fmt(amount),W-M-12,y+15,{align:'right'});
+    y+=rowH; ri++;
   };
-
-  let ri=0;
-  d.rateItems.forEach(it=>{drawRow({desc:it.desc,qty:it.qty,unit:it.unit,rate:it.rate,amount:it.total},ri++,false);});
-  d.manualItems.forEach(it=>{drawRow({desc:it.desc,amount:it.price},ri++,true);});
+  d.rateItems.forEach(it=>{drawRow(it.desc,`${it.qty} ${it.unit} @ ${fmt(it.rate)}`,it.total);});
+  d.manualItems.forEach(it=>{drawRow(it.desc,'',it.price);});
 
   // bottom border of table
-  doc.setDrawColor(220,220,218);doc.setLineWidth(0.5);doc.line(M,y,W-M,y);
-  y+=18;
+  doc.setDrawColor(230,230,232);doc.setLineWidth(0.8);doc.line(M,y,W-M,y);
+  y+=20;
 
   // ---- TOTALS ----
-  const lblX=W-200, valX=W-M-10;
-  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(70,70,70);
-  doc.text('Subtotal',lblX,y);doc.text(fmt(d.subtotal),valX,y,{align:'right'});y+=16;
-  doc.text(`Tax (${d.taxRate}%)`,lblX,y);doc.text(fmt(d.tax),valX,y,{align:'right'});y+=8;
-  doc.setDrawColor(200,200,198);doc.line(lblX,y,valX,y);y+=16;
+  const lblX=W-210, valX=W-M-12;
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(128,130,136);
+  doc.text('Subtotal',lblX,y);doc.text(fmt(d.subtotal),valX,y,{align:'right'});y+=17;
+  doc.text(`Tax (${d.taxRate}%)`,lblX,y);doc.text(fmt(d.tax),valX,y,{align:'right'});y+=12;
   // grand total band
   doc.setFillColor(P.accent[0],P.accent[1],P.accent[2]);
-  doc.rect(lblX-12,y-13,valX-lblX+24,24,'F');
-  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(12);
-  doc.text('TOTAL',lblX,y+3);doc.text(fmt(d.grand),valX,y+3,{align:'right'});
-  y+=30;
+  doc.rect(lblX-14,y-2,valX-lblX+26,30,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(13);
+  doc.text('TOTAL',lblX,y+18);doc.text(fmt(d.grand),valX,y+18,{align:'right'});
+  y+=46;
   doc.setTextColor(P.accent[0],P.accent[1],P.accent[2]);doc.setFont('helvetica','bold');doc.setFontSize(10);
   doc.text(`Deposit Due (${d.depositRate}%)`,lblX,y);doc.text(fmt(d.deposit),valX,y,{align:'right'});
-  y+=14;
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(90,90,90);
+  y+=15;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(128,130,136);
   doc.text(`Balance on Completion`,lblX,y);doc.text(fmt(d.grand-d.deposit),valX,y,{align:'right'});
   y+=30;
 

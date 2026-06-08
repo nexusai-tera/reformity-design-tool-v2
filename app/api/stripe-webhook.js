@@ -21,9 +21,13 @@ const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 export const config = { api: { bodyParser: false } };
 
 const PRICE_TO_PLAN = {};
-if (process.env.STRIPE_PRICE_SOLO) PRICE_TO_PLAN[process.env.STRIPE_PRICE_SOLO] = 'solo';
-if (process.env.STRIPE_PRICE_PRO) PRICE_TO_PLAN[process.env.STRIPE_PRICE_PRO] = 'pro';
-if (process.env.STRIPE_PRICE_CREW) PRICE_TO_PLAN[process.env.STRIPE_PRICE_CREW] = 'crew';
+const mapPrice = (id, plan) => { if (id) PRICE_TO_PLAN[id] = plan; };
+mapPrice(process.env.STRIPE_PRICE_SOLO, 'solo');
+mapPrice(process.env.STRIPE_PRICE_PRO, 'pro');
+mapPrice(process.env.STRIPE_PRICE_CREW, 'crew');
+mapPrice(process.env.STRIPE_PRICE_SOLO_ANNUAL, 'solo');
+mapPrice(process.env.STRIPE_PRICE_PRO_ANNUAL, 'pro');
+mapPrice(process.env.STRIPE_PRICE_CREW_ANNUAL, 'crew');
 
 async function readRaw(req) {
   const chunks = [];

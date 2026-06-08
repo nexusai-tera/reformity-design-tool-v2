@@ -1761,6 +1761,20 @@ function showUpgrade(q){
   document.getElementById('upgradeGate').style.display='flex';
 }
 function hideUpgrade(){const g=document.getElementById('upgradeGate'); if(g) g.style.display='none';}
+let _upgPeriod='monthly';
+function setUpgPeriod(p){
+  _upgPeriod = p==='annual'?'annual':'monthly';
+  const on='background:#3a9e52;border:none;color:#06210f;font-weight:700;font-size:12px;padding:6px 16px;border-radius:999px;cursor:pointer;';
+  const off='background:transparent;border:none;color:#9aa;font-weight:700;font-size:12px;padding:6px 16px;border-radius:999px;cursor:pointer;';
+  document.getElementById('upgMonthly').style.cssText = _upgPeriod==='monthly'?on:off;
+  document.getElementById('upgAnnual').style.cssText  = _upgPeriod==='annual'?on:off;
+  document.querySelectorAll('.upg-price').forEach(el=>{ el.textContent = _upgPeriod==='annual'?el.dataset.a:el.dataset.m; });
+  const note=document.getElementById('upgNote');
+  if(note) note.textContent = _upgPeriod==='annual'
+    ? 'Billed yearly — save 25%. Card required, no charge until your 14-day trial ends. Cancel anytime.'
+    : 'Card required. No charge until your 14-day trial ends. Cancel anytime.';
+}
+
 async function startUpgrade(plan){
   if(!plan) return; // each plan button passes its own name
   try{
@@ -1769,7 +1783,7 @@ async function startUpgrade(plan){
     const res=await fetch('/api/create-checkout',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
-      body:JSON.stringify({plan})
+      body:JSON.stringify({plan, period:_upgPeriod})
     });
     const data=await res.json().catch(()=>({}));
     if(!res.ok||!data.url){ alert(data.error||'Could not start checkout. Please try again.'); return; }
@@ -1945,13 +1959,19 @@ checkSession();
 <div id="upgradeGate" style="position:fixed;inset:0;z-index:1100;background:rgba(8,8,8,.85);display:none;align-items:center;justify-content:center;padding:20px;">
   <div style="max-width:420px;width:100%;background:#121212;border:1px solid #2a2a2a;border-radius:12px;padding:28px;font-family:'Inter',sans-serif;">
     <div style="font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;color:#fff;">UPGRADE <span style="color:#3a9e52;">FINALOOK</span></div>
-    <p id="upgradeMsg" style="color:#bbb;font-size:14px;line-height:1.6;margin:12px 0 18px;">You've reached your render limit.</p>
-    <div style="display:grid;gap:10px;">
-      <button onclick="startUpgrade('solo')" style="text-align:left;border:1px solid #2a2a2a;background:#181818;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Inter',sans-serif;"><span style="color:#fff;font-weight:600;">Solo</span><span style="color:#9aa;">$49/mo · 30 renders</span></button>
-      <button onclick="startUpgrade('pro')" style="text-align:left;border:1px solid #3a9e52;background:#13231a;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Inter',sans-serif;"><span style="color:#fff;font-weight:600;">Pro <span style="color:#3a9e52;font-weight:700;font-size:11px;">★ POPULAR</span></span><span style="color:#9aa;">$99/mo · 100 renders</span></button>
-      <button onclick="startUpgrade('crew')" style="text-align:left;border:1px solid #2a2a2a;background:#181818;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Inter',sans-serif;"><span style="color:#fff;font-weight:600;">Crew</span><span style="color:#9aa;">$199/mo · unlimited</span></button>
+    <p id="upgradeMsg" style="color:#bbb;font-size:14px;line-height:1.6;margin:12px 0 14px;">You've reached your render limit.</p>
+    <div style="display:flex;justify-content:center;margin-bottom:14px;">
+      <div style="display:inline-flex;gap:4px;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:999px;padding:4px;">
+        <button id="upgMonthly" onclick="setUpgPeriod('monthly')" style="background:#3a9e52;border:none;color:#06210f;font-weight:700;font-size:12px;padding:6px 16px;border-radius:999px;cursor:pointer;">Monthly</button>
+        <button id="upgAnnual" onclick="setUpgPeriod('annual')" style="background:transparent;border:none;color:#9aa;font-weight:700;font-size:12px;padding:6px 16px;border-radius:999px;cursor:pointer;">Annual −25%</button>
+      </div>
     </div>
-    <p style="color:#777;font-size:11px;line-height:1.5;margin:12px 0 0;">Card required. No charge until your 14-day trial ends. Cancel anytime.</p>
+    <div style="display:grid;gap:10px;">
+      <button onclick="startUpgrade('solo')" style="text-align:left;border:1px solid #2a2a2a;background:#181818;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Inter',sans-serif;"><span style="color:#fff;font-weight:600;">Solo</span><span class="upg-price" data-m="$49/mo · 30 renders" data-a="$441/yr · 30 renders" style="color:#9aa;">$49/mo · 30 renders</span></button>
+      <button onclick="startUpgrade('pro')" style="text-align:left;border:1px solid #3a9e52;background:#13231a;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Inter',sans-serif;"><span style="color:#fff;font-weight:600;">Pro <span style="color:#3a9e52;font-weight:700;font-size:11px;">★ POPULAR</span></span><span class="upg-price" data-m="$99/mo · 100 renders" data-a="$891/yr · 100 renders" style="color:#9aa;">$99/mo · 100 renders</span></button>
+      <button onclick="startUpgrade('crew')" style="text-align:left;border:1px solid #2a2a2a;background:#181818;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Inter',sans-serif;"><span style="color:#fff;font-weight:600;">Crew</span><span class="upg-price" data-m="$199/mo · unlimited" data-a="$1,791/yr · unlimited" style="color:#9aa;">$199/mo · unlimited</span></button>
+    </div>
+    <p id="upgNote" style="color:#777;font-size:11px;line-height:1.5;margin:12px 0 0;">Card required. No charge until your 14-day trial ends. Cancel anytime.</p>
     <button onclick="hideUpgrade()" style="margin-top:14px;width:100%;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:13px;padding:10px;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;">Not now</button>
     <div style="text-align:center;margin-top:10px;"><a onclick="openBillingPortal()" style="color:#3a9e52;font-size:12px;cursor:pointer;text-decoration:underline;">Manage existing billing</a></div>
   </div>

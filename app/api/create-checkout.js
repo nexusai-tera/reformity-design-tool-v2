@@ -19,9 +19,16 @@ const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SEC
 const APP_URL = process.env.APP_URL || 'https://app.finalook.ai';
 
 const PRICES = {
-  solo: process.env.STRIPE_PRICE_SOLO,
-  pro: process.env.STRIPE_PRICE_PRO,
-  crew: process.env.STRIPE_PRICE_CREW,
+  monthly: {
+    solo: process.env.STRIPE_PRICE_SOLO,
+    pro: process.env.STRIPE_PRICE_PRO,
+    crew: process.env.STRIPE_PRICE_CREW,
+  },
+  annual: {
+    solo: process.env.STRIPE_PRICE_SOLO_ANNUAL,
+    pro: process.env.STRIPE_PRICE_PRO_ANNUAL,
+    crew: process.env.STRIPE_PRICE_CREW_ANNUAL,
+  },
 };
 
 export default async function handler(req, res) {
@@ -35,8 +42,9 @@ export default async function handler(req, res) {
   if (!user) return res.status(401).json({ error: 'Your session expired. Please sign in again.' });
 
   const plan = String(req.body?.plan || '').toLowerCase();
-  const price = PRICES[plan];
-  if (!price) return res.status(400).json({ error: `Unknown or unconfigured plan: "${plan}".` });
+  const period = String(req.body?.period || 'monthly').toLowerCase() === 'annual' ? 'annual' : 'monthly';
+  const price = (PRICES[period] || {})[plan];
+  if (!price) return res.status(400).json({ error: `Unknown or unconfigured plan: "${plan}" (${period}).` });
 
   // Find or create the Stripe customer for this user.
   let customerId = null;
@@ -67,7 +75,7 @@ export default async function handler(req, res) {
       line_items: [{ price, quantity: 1 }],
       subscription_data: {
         trial_period_days: 14,
-        metadata: { user_id: user.id, plan },
+        metadata: { user_id: user.id, plan, period },
       },
       payment_method_collection: 'always', // card required, even for the trial
       allow_promotion_codes: true,

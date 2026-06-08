@@ -731,6 +731,7 @@ footer span{color:var(--green);}
           <option value="executive">Executive — dark header, refined</option>
           <option value="modern">Modern — green accent, clean</option>
           <option value="minimal">Minimal — light, editorial</option>
+          <option value="brand">Brand — match my logo colour</option>
         </select>
       </div>
       <div class="field"><label>Quote Valid For (days)</label><input class="q-input" id="qValid" type="number" value="30"/></div>
@@ -1216,6 +1217,43 @@ async function ensureJsPDF(){
   }
 }
 
+// Darken a colour until white text is readable on it (perceived luminance <= ~120).
+function darkenForContrast(rgb){
+  let [r,g,b]=rgb;
+  const lum=0.2126*r+0.7152*g+0.0722*b;
+  if(lum>120){ const f=120/lum; r=Math.round(r*f); g=Math.round(g*f); b=Math.round(b*f); }
+  return [r,g,b];
+}
+// Sample a logo's dominant vibrant colour (ignores white/black/greys). Returns [r,g,b] or null.
+function brandColorFromLogo(dataUrl){
+  return new Promise(resolve=>{
+    if(!dataUrl){ resolve(null); return; }
+    const img=new Image();
+    img.onload=()=>{
+      try{
+        const s=48, c=document.createElement('canvas'); c.width=s; c.height=s;
+        const ctx=c.getContext('2d'); ctx.drawImage(img,0,0,s,s);
+        const d=ctx.getImageData(0,0,s,s).data, buckets={};
+        for(let i=0;i<d.length;i+=4){
+          const r=d[i],g=d[i+1],b=d[i+2],a=d[i+3];
+          if(a<128) continue;
+          const mx=Math.max(r,g,b),mn=Math.min(r,g,b),sat=mx-mn,lum=(mx+mn)/2;
+          if(sat<40||lum>235||lum<20) continue;           // skip greys, near-white, near-black
+          const key=(r>>4)+'-'+(g>>4)+'-'+(b>>4);
+          const bk=buckets[key]||(buckets[key]={n:0,r:0,g:0,b:0,sat:0});
+          bk.n++; bk.r+=r; bk.g+=g; bk.b+=b; bk.sat+=sat;
+        }
+        let best=null;
+        Object.keys(buckets).forEach(k=>{ const bk=buckets[k]; const score=bk.n*(bk.sat/bk.n);
+          if(!best||score>best.score) best={score,r:Math.round(bk.r/bk.n),g:Math.round(bk.g/bk.n),b:Math.round(bk.b/bk.n)}; });
+        resolve(best?[best.r,best.g,best.b]:null);
+      }catch(e){ resolve(null); }
+    };
+    img.onerror=()=>resolve(null);
+    img.src=dataUrl;
+  });
+}
+
 async function buildQuoteDoc(){
   const d=getQuoteData();
   const company=document.getElementById('qCompany').value||'Your Company';
@@ -1256,7 +1294,19 @@ async function buildQuoteDoc(){
     modern:   {bar:[31,92,46],   accent:[31,92,46],  accentLt:[42,122,61], headTxt:[255,255,255], tableHead:[31,92,46]},
     minimal:  {bar:[255,255,255],accent:[31,92,46],  accentLt:[58,158,82], headTxt:[20,20,20],     tableHead:[240,240,238]}
   };
-  const P=palettes[template];
+  let P;
+  if(template==='brand'){
+    const raw = logoData ? await brandColorFromLogo(logoData) : null;
+    if(raw){
+      const brand=darkenForContrast(raw);
+      const cap=v=>Math.min(v+45,255);
+      P={bar:brand, accent:brand, accentLt:[cap(brand[0]),cap(brand[1]),cap(brand[2])], headTxt:[255,255,255], tableHead:brand};
+    } else {
+      P=palettes.executive; // no logo to sample — fall back to the dark template
+    }
+  } else {
+    P=palettes[template];
+  }
   let y=0;
 
   // ---- HEADER ----

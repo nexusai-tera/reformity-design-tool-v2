@@ -51,6 +51,7 @@
 
 <script>
 const slug=new URLSearchParams(location.search).get('s')||new URLSearchParams(location.search).get('slug');
+const source=(new URLSearchParams(location.search).get('src')||new URLSearchParams(location.search).get('source')||'virtual_quote');
 const root=document.getElementById('root');
 let info=null, trade='fence', photoB64='';
 const TRADES=[['fence','Fence'],['deck','Deck'],['interlock','Interlock'],['concrete','Concrete'],['landscaping','Landscaping'],['masonry','Masonry']];
@@ -122,7 +123,7 @@ async function generate(){
   try{
     const r=await fetch('/api/q-generate',{
       method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({slug, trade, name:document.getElementById('nm').value.trim(), email, phone:document.getElementById('ph').value.trim(), imageB64:photoB64})
+      body:JSON.stringify({slug, trade, source, name:document.getElementById('nm').value.trim(), email, phone:document.getElementById('ph').value.trim(), imageB64:photoB64})
     });
     const d=await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(d.error||'Could not generate the preview.');

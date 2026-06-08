@@ -45,7 +45,8 @@ export default async function handler(req, res) {
   if (!GEMINI) return res.status(500).json({ error: 'Render is not configured.' });
   if (!SERVICE_ROLE) return res.status(500).json({ error: 'Server not configured.' });
 
-  const { slug, trade, name, email, phone, imageB64 } = req.body || {};
+  const { slug, trade, name, email, phone, imageB64, source } = req.body || {};
+  const src = String(source || 'virtual_quote').toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 40) || 'virtual_quote';
   if (!slug || !imageB64) return res.status(400).json({ error: 'Missing photo or page.' });
   if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
     return res.status(400).json({ error: 'A valid email is required to see your preview.' });
@@ -115,7 +116,7 @@ export default async function handler(req, res) {
         trade: trade || null,
         photo_url: photoUrl,
         render_url: renderUrl,
-        source: 'virtual_quote',
+        source: src,
         status: 'new',
       }),
     });

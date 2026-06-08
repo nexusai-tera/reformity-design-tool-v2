@@ -412,6 +412,90 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
 }
 .cursor-glow.show{opacity:1;}
 @media (hover:none),(prefers-reduced-motion:reduce){.cursor-glow{display:none;}}
+
+/* ============================================================
+   MOBILE OPTIMIZATIONS
+   ============================================================ */
+@media (max-width:760px){
+  .wrap{padding:0 20px;}
+  .sec-pad{padding:56px 0;}
+  .sec-head{margin-bottom:36px;}
+  .sec-title{font-size:clamp(30px,7vw,48px);}
+
+  /* NAV */
+  nav .nav-cta{padding:8px 14px;font-size:11px!important;}
+
+  /* HERO */
+  .hero{padding:64px 0 40px;}
+  .hero .eyebrow{margin-bottom:18px;letter-spacing:0.22em;font-size:11px;}
+  .hero h1{margin-bottom:24px;line-height:1.0;}
+  .hero p.sub{margin-bottom:28px;font-size:15px;}
+  .hero-cta{gap:10px;}
+  .hero-cta .btn-primary,.hero-cta .btn-ghost{flex:1;text-align:center;padding:14px 18px;font-size:13.5px;min-height:48px;display:inline-flex;align-items:center;justify-content:center;}
+  /* tone down glow on mobile (perf + visual breathing room) */
+  .hl-green{text-shadow:0 0 22px rgba(78,212,121,.4),0 0 6px rgba(78,212,121,.25);}
+  .hl-gold{text-shadow:0 0 22px rgba(240,196,90,.42),0 0 6px rgba(240,196,90,.25);}
+
+  /* THREE-TOOL STACK */
+  .tool{padding:22px 20px;}
+
+  /* HOW IT WORKS */
+  .step{padding:24px 20px;}
+  .step-meta li{font-size:10px;padding:3px 8px;letter-spacing:.04em;}
+
+  /* STAT BAND */
+  .statband{padding:52px 0;}
+  .statband .big{font-size:clamp(56px,13vw,96px);}
+
+  /* FEATURES v2 */
+  .feat-content{padding:14px 18px 16px;}
+
+  /* PROS/CONS */
+  .pc{padding:24px 22px;}
+
+  /* TESTIMONIALS */
+  .tcard{padding:24px 22px;}
+
+  /* PRICING */
+  .price-card-v2{padding:26px 22px;}
+  .price-tag{min-height:auto;margin-bottom:18px;}
+  .price-card-v2 .price-amt .bamt{font-size:60px;}
+  .price-cta-row{margin:18px 0 22px;gap:8px;}
+  .price-cta-row a{padding:13px 12px;font-size:13px;min-height:46px;display:inline-flex;align-items:center;justify-content:center;}
+
+  /* CTA BAND */
+  .cta-band{padding:64px 0;}
+
+  /* FOOTER — stack vertically with wrapped links */
+  .foot-in{flex-direction:column;text-align:center;gap:14px;}
+  .foot-links{flex-wrap:wrap;justify-content:center;gap:12px 18px;}
+}
+
+@media (max-width:480px){
+  .wrap{padding:0 16px;}
+  .sec-pad{padding:44px 0;}
+  .sec-title{font-size:clamp(26px,8vw,40px);}
+
+  /* HERO — tighter still */
+  .hero{padding:48px 0 32px;}
+  .hero h1{font-size:clamp(38px,11.5vw,60px);margin-bottom:20px;}
+  .hl{white-space:normal;}                              /* allow wrap if needed */
+  .hero p.sub{font-size:14px;margin-bottom:24px;}
+  .hero-cta{flex-direction:column;width:100%;}
+  .hero-cta .btn-primary,.hero-cta .btn-ghost{width:100%;flex:none;}
+
+  /* Cards — slightly wider media for legibility */
+  .tool-media,.feat-media-block{aspect-ratio:16/10;}
+
+  /* PRICING — tighter still */
+  .price-card-v2 .price-amt .bamt{font-size:54px;}
+  .price-card-v2 .price-name{font-size:26px;}
+  .price-cta-row{flex-direction:column;}
+  .price-cta-row a{width:100%;}
+
+  /* STAT BAND */
+  .statband .big{font-size:clamp(50px,15vw,82px);line-height:.95;}
+}
 </style>
 </head>
 <body>

@@ -184,7 +184,7 @@ footer span{color:var(--green);}
       </div>
       <div class="field" style="margin-bottom:14px;">
         <label style="font-size:11px;color:#888;display:block;margin-bottom:6px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Virtual Quote link <span style="color:#3a9e52;">· Pro+</span></label>
-        <div style="display:flex;gap:8px;align-items:center;"><span style="color:#666;font-size:13px;white-space:nowrap;">/q/?s=</span><input id="profSlug" type="text" placeholder="urbanfence" class="prof-in" style="flex:1;" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')"/></div>
+        <div style="display:flex;gap:8px;align-items:center;"><span style="color:#666;font-size:13px;white-space:nowrap;">finalook.ai/q/</span><input id="profSlug" type="text" placeholder="urbanfence" class="prof-in" style="flex:1;" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')"/></div>
         <label style="display:flex;align-items:center;gap:8px;margin-top:8px;color:#cfcfcf;font-size:13px;cursor:pointer;"><input type="checkbox" id="profPublic"/> Enable my public Virtual Quote page</label>
         <div id="profSlugLink" style="font-size:12px;color:#3a9e52;margin-top:6px;display:none;word-break:break-all;"></div>
       </div>
@@ -1637,8 +1637,11 @@ function openProfile(isOnboarding){
   document.getElementById('profPostal').value = currentProfile?.business_postal || '';
   document.getElementById('profSlug').value = currentProfile?.slug || '';
   document.getElementById('profPublic').checked = !!currentProfile?.public_quote_enabled;
+  const _vqOK=vqAllowed();
+  document.getElementById('profPublic').disabled=!_vqOK;
+  document.getElementById('profSlug').disabled=!_vqOK;
   const _sl=document.getElementById('profSlugLink');
-  if(currentProfile?.slug){ _sl.style.display='block'; _sl.textContent='Your link: '+location.origin+'/q/?s='+currentProfile.slug; } else { _sl.style.display='none'; }
+  if(currentProfile?.slug){ _sl.style.display='block'; _sl.textContent='Your link: '+vqUrl(currentProfile.slug); } else { _sl.style.display='none'; }
   document.getElementById('profTax').value = currentProfile?.default_tax_rate ?? '';
   document.getElementById('profDeposit').value = currentProfile?.default_deposit_pct ?? '';
   document.getElementById('profWarranty').value = currentProfile?.default_warranty || '';
@@ -1682,7 +1685,7 @@ async function saveProfile(){
   const province=document.getElementById('profProvince').value.trim();
   const postal=document.getElementById('profPostal').value.trim();
   const slug=(document.getElementById('profSlug').value||'').trim().toLowerCase().replace(/[^a-z0-9-]/g,'');
-  const publicEnabled=document.getElementById('profPublic').checked;
+  const publicEnabled=vqAllowed() && document.getElementById('profPublic').checked;
   const contact=[phone,cemail].filter(Boolean).join('  ·  ');
   const tax=document.getElementById('profTax').value;
   const deposit=document.getElementById('profDeposit').value;
@@ -1754,26 +1757,31 @@ document.getElementById('authPassword').addEventListener('keydown',e=>{if(e.key=
 function authGateShow(){const g=document.getElementById('authGate'); if(g) g.style.display='flex';}
 
 function planLabel(sub){
-  const map={solo:'Solo',pro:'Pro',crew:'Crew',trial:'Trial'};
+  const map={core:'Core',pro:'Pro',solo:'Solo',crew:'Crew',trial:'Trial'};
   return map[(sub.plan||'').toLowerCase()] || (sub.status==='trialing'?'Trial':'Plan');
 }
 // Display-only mirror of the server-side limit logic (the DB is the source of truth).
 function effLimit(sub, usage){
   if(sub.status==='active'){
     const p=(sub.plan||'').toLowerCase();
+    if(p==='core') return 30;
     if(p==='solo') return 30;
     if(p==='pro')  return 100;
-    if(p==='crew') return null; // unlimited
+    if(p==='crew') return null; // unlimited (legacy)
   }
   return usage.render_limit ?? 30; // trial / fallback
 }
+// Virtual Quote + Self-Sim are Pro features (trial users may demo them). Core/Solo: off.
+function vqAllowed(){ const p=(_plan||'').toLowerCase(); return p==='pro'||p==='crew'||p==='trial'||p===''; }
+// Branded public link — relies on the finalook.ai/q/:slug rewrite (vercel.json).
+function vqUrl(slug, src){ return 'https://finalook.ai/q/'+slug+(src?('?src='+encodeURIComponent(src)):''); }
 async function refreshUsage(){
   try{
     const {data:{session}}=await sb.auth.getSession();
     if(!session) return;
     const uid=_accountId||session.user.id;
     const [usageRes, subRes]=await Promise.all([
-      sb.from('usage').select('renders_used,render_limit,limit_type,period_start').eq('user_id',uid).maybeSingle(),
+      sb.from('usage').select('renders_used,render_limit,limit_type,period_start,render_credits').eq('user_id',uid).maybeSingle(),
       sb.from('subscriptions').select('plan,status,trial_ends_at').eq('user_id',uid).maybeSingle()
     ]);
     const usage=usageRes.data, sub=subRes.data;
@@ -1790,6 +1798,8 @@ async function refreshUsage(){
       const days=Math.max(Math.ceil((new Date(sub.trial_ends_at)-Date.now())/86400000),0);
       label=`Trial · ${label} · ${days}d left`;
     }
+    const credits=usage.render_credits||0;
+    if(credits>0) label += ` (+${credits} credit${credits===1?'':'s'})`;
     badge.textContent=label;
     badge.style.display='inline-flex';
     const low=(limit!==null) && (limit-used)<=3;
@@ -1830,6 +1840,22 @@ async function startUpgrade(plan){
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
       body:JSON.stringify({plan, period:_upgPeriod})
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok||!data.url){ alert(data.error||'Could not start checkout. Please try again.'); return; }
+    window.location.href=data.url;
+  }catch(e){ alert('Could not start checkout: '+e.message); }
+}
+
+async function topUp(){
+  if(_isMember){ alert('Your team owner manages billing.'); return; }
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session){ authGateShow(); return; }
+    const res=await fetch('/api/create-checkout',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
+      body:JSON.stringify({type:'topup'})
     });
     const data=await res.json().catch(()=>({}));
     if(!res.ok||!data.url){ alert(data.error||'Could not start checkout. Please try again.'); return; }
@@ -2066,7 +2092,7 @@ async function openLeads(){
   document.getElementById('leadsEmpty').style.display='none';
   const share=document.getElementById('leadsShare');
   if(currentProfile&&currentProfile.slug&&currentProfile.public_quote_enabled){
-    const url=location.origin+'/q/?s='+currentProfile.slug;
+    const url=vqUrl(currentProfile.slug);
     share.innerHTML='Your Virtual Quote link: <a href="'+url+'" target="_blank" style="color:#3a9e52;">'+url+'</a> · <a onclick="navigator.clipboard.writeText(\''+url+'\');this.textContent=\'Copied!\'" style="color:#9aa;cursor:pointer;text-decoration:underline;">Copy</a>';
   } else {
     share.innerHTML='Set a slug and enable your Virtual Quote page in <a onclick="hideLeads();openProfile()" style="color:#3a9e52;cursor:pointer;">Profile</a> to start collecting leads.';
@@ -2107,7 +2133,7 @@ function makeQR(){
   if(!(currentProfile&&currentProfile.slug&&currentProfile.public_quote_enabled)){ alert('Set a slug and enable your Virtual Quote page in Profile first.'); return; }
   if(typeof QRCode==='undefined'){ alert('QR library is still loading — try again in a moment.'); return; }
   const src=(document.getElementById('qrSrc').value||'').toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,40);
-  const url=location.origin+'/q/?s='+currentProfile.slug+(src?('&src='+src):'');
+  const url=vqUrl(currentProfile.slug, src);
   const box=document.getElementById('qrCanvas'); box.innerHTML='';
   new QRCode(box,{text:url,width:200,height:200,correctLevel:QRCode.CorrectLevel.M});
   document.getElementById('qrUrl').textContent=url;
@@ -2246,10 +2272,10 @@ checkSession();
       </div>
     </div>
     <div style="display:grid;gap:10px;">
-      <button onclick="startUpgrade('solo')" style="text-align:left;border:1px solid #2a2a2a;background:#181818;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Inter',sans-serif;"><span style="color:#fff;font-weight:600;">Solo</span><span class="upg-price" data-m="$49/mo · 30 renders" data-a="$441/yr · 30 renders" style="color:#9aa;">$49/mo · 30 renders</span></button>
-      <button onclick="startUpgrade('pro')" style="text-align:left;border:1px solid #3a9e52;background:#13231a;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Inter',sans-serif;"><span style="color:#fff;font-weight:600;">Pro <span style="color:#3a9e52;font-weight:700;font-size:11px;">★ POPULAR</span></span><span class="upg-price" data-m="$99/mo · 100 renders" data-a="$891/yr · 100 renders" style="color:#9aa;">$99/mo · 100 renders</span></button>
-      <button onclick="startUpgrade('crew')" style="text-align:left;border:1px solid #2a2a2a;background:#181818;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Inter',sans-serif;"><span style="color:#fff;font-weight:600;">Crew</span><span class="upg-price" data-m="$199/mo · unlimited" data-a="$1,791/yr · unlimited" style="color:#9aa;">$199/mo · unlimited</span></button>
+      <button onclick="startUpgrade('core')" style="text-align:left;border:1px solid #2a2a2a;background:#181818;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Inter',sans-serif;"><span style="color:#fff;font-weight:600;">Core</span><span class="upg-price" data-m="$199/mo · 30 renders" data-a="$1,791/yr · 30 renders" style="color:#9aa;">$199/mo · 30 renders</span></button>
+      <button onclick="startUpgrade('pro')" style="text-align:left;border:1px solid #3a9e52;background:#13231a;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Inter',sans-serif;"><span style="color:#fff;font-weight:600;">Pro <span style="color:#3a9e52;font-weight:700;font-size:11px;">★ POPULAR</span></span><span class="upg-price" data-m="$299/mo · 100 + lead-gen" data-a="$2,691/yr · 100 + lead-gen" style="color:#9aa;">$299/mo · 100 + lead-gen</span></button>
     </div>
+    <button onclick="topUp()" style="margin-top:10px;width:100%;text-align:center;border:1px dashed #2a2a2a;background:#0f0f0f;border-radius:8px;padding:10px;color:#9aa;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;">+ Add 30 render credits &nbsp;·&nbsp; $59 Core / $39 Pro</button>
     <p id="upgNote" style="color:#777;font-size:11px;line-height:1.5;margin:12px 0 0;">Card required. No charge until your 14-day trial ends. Cancel anytime.</p>
     <button onclick="hideUpgrade()" style="margin-top:14px;width:100%;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:13px;padding:10px;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;">Not now</button>
     <div style="text-align:center;margin-top:10px;"><a onclick="openBillingPortal()" style="color:#3a9e52;font-size:12px;cursor:pointer;text-decoration:underline;">Manage existing billing</a></div>

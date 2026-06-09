@@ -144,7 +144,7 @@ export default async function handler(req, res) {
   // 4) Refund if no image was produced ---------------------------------------
   const success = geminiStatus >= 200 && geminiStatus < 300 && hadImage;
   if (!success) {
-    await rpc('refund_render', { p_user_id: user.id }); // best-effort
+    await rpc('refund_render', { p_user_id: user.id, p_bucket: q.bucket || 'monthly' }); // best-effort, refunds the bucket consumed
     // Pass the upstream status through (429 stays 429 so the client can retry).
     return res.status(geminiStatus).json(geminiData);
   }

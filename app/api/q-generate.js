@@ -5,7 +5,7 @@
 // that includes the feature, enforces a per-contractor monthly render cap
 // (consume_public_render), and requires the homeowner's email.
 // ============================================================
-import { rpc, SERVICE_ROLE, SUPABASE_URL } from './_lib.js';
+import { rpc, sbGet, SERVICE_ROLE, SUPABASE_URL } from './_lib.js';
 
 export const config = { maxDuration: 60 };
 
@@ -50,6 +50,24 @@ export default async function handler(req, res) {
   if (!slug || !imageB64) return res.status(400).json({ error: 'Missing photo or page.' });
   if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
     return res.status(400).json({ error: 'A valid email is required to see your preview.' });
+  }
+
+  // Reject oversized or non-image uploads (caps abuse cost; the page sends JPEG).
+  if (imageB64.length > 8000000) return res.status(413).json({ error: 'That photo is too large — please use one under ~5 MB.' });
+  if (!/^(\/9j\/|iVBORw0)/.test(imageB64)) return res.status(415).json({ error: 'Please upload a JPEG or PNG photo.' });
+
+  // Bot protection (Cloudflare Turnstile) — only enforced once TURNSTILE_SECRET is set.
+  const TURNSTILE_SECRET = process.env.TURNSTILE_SECRET;
+  if (TURNSTILE_SECRET) {
+    try {
+      const tv = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ secret: TURNSTILE_SECRET, response: (req.body && req.body.turnstileToken) || '' }),
+      });
+      const tvd = await tv.json();
+      if (!tvd.success) return res.status(403).json({ error: 'Bot check failed — please reload the page and try again.' });
+    } catch { /* Cloudflare unreachable — don't block real homeowners */ }
   }
 
   // 1) Cap check + consume (atomic, server-side) — bounds anonymous Gemini cost.
@@ -123,6 +141,34 @@ export default async function handler(req, res) {
   } catch {
     /* lead save failed — still return the render to the homeowner */
   }
+
+  // 4) Notify the contractor right away (best-effort) — fast follow-up wins jobs.
+  try {
+    const SG = process.env.SENDGRID_API_KEY, FROM = process.env.SENDGRID_FROM_EMAIL;
+    if (SG && FROM) {
+      const owner = await sbGet(`profiles?id=eq.${uid}&select=email,contact_email&limit=1`);
+      const to = Array.isArray(owner) && owner[0] ? (owner[0].contact_email || owner[0].email) : null;
+      if (to) {
+        const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+        await fetch('https://api.sendgrid.com/v3/mail/send', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${SG}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            personalizations: [{ to: [{ email: to }] }],
+            from: { email: FROM, name: 'Finalook' },
+            subject: `New lead: ${name || 'a homeowner'} — ${trade || 'project'} preview`,
+            content: [{ type: 'text/html', value:
+              `<div style="font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.6;">` +
+              `<p><b>${esc(name) || 'A homeowner'}</b> just requested a <b>${esc(trade) || 'project'}</b> preview on your Virtual Quote page.</p>` +
+              `<p>Email: <a href="mailto:${esc(email)}">${esc(email)}</a>${phone ? (' &nbsp;·&nbsp; Phone: ' + esc(phone)) : ''}</p>` +
+              `<p>Respond fast — leads contacted within minutes close far more often. Open Finalook → <b>Leads</b> to see the render and turn it into a quote.</p>` +
+              (renderUrl ? `<p><a href="${esc(renderUrl)}">View the render →</a></p>` : '') +
+              `</div>` }],
+          }),
+        });
+      }
+    }
+  } catch { /* best-effort notification */ }
 
   return res.status(200).json({ render: renderB64, renderUrl });
 }

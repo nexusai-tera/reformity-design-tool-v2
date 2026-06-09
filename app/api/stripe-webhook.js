@@ -6,14 +6,14 @@
 // Required env vars on the APP Vercel project:
 //   STRIPE_SECRET_KEY
 //   STRIPE_WEBHOOK_SECRET   (from the Stripe webhook endpoint you create)
-//   STRIPE_PRICE_SOLO / STRIPE_PRICE_PRO / STRIPE_PRICE_CREW  (to map price -> plan)
+//   STRIPE_PRICE_CORE_MONTHLY / _PRO_MONTHLY / _CORE_ANNUAL / _PRO_ANNUAL  (to map price -> plan)
 //   SUPABASE_SERVICE_ROLE_KEY
 //
 // IMPORTANT: bodyParser is disabled so we can verify the raw payload.
 // ============================================================
 
 import Stripe from 'stripe';
-import { sbPatch } from './_lib.js';
+import { sbPatch, rpc } from './_lib.js';
 
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
@@ -22,12 +22,10 @@ export const config = { api: { bodyParser: false } };
 
 const PRICE_TO_PLAN = {};
 const mapPrice = (id, plan) => { if (id) PRICE_TO_PLAN[id] = plan; };
-mapPrice(process.env.STRIPE_PRICE_SOLO, 'solo');
-mapPrice(process.env.STRIPE_PRICE_PRO, 'pro');
-mapPrice(process.env.STRIPE_PRICE_CREW, 'crew');
-mapPrice(process.env.STRIPE_PRICE_SOLO_ANNUAL, 'solo');
+mapPrice(process.env.STRIPE_PRICE_CORE_MONTHLY, 'core');
+mapPrice(process.env.STRIPE_PRICE_PRO_MONTHLY, 'pro');
+mapPrice(process.env.STRIPE_PRICE_CORE_ANNUAL, 'core');
 mapPrice(process.env.STRIPE_PRICE_PRO_ANNUAL, 'pro');
-mapPrice(process.env.STRIPE_PRICE_CREW_ANNUAL, 'crew');
 
 async function readRaw(req) {
   const chunks = [];
@@ -94,6 +92,11 @@ export default async function handler(req, res) {
             sub.metadata = { ...(sub.metadata || {}), user_id: s.client_reference_id };
           }
           await syncSubscription(sub);
+        } else if (s.mode === 'payment' && s.metadata && s.metadata.type === 'topup') {
+          // One-time render-credit top-up — add the credits to the buyer's account.
+          const uid = s.metadata.user_id || s.client_reference_id;
+          const credits = parseInt(s.metadata.credits || '0', 10) || 0;
+          if (uid && credits > 0) await rpc('add_render_credits', { p_user_id: uid, p_qty: credits });
         }
         break;
       }

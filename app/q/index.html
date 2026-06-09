@@ -6,6 +6,7 @@
 <title>See Your New Yard · Finalook</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:#0a0a0a;color:#ececec;font-family:'Inter',sans-serif;line-height:1.6;min-height:100vh;}
@@ -52,6 +53,7 @@
 <script>
 const slug=new URLSearchParams(location.search).get('s')||new URLSearchParams(location.search).get('slug');
 const source=(new URLSearchParams(location.search).get('src')||new URLSearchParams(location.search).get('source')||'virtual_quote');
+const TURNSTILE_SITEKEY=''; // ← paste your Cloudflare Turnstile site key here to turn on bot protection
 const root=document.getElementById('root');
 let info=null, trade='fence', photoB64='';
 const TRADES=[['fence','Fence'],['deck','Deck'],['interlock','Interlock'],['concrete','Concrete'],['landscaping','Landscaping'],['masonry','Masonry']];
@@ -91,6 +93,7 @@ function renderForm(){
     +`<div class="label">3 · Where should we send it?</div>`
     +`<input type="text" id="nm" placeholder="Your name"/>`
     +`<div class="row2"><input type="email" id="em" placeholder="Email (required)"/><input type="tel" id="ph" placeholder="Phone (optional)"/></div>`
+    +(TURNSTILE_SITEKEY?`<div class="cf-turnstile" data-sitekey="${TURNSTILE_SITEKEY}" style="margin-top:14px;"></div>`:``)
     +`<button class="cta" id="go" onclick="generate()">Generate my free preview</button>`
     +`<div class="msg" id="msg"></div>`
     +`<p class="fine">By submitting, your photo and details are shared with ${esc(info.company)} so they can follow up about your project.</p>`
@@ -123,7 +126,7 @@ async function generate(){
   try{
     const r=await fetch('/api/q-generate',{
       method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({slug, trade, source, name:document.getElementById('nm').value.trim(), email, phone:document.getElementById('ph').value.trim(), imageB64:photoB64})
+      body:JSON.stringify({slug, trade, source, turnstileToken:((TURNSTILE_SITEKEY&&window.turnstile)?(window.turnstile.getResponse()||''):''), name:document.getElementById('nm').value.trim(), email, phone:document.getElementById('ph').value.trim(), imageB64:photoB64})
     });
     const d=await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(d.error||'Could not generate the preview.');

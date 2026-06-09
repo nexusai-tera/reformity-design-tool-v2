@@ -246,6 +246,7 @@ footer span{color:var(--green);}
   <button onclick="openQuotes()" style="margin-left:auto;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">My Quotes</button>
   <button onclick="openLeads()" style="margin-left:8px;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Leads</button>
   <button id="teamBtn" onclick="openTeam()" style="margin-left:8px;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Team</button>
+  <button onclick="openAnalytics()" style="margin-left:8px;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Dashboard</button>
   <button onclick="openProfile()" style="margin-left:8px;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Profile</button>
   <button onclick="logout()" style="margin-left:8px;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Log out</button>
 </header>
@@ -2178,6 +2179,57 @@ async function inviteMember(){
   }catch(e){ s.style.color='#e05555'; s.textContent=e.message; }
 }
 
+// ===== Phase 10: Analytics dashboard =====
+function hideAnalytics(){ document.getElementById('analyticsGate').style.display='none'; }
+function anGoal(){ try{ return parseFloat(localStorage.getItem('fl_goal')||'0')||0; }catch(e){ return 0; } }
+function setAnGoal(){ try{ localStorage.setItem('fl_goal', String(parseFloat(document.getElementById('anGoalInput').value)||0)); }catch(e){} openAnalytics(); }
+async function openAnalytics(){
+  document.getElementById('analyticsGate').style.display='flex';
+  document.getElementById('anStats').innerHTML='<div style="color:#777;font-size:13px;padding:8px;">Loading…</div>';
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session){ authGateShow(); return; }
+    const acct=_accountId||session.user.id;
+    const [qRes,lRes,uRes]=await Promise.all([
+      sb.from('quotes').select('status,total,created_at,decided_at').eq('user_id',acct),
+      sb.from('leads').select('source,created_at').eq('user_id',acct),
+      sb.from('usage').select('renders_used,render_limit').eq('user_id',acct).maybeSingle()
+    ]);
+    renderAnalytics(qRes.data||[], lRes.data||[], uRes.data);
+  }catch(e){ document.getElementById('anStats').innerHTML='<div style="color:#e05555;font-size:13px;">'+e.message+'</div>'; }
+}
+function renderAnalytics(quotes, leads, usage){
+  const money=n=>'$'+Number(n||0).toLocaleString('en-CA',{maximumFractionDigits:0});
+  const num=v=>Number(v||0);
+  const mk=d=>{const t=new Date(d);return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0');};
+  const now=new Date(); const nowKey=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  const approved=quotes.filter(q=>q.status==='approved'), declined=quotes.filter(q=>q.status==='declined'), sent=quotes.filter(q=>q.status==='sent');
+  const decided=approved.length+declined.length;
+  const winRate=decided?Math.round(approved.length/decided*100)+'%':'—';
+  const wonMonthArr=approved.filter(q=>mk(q.decided_at||q.created_at)===nowKey);
+  const wonMonth=wonMonthArr.reduce((s,q)=>s+num(q.total),0);
+  const pipeline=sent.reduce((s,q)=>s+num(q.total),0);
+  const leadsMonth=leads.filter(l=>mk(l.created_at)===nowKey).length;
+  const rUsed=usage?num(usage.renders_used):0, rLimit=usage?num(usage.render_limit):0;
+  const card=(label,val,sub)=>'<div style="flex:1;min-width:130px;background:#181818;border:1px solid #2a2a2a;border-radius:8px;padding:14px;"><div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.06em;">'+label+'</div><div style="font-size:22px;color:#fff;font-weight:700;margin-top:3px;">'+val+'</div>'+(sub?'<div style="font-size:11px;color:#9aa;margin-top:2px;">'+sub+'</div>':'')+'</div>';
+  document.getElementById('anStats').innerHTML=
+    card('Won this month',money(wonMonth),wonMonthArr.length+' jobs')+
+    card('Win rate',winRate,decided+' decided')+
+    card('Open pipeline',money(pipeline),sent.length+' awaiting')+
+    card('Leads this month',String(leadsMonth),leads.length+' all-time')+
+    card('Renders used',rUsed+(rLimit?(' / '+rLimit):''),'this period');
+  const months=[]; for(let i=5;i>=0;i--){ const d=new Date(now.getFullYear(),now.getMonth()-i,1); months.push({key:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),label:d.toLocaleDateString('en-CA',{month:'short'})}); }
+  const byMonth={}; approved.forEach(q=>{ const k=mk(q.decided_at||q.created_at); byMonth[k]=(byMonth[k]||0)+num(q.total); });
+  const vals=months.map(m=>byMonth[m.key]||0); const max=Math.max(1,...vals);
+  document.getElementById('anChart').innerHTML='<div style="display:flex;gap:8px;align-items:flex-end;height:140px;">'+months.map((m,i)=>{const h=Math.round((vals[i]/max)*110);return '<div style="flex:1;text-align:center;"><div style="font-size:10px;color:#9aa;margin-bottom:4px;height:14px;">'+(vals[i]?money(vals[i]):'')+'</div><div style="height:'+Math.max(h,2)+'px;background:#3a9e52;border-radius:4px 4px 0 0;"></div><div style="font-size:10px;color:#888;margin-top:5px;">'+m.label+'</div></div>';}).join('')+'</div>';
+  const sc={}; leads.forEach(l=>{const s=l.source||'direct'; sc[s]=(sc[s]||0)+1;});
+  document.getElementById('anSources').innerHTML=Object.keys(sc).length?Object.keys(sc).map(k=>'<span style="display:inline-block;border:1px solid #2a2a2a;border-radius:99px;padding:4px 12px;font-size:12px;color:#cfd;margin:0 6px 6px 0;">'+k+': '+sc[k]+'</span>').join(''):'<span style="color:#777;font-size:13px;">No leads yet.</span>';
+  const goal=anGoal(); const gw=document.getElementById('anGoalWrap');
+  if(goal>0){ const pct=Math.min(100,Math.round(wonMonth/goal*100)); gw.innerHTML='<div style="font-size:12px;color:#9aa;margin-bottom:6px;">This month: '+money(wonMonth)+' of '+money(goal)+' goal ('+pct+'%)</div><div style="height:10px;background:#222;border-radius:99px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:#3a9e52;"></div></div>'; }
+  else { gw.innerHTML=''; }
+  const gi=document.getElementById('anGoalInput'); if(gi&&!gi.value&&goal) gi.value=goal;
+}
+
 // check on load
 checkSession();
 </script>
@@ -2262,6 +2314,25 @@ checkSession();
       <p style="font-size:11px;color:#777;margin-top:6px;">They join your team automatically when they sign up at app.finalook.ai with that email.</p>
     </div>
     <div id="teamMsg" style="font-size:13px;margin-top:10px;"></div>
+  </div>
+</div>
+
+<!-- ===== Phase 10: Analytics dashboard ===== -->
+<div id="analyticsGate" style="position:fixed;inset:0;z-index:1100;background:rgba(8,8,8,.9);display:none;align-items:flex-start;justify-content:center;padding:30px 20px;overflow:auto;">
+  <div style="max-width:680px;width:100%;background:#121212;border:1px solid #2a2a2a;border-radius:12px;padding:24px;font-family:'Inter',sans-serif;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:#fff;">DASHBOARD</div>
+      <button onclick="hideAnalytics()" style="margin-left:auto;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:13px;padding:7px 14px;border-radius:5px;cursor:pointer;">Close</button>
+    </div>
+    <div id="anStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;"></div>
+    <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Revenue won — last 6 months</div>
+    <div id="anChart" style="margin-bottom:20px;"></div>
+    <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Leads by source</div>
+    <div id="anSources" style="margin-bottom:20px;"></div>
+    <div style="border-top:1px solid #222;padding-top:14px;">
+      <div id="anGoalWrap" style="margin-bottom:10px;"></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><span style="font-size:12px;color:#888;">Monthly revenue goal&nbsp;$</span><input id="anGoalInput" type="number" placeholder="20000" style="width:130px;background:#0d0d0d;border:1px solid #2a2a2a;color:#ddd;border-radius:6px;padding:8px;font-size:13px;font-family:'Inter',sans-serif;"/><button onclick="setAnGoal()" style="background:transparent;border:1px solid #3a9e52;color:#3a9e52;border-radius:6px;padding:8px 14px;cursor:pointer;font-size:12px;">Save goal</button></div>
+    </div>
   </div>
 </div>
 

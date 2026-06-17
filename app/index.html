@@ -1940,6 +1940,7 @@ async function saveAndSendForApproval(){
     }).select('id,public_token').single();
     if(insErr) throw new Error(insErr.message);
     const id=ins.id, token=ins.public_token;
+    _activeLead=null; // lead link is now captured in this quote's payload
     let pdfUrl=null, renderUrl=null;
     const pdfPath=uid+'/'+id+'.pdf';
     const up1=await sb.storage.from('quotes').upload(pdfPath, b64ToBlob(pdfB64,'application/pdf'), {upsert:true, contentType:'application/pdf'});
@@ -2006,10 +2007,11 @@ function serializeQuote(){
   ['Scope','Incl','Pay','Warr','Terms','Notes'].forEach(k=>{ sec[k]={on:chk('sec'+k+'On'),text:v('sec'+k)}; });
   const TRD={fence:'Fence',deck:'Deck',interlock:'Interlock',concrete:'Concrete',asphalt:'Asphalt',masonry:'Masonry',landscape:'Landscaping',lighting:'Lighting'};
   const project=Object.keys(TRD).filter(t=>{const e=document.getElementById(t+'Enabled');return e&&e.value==='yes';}).map(t=>TRD[t]).join(', ');
-  return {company:v('qCompany'),contact:v('qContact'),client:v('qClient'),address:v('qAddress'),email:v('qEmail'),phone:v('qPhone'),template:v('qTemplate'),valid:v('qValid'),tax:v('qTax'),deposit:v('qDeposit'),project:project,rateItems:rows,manualItems:manual,sections:sec};
+  return {company:v('qCompany'),contact:v('qContact'),client:v('qClient'),address:v('qAddress'),email:v('qEmail'),phone:v('qPhone'),template:v('qTemplate'),valid:v('qValid'),tax:v('qTax'),deposit:v('qDeposit'),project:project,lead:(_activeLead||null),rateItems:rows,manualItems:manual,sections:sec};
 }
 function loadQuoteIntoBuilder(p, keepClient){
   if(!p) return;
+  _activeLead = keepClient ? (p.lead||null) : null;
   const set=(id,val)=>{const e=document.getElementById(id); if(e) e.value=(val==null?'':val);};
   set('qCompany',p.company); set('qContact',p.contact); set('qTemplate',p.template); set('qValid',p.valid); set('qTax',p.tax); set('qDeposit',p.deposit);
   if(keepClient){ set('qClient',p.client); set('qAddress',p.address); set('qEmail',p.email); set('qPhone',p.phone); }
@@ -2108,6 +2110,8 @@ function renderQuotes(){
     const project=(x.payload&&x.payload.project)||'—';
     const stage=quoteStage(x);
     const act=lastActivity(x);
+    const lead=x.payload&&x.payload.lead;
+    const leadLine=lead?('<div style="color:#777;font-size:11px;margin-top:5px;">Source: '+esc2(lead.source||'lead')+(lead.capturedAt?(' · Lead captured '+new Date(lead.capturedAt).toLocaleDateString('en-CA')):'')+'</div>'):'';
     const openHref=x.pdf_url||(x.public_token?approvalUrlFor(x.public_token):'');
     const view=openHref?'<a href="'+openHref+'" target="_blank" rel="noopener" style="color:#3a9e52;font-weight:600;text-decoration:none;">View</a>':'';
     const fu=(stage!=='accepted'&&stage!=='lost')?'<a onclick="markFollowedUp(\''+x.id+'\')" style="color:#a855f7;cursor:pointer;text-decoration:none;">Follow&nbsp;Up</a>':'';
@@ -2120,6 +2124,7 @@ function renderQuotes(){
         +'<div style="flex:1;min-width:0;">'
           +'<div style="color:#fff;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc2(x.client_name||'(no client)')+' <span style="color:#666;font-weight:400;font-size:12px;">'+esc2(x.quote_number||'')+'</span></div>'
           +'<div style="margin-top:5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+chip+'<span style="color:#fff;font-size:13px;font-weight:600;">'+total+'</span></div>'
+          +leadLine
         +'</div>'
         +'<div style="text-align:right;flex-shrink:0;">'+stageBadge(stage)+'<div style="color:#777;font-size:11px;margin-top:5px;">'+(act?('Last activity · '+act):'')+'</div></div>'
       +'</div>'
@@ -2139,7 +2144,7 @@ async function markFollowedUp(id){
 }
 
 // ===== Phase 4: Leads inbox =====
-let _leads=[];
+let _leads=[], _leadQuotes=[];
 async function openLeads(){
   document.getElementById('leadsGate').style.display='flex';
   document.getElementById('leadsList').innerHTML='<div style="color:#777;font-size:13px;padding:12px;">Loading…</div>';
@@ -2154,32 +2159,50 @@ async function openLeads(){
   try{
     const {data:{session}}=await sb.auth.getSession();
     if(!session){ authGateShow(); return; }
-    const {data,error}=await sb.from('leads').select('id,name,email,phone,trade,photo_url,render_url,status,created_at').eq('user_id',_accountId||session.user.id).order('created_at',{ascending:false});
-    if(error){ document.getElementById('leadsList').innerHTML='<div style="color:#e05555;font-size:13px;padding:12px;">'+error.message+'</div>'; return; }
-    _leads=data||[];
+    const acct=_accountId||session.user.id;
+    const [lRes,qRes]=await Promise.all([
+      sb.from('leads').select('id,name,email,phone,trade,source,photo_url,render_url,status,created_at').eq('user_id',acct).order('created_at',{ascending:false}),
+      sb.from('quotes').select('status,created_at,viewed_at,payload').eq('user_id',acct)
+    ]);
+    if(lRes.error){ document.getElementById('leadsList').innerHTML='<div style="color:#e05555;font-size:13px;padding:12px;">'+lRes.error.message+'</div>'; return; }
+    _leads=lRes.data||[];
+    _leadQuotes=qRes.data||[];
     renderLeads();
   }catch(e){ document.getElementById('leadsList').innerHTML='<div style="color:#e05555;font-size:13px;padding:12px;">'+e.message+'</div>'; }
 }
 function hideLeads(){ document.getElementById('leadsGate').style.display='none'; }
+function leadQuoteInfo(lead){
+  const order={draft:0,sent:1,viewed:2,followed_up:3,lost:4,accepted:5};
+  const qs=(_leadQuotes||[]).filter(q=>q.payload&&q.payload.lead&&q.payload.lead.id===lead.id);
+  if(!qs.length) return null;
+  let stage=quoteStage(qs[0]);
+  qs.forEach(q=>{ const st=quoteStage(q); if((order[st]||0)>=(order[stage]||0)) stage=st; });
+  return stage;
+}
 function renderLeads(){
   const list=document.getElementById('leadsList');
   document.getElementById('leadsEmpty').style.display=(_leads.length===0)?'block':'none';
   const counts={}; _leads.forEach(x=>{ const s=(x.source||'direct'); counts[s]=(counts[s]||0)+1; });
   const srcEl=document.getElementById('leadsSrc');
-  if(srcEl){ srcEl.innerHTML=_leads.length?('<b style="color:#cfd;">'+_leads.length+' leads</b>   ·   '+Object.keys(counts).map(k=>k+': '+counts[k]).join('   ·   ')):''; }
+  if(srcEl){ srcEl.innerHTML=_leads.length?('<b style="color:#cfd;">'+_leads.length+' leads</b>   ·   '+Object.keys(counts).map(k=>esc2(k)+': '+counts[k]).join('   ·   ')):''; }
   list.innerHTML=_leads.map(x=>{
     const dt=x.created_at?new Date(x.created_at).toLocaleDateString('en-CA'):'';
     const ph=x.photo_url?'<a href="'+x.photo_url+'" target="_blank"><img src="'+x.photo_url+'" style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:1px solid #2a2a2a;"></a>':'';
     const rn=x.render_url?'<a href="'+x.render_url+'" target="_blank"><img src="'+x.render_url+'" style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:1px solid #2a2a2a;"></a>':'';
-    const contact=[x.email,x.phone].filter(Boolean).join('  ·  ');
-    const via=x.source?(' · via '+x.source):'';
+    const contact=[x.email,x.phone].filter(Boolean).map(esc2).join('  ·  ');
+    const via=x.source?(' · via '+esc2(x.source)):'';
+    const st=leadQuoteInfo(x);
+    const qchip = st ? stageBadge(st) : '<span style="border:1px solid #555;color:#888;border-radius:99px;font-size:11px;padding:3px 11px;white-space:nowrap;">No quote yet</span>';
+    const btn = st
+      ? '<button onclick="createQuoteFromLead(\''+x.id+'\')" style="background:transparent;border:1px solid #2f5d3a;color:#3a9e52;font-weight:700;border-radius:6px;padding:6px 11px;cursor:pointer;font-size:12px;white-space:nowrap;">New quote</button>'
+      : '<button onclick="createQuoteFromLead(\''+x.id+'\')" style="background:#3a9e52;border:none;color:#06210f;font-weight:700;border-radius:6px;padding:6px 11px;cursor:pointer;font-size:12px;white-space:nowrap;">Create Quote</button>';
     return '<div style="border:1px solid #2a2a2a;border-radius:8px;padding:12px;display:flex;gap:12px;align-items:center;">'
       +'<div style="display:flex;gap:6px;flex-shrink:0;">'+ph+rn+'</div>'
-      +'<div style="flex:1;min-width:0;"><div style="color:#fff;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(x.name||'(no name)')+' <span style="color:#666;font-weight:400;">· '+(x.trade||'')+via+'</span></div>'
-      +'<div style="color:#9aa;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+contact+'</div><div style="color:#777;font-size:11px;">'+dt+'</div></div>'
+      +'<div style="flex:1;min-width:0;"><div style="color:#fff;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc2(x.name||'(no name)')+' <span style="color:#666;font-weight:400;">· '+esc2(x.trade||'')+via+'</span></div>'
+      +'<div style="color:#9aa;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+contact+'</div><div style="color:#777;font-size:11px;">Captured '+dt+'</div></div>'
       +'<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0;">'
-      +'<span style="border:1px solid #c9a227;color:#c9a227;border-radius:99px;font-size:11px;padding:2px 10px;white-space:nowrap;">'+(x.status||'new')+'</span>'
-      +'<button onclick="createQuoteFromLead(\''+x.id+'\')" style="background:#3a9e52;border:none;color:#06210f;font-weight:700;border-radius:6px;padding:6px 11px;cursor:pointer;font-size:12px;white-space:nowrap;">Create Quote</button>'
+      +qchip
+      +btn
       +'</div></div>';
   }).join('');
 }
@@ -2204,8 +2227,10 @@ async function urlToDataUrl(url){
 }
 // Turn a captured lead into a quote: pre-fill the builder with the homeowner's
 // details, their before photo + render, and a starter line item for the trade.
+let _activeLead=null;
 async function createQuoteFromLead(id){
   const L=(_leads||[]).find(x=>x.id===id); if(!L) return;
+  _activeLead={id:L.id, source:L.source||'lead', capturedAt:L.created_at, name:L.name};
   const set=(i,v)=>{const e=document.getElementById(i); if(e) e.value=(v==null?'':v);};
   set('qClient',L.name); set('qEmail',L.email); set('qPhone',L.phone);
   resultB64=''; originalImageB64='';
@@ -2271,7 +2296,7 @@ async function openAnalytics(){
     if(!session){ authGateShow(); return; }
     const acct=_accountId||session.user.id;
     const [qRes,lRes,uRes]=await Promise.all([
-      sb.from('quotes').select('status,total,created_at,decided_at').eq('user_id',acct),
+      sb.from('quotes').select('status,total,created_at,sent_at,viewed_at,decided_at,payload').eq('user_id',acct),
       sb.from('leads').select('source,created_at').eq('user_id',acct),
       sb.from('usage').select('renders_used,render_limit').eq('user_id',acct).maybeSingle()
     ]);
@@ -2291,12 +2316,25 @@ function renderAnalytics(quotes, leads, usage){
   const pipeline=sent.reduce((s,q)=>s+num(q.total),0);
   const leadsMonth=leads.filter(l=>mk(l.created_at)===nowKey).length;
   const rUsed=usage?num(usage.renders_used):0, rLimit=usage?num(usage.render_limit):0;
+  const totalQuotes=quotes.length;
+  const totalValue=quotes.reduce((s,q)=>s+num(q.total),0);
+  const acceptedValue=approved.reduce((s,q)=>s+num(q.total),0);
+  const conv=totalQuotes?Math.round(approved.length/totalQuotes*100)+'%':'—';
+  const DAY=86400000;
+  const followupsDue=quotes.filter(q=>(q.status==='sent'||q.status==='viewed')&&!(q.payload&&q.payload.followedUp)&&((Date.now()-new Date(q.sent_at||q.created_at).getTime())>3*DAY)).length;
+  const projCount={}; quotes.forEach(q=>{ const p=(q.payload&&q.payload.project)||''; p.split(',').map(s=>s.trim()).filter(Boolean).forEach(t=>{projCount[t]=(projCount[t]||0)+1;}); });
+  let topProject='—', topN=0; Object.keys(projCount).forEach(k=>{ if(projCount[k]>topN){topProject=k;topN=projCount[k];} });
   const card=(label,val,sub)=>'<div style="flex:1;min-width:130px;background:#181818;border:1px solid #2a2a2a;border-radius:8px;padding:14px;"><div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.06em;">'+label+'</div><div style="font-size:22px;color:#fff;font-weight:700;margin-top:3px;">'+val+'</div>'+(sub?'<div style="font-size:11px;color:#9aa;margin-top:2px;">'+sub+'</div>':'')+'</div>';
   document.getElementById('anStats').innerHTML=
-    card('Won this month',money(wonMonth),wonMonthArr.length+' jobs')+
-    card('Win rate',winRate,decided+' decided')+
+    card('Total quotes',String(totalQuotes),money(totalValue)+' value')+
+    card('Accepted value',money(acceptedValue),approved.length+' won')+
+    card('Conversion',conv,approved.length+' of '+totalQuotes+' quotes')+
     card('Open pipeline',money(pipeline),sent.length+' awaiting')+
-    card('Leads this month',String(leadsMonth),leads.length+' all-time')+
+    card('Follow-ups due',String(followupsDue),'no reply 3+ days')+
+    card('New leads',String(leadsMonth),leads.length+' all-time')+
+    card('Top project',esc2(topProject),topN?(topN+' quotes'):'')+
+    card('Win rate',winRate,decided+' decided')+
+    card('Won this month',money(wonMonth),wonMonthArr.length+' jobs')+
     card('Renders used',rUsed+(rLimit?(' / '+rLimit):''),'this period');
   const months=[]; for(let i=5;i>=0;i--){ const d=new Date(now.getFullYear(),now.getMonth()-i,1); months.push({key:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),label:d.toLocaleDateString('en-CA',{month:'short'})}); }
   const byMonth={}; approved.forEach(q=>{ const k=mk(q.decided_at||q.created_at); byMonth[k]=(byMonth[k]||0)+num(q.total); });

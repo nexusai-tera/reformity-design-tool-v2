@@ -35,17 +35,18 @@ header{background:var(--void);border-bottom:1px solid var(--carbon);padding:0 24
 .sec-toggle{display:flex;align-items:center;gap:12px;margin-bottom:4px;}
 .sec-toggle .icon{font-size:18px;}
 .sec-toggle label{font-family:'Big Shoulders Display',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--white);flex:1;}
-.sec-toggle select{font-size:12px;padding:7px 10px;border:1px solid var(--steel);border-radius:4px;background:var(--carbon);color:var(--white);cursor:pointer;font-family:'Inter',sans-serif;}
-.sec-toggle select:focus{outline:1px solid var(--green);}
+.sec-toggle select{font-size:14px;font-weight:600;padding:10px 36px 10px 14px;border:1px solid #34343c;border-radius:8px;background-color:#202024;color:var(--white);cursor:pointer;font-family:'Inter',sans-serif;min-height:44px;-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239aa0a6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:15px;transition:border-color .15s,box-shadow .15s;}
+.sec-toggle select:focus{outline:none;border-color:var(--green-lt);box-shadow:0 0 0 3px rgba(58,158,82,.22);}
 .subsection{display:none;margin-top:14px;}
 .subsection.visible{display:block;}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
 @media(max-width:520px){.grid2,.grid3{grid-template-columns:1fr;}.compare-grid{grid-template-columns:1fr;}}
-.field label{font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--ash);display:block;margin-bottom:5px;}
-.field select{width:100%;font-size:13px;padding:8px 10px;border:1px solid var(--steel);border-radius:4px;background:var(--carbon);color:var(--white);cursor:pointer;font-family:'Inter',sans-serif;}
-.field select:focus{outline:1px solid var(--green);}
-.field-note{font-size:10px;color:var(--steel);margin-top:5px;font-style:italic;}
+.field label{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--smoke);display:block;margin-bottom:6px;}
+.field select{width:100%;font-size:15px;padding:13px 40px 13px 14px;border:1px solid #34343c;border-radius:8px;background-color:#202024;color:var(--white);cursor:pointer;font-family:'Inter',sans-serif;min-height:48px;-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239aa0a6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;background-size:16px;transition:border-color .15s,box-shadow .15s;}
+.field select:hover{border-color:#4a4a54;}
+.field select:focus{outline:none;border-color:var(--green-lt);box-shadow:0 0 0 3px rgba(58,158,82,.22);}
+.field-note{font-size:12px;color:var(--ash);margin-top:6px;line-height:1.4;}
 textarea{width:100%;font-size:13px;padding:10px 12px;border:1px solid var(--steel);border-radius:4px;background:var(--carbon);color:var(--white);resize:vertical;min-height:68px;font-family:'Inter',sans-serif;line-height:1.5;}
 textarea:focus{outline:1px solid var(--green);}
 textarea::placeholder{color:var(--ash);}
@@ -77,8 +78,9 @@ footer span{color:var(--green);}
 .q-input{width:100%;font-size:13px;padding:8px 10px;border:1px solid var(--steel);border-radius:4px;background:var(--carbon);color:var(--white);font-family:'Inter',sans-serif;}
 .q-input:focus{outline:1px solid var(--green);}
 .q-input::placeholder{color:var(--ash);}
-.q-add{width:100%;padding:10px;border:1px dashed var(--steel);border-radius:4px;background:transparent;color:var(--green-lt);font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;letter-spacing:0.06em;}
-.q-add:hover{border-color:var(--green);background:#0f1a12;}
+.q-add{width:100%;padding:13px;border:1px solid #2f5d3a;border-radius:8px;background:#13231a;color:var(--green-lt);font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;letter-spacing:0.02em;min-height:46px;transition:background .15s,border-color .15s;}
+.q-add:hover{border-color:var(--green-lt);background:#16291e;}
+.q-add:active{transform:translateY(1px);}
 .q-row{display:grid;gap:6px;margin-bottom:8px;align-items:center;}
 .q-row.rate{grid-template-columns:1.6fr 0.7fr 0.6fr 0.9fr 28px;}
 .q-row.manual{grid-template-columns:2.2fr 1fr 28px;}
@@ -87,6 +89,13 @@ footer span{color:var(--green);}
 .q-row input:focus{outline:1px solid var(--green);}
 .q-row .q-del{background:transparent;border:1px solid var(--steel);border-radius:4px;color:#e05555;cursor:pointer;font-size:14px;padding:4px;line-height:1;}
 .q-row .q-del:hover{background:#1a0f0f;}
+/* Mobile: bigger tap targets + 16px inputs so iOS doesn't zoom on focus */
+@media(max-width:520px){
+  .field select,.sec-toggle select,.q-input,.q-row input,textarea{font-size:16px;}
+  .q-input,.q-row input{min-height:46px;padding:12px;}
+  .sec-toggle{gap:10px;}
+  .sec-toggle label{font-size:15px;}
+}
 .q-line-total{font-size:12px;color:var(--green-lt);text-align:right;font-weight:600;padding:7px 4px;}
 .qt-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;color:var(--smoke);}
 .qt-row.grand{font-family:'Big Shoulders Display',sans-serif;font-size:22px;font-weight:900;color:var(--white);border-top:1px solid var(--carbon);margin-top:6px;padding-top:12px;letter-spacing:0.04em;}
@@ -262,6 +271,8 @@ footer span{color:var(--green);}
     </div>
     <img id="previewImg" class="preview-img"/>
   </div>
+
+  <div style="text-align:center;color:var(--ash);font-size:12.5px;margin:2px 0 14px;line-height:1.5;">Choose what you want to design — turn on a project below and pick the details.</div>
 
   <div class="card">
     <div class="sec-toggle">
@@ -1993,7 +2004,9 @@ function serializeQuote(){
   const chk=id=>{const e=document.getElementById(id);return e?e.checked:true;};
   const sec={};
   ['Scope','Incl','Pay','Warr','Terms','Notes'].forEach(k=>{ sec[k]={on:chk('sec'+k+'On'),text:v('sec'+k)}; });
-  return {company:v('qCompany'),contact:v('qContact'),client:v('qClient'),address:v('qAddress'),email:v('qEmail'),phone:v('qPhone'),template:v('qTemplate'),valid:v('qValid'),tax:v('qTax'),deposit:v('qDeposit'),rateItems:rows,manualItems:manual,sections:sec};
+  const TRD={fence:'Fence',deck:'Deck',interlock:'Interlock',concrete:'Concrete',asphalt:'Asphalt',masonry:'Masonry',landscape:'Landscaping',lighting:'Lighting'};
+  const project=Object.keys(TRD).filter(t=>{const e=document.getElementById(t+'Enabled');return e&&e.value==='yes';}).map(t=>TRD[t]).join(', ');
+  return {company:v('qCompany'),contact:v('qContact'),client:v('qClient'),address:v('qAddress'),email:v('qEmail'),phone:v('qPhone'),template:v('qTemplate'),valid:v('qValid'),tax:v('qTax'),deposit:v('qDeposit'),project:project,rateItems:rows,manualItems:manual,sections:sec};
 }
 function loadQuoteIntoBuilder(p, keepClient){
   if(!p) return;
@@ -2030,14 +2043,14 @@ function renderQuotesStats(){
   const q=_quotesCache||[];
   const money=n=>'$'+Number(n||0).toLocaleString('en-CA',{maximumFractionDigits:0});
   const sumT=arr=>arr.reduce((s,x)=>s+(Number(x.total)||0),0);
-  const sent=q.filter(x=>x.status==='sent'), approved=q.filter(x=>x.status==='approved'), declined=q.filter(x=>x.status==='declined');
+  const open=q.filter(x=>x.status!=='approved'&&x.status!=='declined'&&x.status!=='draft'), approved=q.filter(x=>x.status==='approved'), declined=q.filter(x=>x.status==='declined');
   const decided=approved.length+declined.length;
   const winRate=decided?Math.round(approved.length/decided*100)+'%':'—';
   const mk=d=>{const t=new Date(d);return t.getFullYear()+'-'+t.getMonth();};
   const now=mk(new Date());
   const wonMonth=approved.filter(x=>mk(x.decided_at||x.created_at)===now);
   const card=(label,val,sub)=>'<div style="flex:1;min-width:120px;background:#181818;border:1px solid #2a2a2a;border-radius:8px;padding:12px 14px;"><div style="font-size:11px;color:#888;letter-spacing:.06em;text-transform:uppercase;">'+label+'</div><div style="font-size:20px;color:#fff;font-weight:700;margin-top:3px;">'+val+'</div>'+(sub?'<div style="font-size:11px;color:#9aa;margin-top:2px;">'+sub+'</div>':'')+'</div>';
-  el.innerHTML=card('Open quotes',money(sumT(sent)),sent.length+' awaiting reply')+card('Won',money(sumT(approved)),approved.length+' approved')+card('Win rate',winRate,decided+' decided')+card('Won this month',money(sumT(wonMonth)),wonMonth.length+' this month');
+  el.innerHTML=card('Open quotes',money(sumT(open)),open.length+' awaiting reply')+card('Won',money(sumT(approved)),approved.length+' approved')+card('Win rate',winRate,decided+' decided')+card('Won this month',money(sumT(wonMonth)),wonMonth.length+' this month');
 }
 
 let _quotesCache=[];
@@ -2049,7 +2062,7 @@ async function openQuotes(){
     const {data:{session}}=await sb.auth.getSession();
     if(!session){ authGateShow(); return; }
     const {data,error}=await sb.from('quotes')
-      .select('id,quote_number,client_name,total,currency,status,pdf_url,public_token,created_at,decided_at,render_url,payload')
+      .select('id,quote_number,client_name,total,currency,status,pdf_url,public_token,created_at,sent_at,viewed_at,decided_at,render_url,payload')
       .eq('user_id',_accountId||session.user.id).order('created_at',{ascending:false});
     if(error){ document.getElementById('quotesList').innerHTML='<div style="color:#e05555;font-size:13px;padding:12px;">'+error.message+'</div>'; return; }
     _quotesCache=data||[];
@@ -2058,30 +2071,71 @@ async function openQuotes(){
   }catch(e){ document.getElementById('quotesList').innerHTML='<div style="color:#e05555;font-size:13px;padding:12px;">'+e.message+'</div>'; }
 }
 function hideQuotes(){ document.getElementById('quotesGate').style.display='none'; }
-function quoteStatusBadge(s){
-  const map={draft:['#888','Draft'],sent:['#c9a227','Sent'],approved:['#3a9e52','Approved'],declined:['#e05555','Declined']};
-  const e=map[s]||['#888',s||'—'];
-  return '<span style="border:1px solid '+e[0]+';color:'+e[0]+';border-radius:99px;font-size:11px;padding:2px 10px;white-space:nowrap;">'+e[1]+'</span>';
+function quoteStage(x){
+  if(x.status==='approved') return 'accepted';
+  if(x.status==='declined') return 'lost';
+  if(x.payload && x.payload.followedUp) return 'followed_up';
+  if(x.status==='viewed' || x.viewed_at) return 'viewed';
+  if(x.status==='sent') return 'sent';
+  return 'draft';
 }
+function stageBadge(stage){
+  const map={draft:['#8a8a8a','Draft'],sent:['#c9a227','Sent'],viewed:['#3b82f6','Viewed'],followed_up:['#a855f7','Followed Up'],accepted:['#3a9e52','Accepted'],lost:['#e05555','Lost']};
+  const e=map[stage]||['#8a8a8a','—'];
+  return '<span style="border:1px solid '+e[0]+';color:'+e[0]+';border-radius:99px;font-size:11px;padding:3px 11px;white-space:nowrap;font-weight:600;">'+e[1]+'</span>';
+}
+function relTime(t){
+  const s=Math.floor((Date.now()-t)/1000);
+  if(s<60) return 'just now';
+  const m=Math.floor(s/60); if(m<60) return m+'m ago';
+  const h=Math.floor(m/60); if(h<24) return h+'h ago';
+  const d=Math.floor(h/24); if(d<30) return d+'d ago';
+  const mo=Math.floor(d/30); if(mo<12) return mo+'mo ago';
+  return Math.floor(mo/12)+'y ago';
+}
+function lastActivity(x){
+  const ts=[x.created_at,x.sent_at,x.viewed_at,x.decided_at,(x.payload&&x.payload.followedUpAt)].filter(Boolean).map(d=>new Date(d).getTime()).filter(n=>!isNaN(n));
+  return ts.length?relTime(Math.max(...ts)):'';
+}
+function esc2(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function renderQuotes(){
   const term=(document.getElementById('quotesSearch').value||'').toLowerCase();
   const list=document.getElementById('quotesList');
   document.getElementById('quotesEmpty').style.display=(_quotesCache.length===0)?'block':'none';
-  const items=_quotesCache.filter(x=>!term || (x.client_name||'').toLowerCase().includes(term) || (x.quote_number||'').toLowerCase().includes(term));
+  const items=_quotesCache.filter(x=>!term || (x.client_name||'').toLowerCase().includes(term) || (x.quote_number||'').toLowerCase().includes(term) || ((x.payload&&x.payload.project)||'').toLowerCase().includes(term));
   list.innerHTML=items.map(x=>{
     const total=(x.currency||'CAD')+' '+Number(x.total||0).toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2});
-    const dt=x.created_at?new Date(x.created_at).toLocaleDateString('en-CA'):'';
+    const project=(x.payload&&x.payload.project)||'—';
+    const stage=quoteStage(x);
+    const act=lastActivity(x);
     const openHref=x.pdf_url||(x.public_token?approvalUrlFor(x.public_token):'');
-    const open=openHref?'<a href="'+openHref+'" target="_blank" rel="noopener" style="color:#3a9e52;font-size:12px;font-weight:600;text-decoration:underline;">Open</a>':'';
-    const edit=x.payload?'<a onclick="reopenQuote(\''+x.id+'\',true)" style="color:#9aa;font-size:12px;cursor:pointer;text-decoration:underline;">Edit</a>':'';
-    const dup=x.payload?'<a onclick="reopenQuote(\''+x.id+'\',false)" style="color:#9aa;font-size:12px;cursor:pointer;text-decoration:underline;">Duplicate</a>':'';
-    const link=x.public_token?'<a onclick="navigator.clipboard.writeText(approvalUrlFor(\''+x.public_token+'\'));this.textContent=\'Copied!\'" style="color:#9aa;font-size:12px;cursor:pointer;text-decoration:underline;">Copy link</a>':'';
-    return '<div style="border:1px solid #2a2a2a;border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;">'
-      +'<div style="flex:1;min-width:0;"><div style="color:#fff;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(x.client_name||'(no client)')+' <span style="color:#666;font-weight:400;">· '+(x.quote_number||'')+'</span></div>'
-      +'<div style="color:#888;font-size:12px;">'+total+' · '+dt+'</div></div>'
-      +quoteStatusBadge(x.status)
-      +'<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end;">'+open+edit+dup+link+'</div></div>';
+    const view=openHref?'<a href="'+openHref+'" target="_blank" rel="noopener" style="color:#3a9e52;font-weight:600;text-decoration:none;">View</a>':'';
+    const fu=(stage!=='accepted'&&stage!=='lost')?'<a onclick="markFollowedUp(\''+x.id+'\')" style="color:#a855f7;cursor:pointer;text-decoration:none;">Follow&nbsp;Up</a>':'';
+    const edit=x.payload?'<a onclick="reopenQuote(\''+x.id+'\',true)" style="color:#9aa;cursor:pointer;text-decoration:none;">Edit</a>':'';
+    const dup=x.payload?'<a onclick="reopenQuote(\''+x.id+'\',false)" style="color:#9aa;cursor:pointer;text-decoration:none;">Duplicate</a>':'';
+    const link=x.public_token?'<a onclick="navigator.clipboard.writeText(approvalUrlFor(\''+x.public_token+'\'));this.textContent=\'Copied!\'" style="color:#9aa;cursor:pointer;text-decoration:none;">Copy link</a>':'';
+    const chip='<span style="display:inline-block;background:#181f1a;border:1px solid #2f4a37;color:#7fce95;border-radius:5px;font-size:11px;padding:1px 8px;">'+esc2(project)+'</span>';
+    return '<div style="border:1px solid #2a2a2a;border-radius:8px;padding:13px 14px;">'
+      +'<div style="display:flex;align-items:flex-start;gap:10px;">'
+        +'<div style="flex:1;min-width:0;">'
+          +'<div style="color:#fff;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc2(x.client_name||'(no client)')+' <span style="color:#666;font-weight:400;font-size:12px;">'+esc2(x.quote_number||'')+'</span></div>'
+          +'<div style="margin-top:5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+chip+'<span style="color:#fff;font-size:13px;font-weight:600;">'+total+'</span></div>'
+        +'</div>'
+        +'<div style="text-align:right;flex-shrink:0;">'+stageBadge(stage)+'<div style="color:#777;font-size:11px;margin-top:5px;">'+(act?('Last activity · '+act):'')+'</div></div>'
+      +'</div>'
+      +'<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:11px;padding-top:10px;border-top:1px solid #1e1e1e;font-size:12.5px;">'+view+fu+edit+dup+link+'</div>'
+    +'</div>';
   }).join('');
+}
+async function markFollowedUp(id){
+  const q=(_quotesCache||[]).find(x=>x.id===id); if(!q) return;
+  const payload=Object.assign({}, q.payload||{}, {followedUp:true, followedUpAt:new Date().toISOString()});
+  try{
+    const {error}=await sb.from('quotes').update({payload}).eq('id',id);
+    if(error) throw error;
+    q.payload=payload;
+    renderQuotes(); renderQuotesStats();
+  }catch(e){ alert('Could not mark followed up: '+e.message); }
 }
 
 // ===== Phase 4: Leads inbox =====
@@ -2229,7 +2283,7 @@ function renderAnalytics(quotes, leads, usage){
   const num=v=>Number(v||0);
   const mk=d=>{const t=new Date(d);return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0');};
   const now=new Date(); const nowKey=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
-  const approved=quotes.filter(q=>q.status==='approved'), declined=quotes.filter(q=>q.status==='declined'), sent=quotes.filter(q=>q.status==='sent');
+  const approved=quotes.filter(q=>q.status==='approved'), declined=quotes.filter(q=>q.status==='declined'), sent=quotes.filter(q=>q.status==='sent'||q.status==='viewed');
   const decided=approved.length+declined.length;
   const winRate=decided?Math.round(approved.length/decided*100)+'%':'—';
   const wonMonthArr=approved.filter(q=>mk(q.decided_at||q.created_at)===nowKey);

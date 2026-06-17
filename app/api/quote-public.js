@@ -5,7 +5,7 @@
 // and returns only safe fields (never user_id / client_email).
 // ============================================================
 
-import { sbGet } from './_lib.js';
+import { sbGet, sbPatch } from './_lib.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
@@ -32,6 +32,16 @@ export default async function handler(req, res) {
         `&select=company_name,contact_phone,contact_email,contact_info,business_address,business_city,business_province,business_postal&limit=1`
     );
     if (Array.isArray(pr) && pr[0]) q.contractor = pr[0];
+  }
+
+  // Record the client's first open as "viewed" (best-effort; only flips a 'sent' quote).
+  if (q.status === 'sent') {
+    try {
+      await sbPatch(
+        `quotes?public_token=eq.${encodeURIComponent(token)}&status=eq.sent`,
+        { status: 'viewed', viewed_at: new Date().toISOString() }
+      );
+    } catch (e) { /* non-fatal */ }
   }
 
   return res.status(200).json(q);

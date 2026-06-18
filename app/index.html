@@ -6,6 +6,7 @@
 <title>Finalook — Design Preview</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script>(function(){try{if(localStorage.getItem('fl_theme')==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -19,9 +20,52 @@
   --green:#1f5c2e;
   --green-hi:#2a7a3d;
   --green-lt:#3a9e52;
+  /* semantic, theme-aware tokens */
+  --bg:#0a0a0a;
+  --panel:#121212;
+  --panel2:#181818;
+  --inset:#0d0d0d;
+  --line:#2a2a2a;
+  --text:#f4f4f2;
+  --muted:#99a3ad;
+  --muted2:#8a8a8a;
+  --faint:#777777;
+  --field:#202024;
+  --field-bd:#34343c;
+  --on-accent:#ffffff;
+}
+[data-theme="light"]{
+  --black:#eef0f3;
+  --void:#ffffff;
+  --carbon:#ffffff;
+  --steel:#dfe3e8;
+  --ash:#6b7280;
+  --smoke:#374151;
+  --white:#16202b;
+  --bg:#eef0f3;
+  --panel:#ffffff;
+  --panel2:#f4f6f8;
+  --inset:#ffffff;
+  --line:#e1e5ea;
+  --text:#16202b;
+  --muted:#5b6573;
+  --muted2:#6b7280;
+  --faint:#8a93a0;
+  --field:#ffffff;
+  --field-bd:#d6dae0;
+  --on-accent:#ffffff;
 }
 body{background:var(--black);color:var(--white);font-family:'Inter',sans-serif;font-weight:400;min-height:100vh;}
-header{background:var(--void);border-bottom:1px solid var(--carbon);padding:0 24px;height:60px;display:flex;align-items:center;}
+header{background:var(--void);border-bottom:1px solid var(--line);padding:0 24px;min-height:60px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.topnav{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;}
+.navbtn{background:transparent;border:1px solid var(--line);color:var(--muted2);font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;}
+.navbtn:hover{border-color:var(--green-lt);color:var(--text);}
+#themeBtn{font-size:14px;padding:6px 11px;line-height:1;}
+@media(max-width:680px){
+  header{min-height:54px;padding:10px 14px;}
+  .topnav{width:100%;margin-left:0;margin-top:10px;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;-webkit-overflow-scrolling:touch;padding-bottom:4px;}
+  .topnav>*{flex:0 0 auto;}
+}
 .logo-wrap{display:flex;align-items:center;gap:12px;}
 .logo-bar{width:4px;height:28px;background:var(--green-lt);border-radius:1px;}
 .logo-text{font-family:'Big Shoulders Display',sans-serif;font-size:28px;font-weight:900;line-height:1;letter-spacing:0.02em;}
@@ -35,7 +79,7 @@ header{background:var(--void);border-bottom:1px solid var(--carbon);padding:0 24
 .sec-toggle{display:flex;align-items:center;gap:12px;margin-bottom:4px;}
 .sec-toggle .icon{font-size:18px;}
 .sec-toggle label{font-family:'Big Shoulders Display',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--white);flex:1;}
-.sec-toggle select{font-size:14px;font-weight:600;padding:10px 36px 10px 14px;border:1px solid #34343c;border-radius:8px;background-color:#202024;color:var(--white);cursor:pointer;font-family:'Inter',sans-serif;min-height:44px;-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239aa0a6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:15px;transition:border-color .15s,box-shadow .15s;}
+.sec-toggle select{font-size:14px;font-weight:600;padding:10px 36px 10px 14px;border:1px solid var(--field-bd);border-radius:8px;background-color:var(--field);color:var(--white);cursor:pointer;font-family:'Inter',sans-serif;min-height:44px;min-width:148px;-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239aa0a6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:15px;transition:border-color .15s,box-shadow .15s;}
 .sec-toggle select:focus{outline:none;border-color:var(--green-lt);box-shadow:0 0 0 3px rgba(58,158,82,.22);}
 .subsection{display:none;margin-top:14px;}
 .subsection.visible{display:block;}
@@ -43,7 +87,7 @@ header{background:var(--void);border-bottom:1px solid var(--carbon);padding:0 24
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
 @media(max-width:520px){.grid2,.grid3{grid-template-columns:1fr;}.compare-grid{grid-template-columns:1fr;}}
 .field label{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--smoke);display:block;margin-bottom:6px;}
-.field select{width:100%;font-size:15px;padding:13px 40px 13px 14px;border:1px solid #34343c;border-radius:8px;background-color:#202024;color:var(--white);cursor:pointer;font-family:'Inter',sans-serif;min-height:48px;-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239aa0a6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;background-size:16px;transition:border-color .15s,box-shadow .15s;}
+.field select{width:100%;font-size:15px;padding:13px 40px 13px 14px;border:1px solid var(--field-bd);border-radius:8px;background-color:var(--field);color:var(--white);cursor:pointer;font-family:'Inter',sans-serif;min-height:48px;-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239aa0a6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;background-size:16px;transition:border-color .15s,box-shadow .15s;}
 .field select:hover{border-color:#4a4a54;}
 .field select:focus{outline:none;border-color:var(--green-lt);box-shadow:0 0 0 3px rgba(58,158,82,.22);}
 .field-note{font-size:12px;color:var(--ash);margin-top:6px;line-height:1.4;}
@@ -57,7 +101,7 @@ textarea::placeholder{color:var(--ash);}
 .upload-text{font-size:13px;color:var(--ash);}
 .upload-text span{display:block;font-size:11px;color:var(--steel);margin-top:3px;}
 .preview-img{width:100%;max-height:280px;object-fit:cover;border-radius:4px;margin-top:12px;display:none;}
-.generate-btn{width:100%;padding:16px;background:var(--green);color:var(--white);border:none;border-radius:4px;font-family:'Big Shoulders Display',sans-serif;font-size:18px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;margin-top:4px;}
+.generate-btn{width:100%;padding:16px;background:var(--green);color:var(--on-accent);border:none;border-radius:4px;font-family:'Big Shoulders Display',sans-serif;font-size:18px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;margin-top:4px;}
 .generate-btn:hover{background:var(--green-hi);}
 .generate-btn:disabled{background:var(--carbon);color:var(--ash);cursor:not-allowed;}
 .status-msg{text-align:center;font-size:13px;color:var(--ash);padding:16px;display:none;}
@@ -72,7 +116,7 @@ textarea::placeholder{color:var(--ash);}
 .compare-item p{font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--ash);margin-bottom:6px;}
 .compare-item img{width:100%;border-radius:4px;object-fit:cover;}
 .download-btn{margin-top:12px;width:100%;padding:12px;border:1px solid var(--green);border-radius:4px;background:transparent;color:var(--green-lt);font-size:13px;font-weight:600;cursor:pointer;letter-spacing:0.08em;font-family:'Inter',sans-serif;}
-.download-btn:hover{background:var(--green);color:var(--white);}
+.download-btn:hover{background:var(--green);color:var(--on-accent);}
 footer{text-align:center;font-size:10px;color:var(--steel);padding:32px 0 16px;letter-spacing:0.15em;text-transform:uppercase;}
 footer span{color:var(--green);}
 .q-input{width:100%;font-size:13px;padding:8px 10px;border:1px solid var(--steel);border-radius:4px;background:var(--carbon);color:var(--white);font-family:'Inter',sans-serif;}
@@ -120,21 +164,21 @@ footer span{color:var(--green);}
   <div style="width:100%;max-width:380px;">
     <div style="display:flex;align-items:center;gap:11px;justify-content:center;margin-bottom:8px;">
       <div style="width:4px;height:30px;background:#3a9e52;"></div>
-      <div style="font-family:'Big Shoulders Display',sans-serif;font-size:34px;font-weight:900;letter-spacing:0.03em;"><span style="color:#f4f4f2;">FINAL</span><span style="color:#3a9e52;">OOK</span></div>
+      <div style="font-family:'Big Shoulders Display',sans-serif;font-size:34px;font-weight:900;letter-spacing:0.03em;"><span style="color:var(--text);">FINAL</span><span style="color:#3a9e52;">OOK</span></div>
     </div>
     <p id="authTagline" style="text-align:center;color:#7a7a7a;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:28px;font-family:'Oswald',sans-serif;">Sign in to your account</p>
 
     <div style="background:#111;border:1px solid #222;border-radius:10px;padding:26px;">
       <div class="field" style="margin-bottom:12px;">
         <label style="font-size:11px;color:#888;display:block;margin-bottom:6px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Email</label>
-        <input id="authEmail" type="email" autocomplete="email" style="width:100%;font-size:14px;padding:11px 12px;border:1px solid #2a2a2a;border-radius:6px;background:#1a1a1a;color:#f4f4f2;font-family:'Inter',sans-serif;"/>
+        <input id="authEmail" type="email" autocomplete="email" style="width:100%;font-size:14px;padding:11px 12px;border:1px solid var(--line);border-radius:6px;background:var(--carbon);color:var(--text);font-family:'Inter',sans-serif;"/>
       </div>
       <div class="field" style="margin-bottom:18px;">
         <label style="font-size:11px;color:#888;display:block;margin-bottom:6px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Password</label>
-        <input id="authPassword" type="password" autocomplete="current-password" style="width:100%;font-size:14px;padding:11px 12px;border:1px solid #2a2a2a;border-radius:6px;background:#1a1a1a;color:#f4f4f2;font-family:'Inter',sans-serif;"/>
+        <input id="authPassword" type="password" autocomplete="current-password" style="width:100%;font-size:14px;padding:11px 12px;border:1px solid var(--line);border-radius:6px;background:var(--carbon);color:var(--text);font-family:'Inter',sans-serif;"/>
       </div>
 
-      <button id="authSubmit" onclick="authSubmit()" style="width:100%;padding:13px;background:#1f5c2e;color:#fff;border:none;border-radius:6px;font-family:'Oswald',sans-serif;font-size:15px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">Sign In</button>
+      <button id="authSubmit" onclick="authSubmit()" style="width:100%;padding:13px;background:#1f5c2e;color:var(--on-accent);border:none;border-radius:6px;font-family:'Oswald',sans-serif;font-size:15px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">Sign In</button>
 
       <div id="authMsg" style="font-size:13px;text-align:center;margin-top:14px;display:none;"></div>
 
@@ -154,7 +198,7 @@ footer span{color:var(--green);}
   <div style="width:100%;max-width:400px;">
     <div style="display:flex;align-items:center;gap:11px;justify-content:center;margin-bottom:8px;">
       <div style="width:4px;height:30px;background:#3a9e52;"></div>
-      <div style="font-family:'Big Shoulders Display',sans-serif;font-size:30px;font-weight:900;letter-spacing:0.03em;"><span style="color:#f4f4f2;">FINAL</span><span style="color:#3a9e52;">OOK</span></div>
+      <div style="font-family:'Big Shoulders Display',sans-serif;font-size:30px;font-weight:900;letter-spacing:0.03em;"><span style="color:var(--text);">FINAL</span><span style="color:#3a9e52;">OOK</span></div>
     </div>
     <p id="profileTagline" style="text-align:center;color:#7a7a7a;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:24px;font-family:'Oswald',sans-serif;">Set up your business profile</p>
 
@@ -218,18 +262,18 @@ footer span{color:var(--green);}
       <div class="field" style="margin-bottom:18px;">
         <label style="font-size:11px;color:#888;display:block;margin-bottom:6px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Company Logo (optional)</label>
         <div style="display:flex;align-items:center;gap:12px;">
-          <div id="logoPreview" style="width:56px;height:56px;border-radius:6px;border:1px solid #2a2a2a;background:#1a1a1a;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+          <div id="logoPreview" style="width:56px;height:56px;border-radius:6px;border:1px solid var(--line);background:var(--carbon);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
             <span id="logoPlaceholder" style="font-size:20px;color:#444;">▦</span>
             <img id="logoImg" style="width:100%;height:100%;object-fit:contain;display:none;"/>
           </div>
           <div style="flex:1;position:relative;">
             <input type="file" id="profLogo" accept="image/png,image/jpeg,image/jpg" onchange="handleLogoSelect(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"/>
-            <div style="border:1px dashed #2a2a2a;border-radius:6px;padding:10px;text-align:center;font-size:12px;color:#888;cursor:pointer;">Tap to upload PNG or JPG</div>
+            <div style="border:1px dashed var(--line);border-radius:6px;padding:10px;text-align:center;font-size:12px;color:#888;cursor:pointer;">Tap to upload PNG or JPG</div>
           </div>
         </div>
         <div id="logoStatus" style="font-size:11px;color:#3a9e52;margin-top:6px;display:none;"></div>
       </div>
-      <button id="profSave" onclick="saveProfile()" style="width:100%;padding:13px;background:#1f5c2e;color:#fff;border:none;border-radius:6px;font-family:'Oswald',sans-serif;font-size:15px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">Save &amp; Continue</button>
+      <button id="profSave" onclick="saveProfile()" style="width:100%;padding:13px;background:#1f5c2e;color:var(--on-accent);border:none;border-radius:6px;font-family:'Oswald',sans-serif;font-size:15px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">Save &amp; Continue</button>
       <div id="profMsg" style="font-size:13px;text-align:center;margin-top:14px;display:none;"></div>
       <p id="profCancelWrap" style="text-align:center;font-size:13px;margin-top:14px;display:none;"><a onclick="closeProfile()" style="color:#666;cursor:pointer;">Cancel</a></p>
     </div>
@@ -237,7 +281,7 @@ footer span{color:var(--green);}
 </div>
 
 <style>
-.prof-in{width:100%;font-size:14px;padding:11px 12px;border:1px solid #2a2a2a;border-radius:6px;background:#1a1a1a;color:#f4f4f2;font-family:'Inter',sans-serif;}
+.prof-in{width:100%;font-size:14px;padding:11px 12px;border:1px solid var(--line);border-radius:6px;background:var(--carbon);color:var(--text);font-family:'Inter',sans-serif;}
 .prof-in:focus{outline:1px solid #1f5c2e;}
 .prof-in::placeholder{color:#555;}
 #profileGate{align-items:flex-start!important;padding-top:30px;padding-bottom:30px;}
@@ -251,13 +295,16 @@ footer span{color:var(--green);}
       <div class="logo-sub">AI Design Preview</div>
     </div>
   </div>
-  <span id="usageBadge" onclick="showUpgrade()" title="Renders left this period — click to upgrade" style="margin-left:auto;display:none;align-items:center;gap:6px;font-family:'Inter',sans-serif;font-size:12px;color:#9aa;border:1px solid #2a2a2a;border-radius:5px;padding:7px 12px;cursor:pointer;"></span>
-  <button onclick="openQuotes()" style="margin-left:auto;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">My Quotes</button>
-  <button onclick="openLeads()" style="margin-left:8px;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Leads</button>
-  <button id="teamBtn" onclick="openTeam()" style="margin-left:8px;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Team</button>
-  <button onclick="openAnalytics()" style="margin-left:8px;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Dashboard</button>
-  <button onclick="openProfile()" style="margin-left:8px;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Profile</button>
-  <button onclick="logout()" style="margin-left:8px;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;">Log out</button>
+  <div class="topnav">
+  <span id="usageBadge" onclick="showUpgrade()" title="Renders left this period — click to upgrade" style="display:none;align-items:center;gap:6px;font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:7px 12px;cursor:pointer;"></span>
+  <button onclick="openQuotes()" class="navbtn">My Quotes</button>
+  <button onclick="openLeads()" class="navbtn">Leads</button>
+  <button id="teamBtn" onclick="openTeam()" class="navbtn">Team</button>
+  <button onclick="openAnalytics()" class="navbtn">Dashboard</button>
+  <button onclick="openProfile()" class="navbtn">Profile</button>
+  <button onclick="toggleTheme()" id="themeBtn" class="navbtn" title="Toggle light / dark" aria-label="Toggle theme">🌙</button>
+  <button onclick="logout()" class="navbtn">Log out</button>
+  </div>
 </header>
 
 <div class="main">
@@ -853,8 +900,8 @@ footer span{color:var(--green);}
     <div id="approveLinkWrap" style="display:none;margin-top:10px;padding:12px;border:1px solid var(--carbon);border-radius:8px;background:#141414;">
       <div style="font-size:11px;color:#888;margin-bottom:6px;">Client approval link — send it to your client</div>
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
-        <input id="approveLink" readonly style="flex:1;min-width:0;background:#0d0d0d;border:1px solid #2a2a2a;color:#cfd;border-radius:5px;padding:8px;font-size:12px;font-family:'Inter',sans-serif;"/>
-        <button onclick="copyApproveLink()" style="background:transparent;border:1px solid #2a2a2a;color:#9aa;border-radius:5px;padding:8px 12px;cursor:pointer;font-size:12px;white-space:nowrap;">Copy</button>
+        <input id="approveLink" readonly style="flex:1;min-width:0;background:var(--inset);border:1px solid var(--line);color:#cfd;border-radius:5px;padding:8px;font-size:12px;font-family:'Inter',sans-serif;"/>
+        <button onclick="copyApproveLink()" style="background:transparent;border:1px solid var(--line);color:#9aa;border-radius:5px;padding:8px 12px;cursor:pointer;font-size:12px;white-space:nowrap;">Copy</button>
       </div>
       <div style="display:flex;gap:8px;">
         <button onclick="emailApprovalLink()" style="flex:1;background:#3a9e52;border:none;color:#06210f;font-weight:700;border-radius:5px;padding:9px;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;">✉ Email it</button>
@@ -1814,7 +1861,7 @@ async function refreshUsage(){
     badge.textContent=label;
     badge.style.display='inline-flex';
     const low=(limit!==null) && (limit-used)<=3;
-    badge.style.borderColor=low?'#7a3a3a':'#2a2a2a';
+    badge.style.borderColor=low?'#7a3a3a':'var(--line)';
     badge.style.color=low?'#e08a8a':'#9aa';
   }catch(e){ /* non-fatal */ }
 }
@@ -2051,7 +2098,7 @@ function renderQuotesStats(){
   const mk=d=>{const t=new Date(d);return t.getFullYear()+'-'+t.getMonth();};
   const now=mk(new Date());
   const wonMonth=approved.filter(x=>mk(x.decided_at||x.created_at)===now);
-  const card=(label,val,sub)=>'<div style="flex:1;min-width:120px;background:#181818;border:1px solid #2a2a2a;border-radius:8px;padding:12px 14px;"><div style="font-size:11px;color:#888;letter-spacing:.06em;text-transform:uppercase;">'+label+'</div><div style="font-size:20px;color:#fff;font-weight:700;margin-top:3px;">'+val+'</div>'+(sub?'<div style="font-size:11px;color:#9aa;margin-top:2px;">'+sub+'</div>':'')+'</div>';
+  const card=(label,val,sub)=>'<div style="flex:1;min-width:120px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;"><div style="font-size:11px;color:#888;letter-spacing:.06em;text-transform:uppercase;">'+label+'</div><div style="font-size:20px;color:var(--text);font-weight:700;margin-top:3px;">'+val+'</div>'+(sub?'<div style="font-size:11px;color:#9aa;margin-top:2px;">'+sub+'</div>':'')+'</div>';
   el.innerHTML=card('Open quotes',money(sumT(open)),open.length+' awaiting reply')+card('Won',money(sumT(approved)),approved.length+' approved')+card('Win rate',winRate,decided+' decided')+card('Won this month',money(sumT(wonMonth)),wonMonth.length+' this month');
 }
 
@@ -2119,11 +2166,11 @@ function renderQuotes(){
     const dup=x.payload?'<a onclick="reopenQuote(\''+x.id+'\',false)" style="color:#9aa;cursor:pointer;text-decoration:none;">Duplicate</a>':'';
     const link=x.public_token?'<a onclick="navigator.clipboard.writeText(approvalUrlFor(\''+x.public_token+'\'));this.textContent=\'Copied!\'" style="color:#9aa;cursor:pointer;text-decoration:none;">Copy link</a>':'';
     const chip='<span style="display:inline-block;background:#181f1a;border:1px solid #2f4a37;color:#7fce95;border-radius:5px;font-size:11px;padding:1px 8px;">'+esc2(project)+'</span>';
-    return '<div style="border:1px solid #2a2a2a;border-radius:8px;padding:13px 14px;">'
+    return '<div style="border:1px solid var(--line);border-radius:8px;padding:13px 14px;">'
       +'<div style="display:flex;align-items:flex-start;gap:10px;">'
         +'<div style="flex:1;min-width:0;">'
-          +'<div style="color:#fff;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc2(x.client_name||'(no client)')+' <span style="color:#666;font-weight:400;font-size:12px;">'+esc2(x.quote_number||'')+'</span></div>'
-          +'<div style="margin-top:5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+chip+'<span style="color:#fff;font-size:13px;font-weight:600;">'+total+'</span></div>'
+          +'<div style="color:var(--text);font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc2(x.client_name||'(no client)')+' <span style="color:#666;font-weight:400;font-size:12px;">'+esc2(x.quote_number||'')+'</span></div>'
+          +'<div style="margin-top:5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+chip+'<span style="color:var(--text);font-size:13px;font-weight:600;">'+total+'</span></div>'
           +leadLine
         +'</div>'
         +'<div style="text-align:right;flex-shrink:0;">'+stageBadge(stage)+'<div style="color:#777;font-size:11px;margin-top:5px;">'+(act?('Last activity · '+act):'')+'</div></div>'
@@ -2187,8 +2234,8 @@ function renderLeads(){
   if(srcEl){ srcEl.innerHTML=_leads.length?('<b style="color:#cfd;">'+_leads.length+' leads</b>   ·   '+Object.keys(counts).map(k=>esc2(k)+': '+counts[k]).join('   ·   ')):''; }
   list.innerHTML=_leads.map(x=>{
     const dt=x.created_at?new Date(x.created_at).toLocaleDateString('en-CA'):'';
-    const ph=x.photo_url?'<a href="'+x.photo_url+'" target="_blank"><img src="'+x.photo_url+'" style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:1px solid #2a2a2a;"></a>':'';
-    const rn=x.render_url?'<a href="'+x.render_url+'" target="_blank"><img src="'+x.render_url+'" style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:1px solid #2a2a2a;"></a>':'';
+    const ph=x.photo_url?'<a href="'+x.photo_url+'" target="_blank"><img src="'+x.photo_url+'" style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:1px solid var(--line);"></a>':'';
+    const rn=x.render_url?'<a href="'+x.render_url+'" target="_blank"><img src="'+x.render_url+'" style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:1px solid var(--line);"></a>':'';
     const contact=[x.email,x.phone].filter(Boolean).map(esc2).join('  ·  ');
     const via=x.source?(' · via '+esc2(x.source)):'';
     const st=leadQuoteInfo(x);
@@ -2196,9 +2243,9 @@ function renderLeads(){
     const btn = st
       ? '<button onclick="createQuoteFromLead(\''+x.id+'\')" style="background:transparent;border:1px solid #2f5d3a;color:#3a9e52;font-weight:700;border-radius:6px;padding:6px 11px;cursor:pointer;font-size:12px;white-space:nowrap;">New quote</button>'
       : '<button onclick="createQuoteFromLead(\''+x.id+'\')" style="background:#3a9e52;border:none;color:#06210f;font-weight:700;border-radius:6px;padding:6px 11px;cursor:pointer;font-size:12px;white-space:nowrap;">Create Quote</button>';
-    return '<div style="border:1px solid #2a2a2a;border-radius:8px;padding:12px;display:flex;gap:12px;align-items:center;">'
+    return '<div style="border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;gap:12px;align-items:center;">'
       +'<div style="display:flex;gap:6px;flex-shrink:0;">'+ph+rn+'</div>'
-      +'<div style="flex:1;min-width:0;"><div style="color:#fff;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc2(x.name||'(no name)')+' <span style="color:#666;font-weight:400;">· '+esc2(x.trade||'')+via+'</span></div>'
+      +'<div style="flex:1;min-width:0;"><div style="color:var(--text);font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc2(x.name||'(no name)')+' <span style="color:#666;font-weight:400;">· '+esc2(x.trade||'')+via+'</span></div>'
       +'<div style="color:#9aa;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+contact+'</div><div style="color:#777;font-size:11px;">Captured '+dt+'</div></div>'
       +'<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0;">'
       +qchip
@@ -2261,9 +2308,9 @@ async function openTeam(){
     const pending=(invRes.data||[]).filter(x=>x.status==='pending');
     const used=1+members.length;
     document.getElementById('teamSeats').innerHTML='<b style="color:#cfd;">'+used+'</b> of '+capTxt+' seats used   ·   '+(_plan?(_plan.charAt(0).toUpperCase()+_plan.slice(1)):'Trial')+' plan';
-    let html='<div style="border:1px solid #2a2a2a;border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;">You (owner) <span style="color:#9aa;">· '+((currentProfile&&currentProfile.email)||'')+'</span></div>';
-    html+=members.map(m=>'<div style="border:1px solid #2a2a2a;border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;">'+(m.email||'member')+' <span style="color:#3a9e52;font-size:11px;">· active</span></div>').join('');
-    html+=pending.map(p=>'<div style="border:1px solid #2a2a2a;border-radius:8px;padding:10px 12px;color:#bdbdbd;font-size:13px;">'+(p.email||'')+' <span style="color:#c9a227;font-size:11px;">· invited</span></div>').join('');
+    let html='<div style="border:1px solid var(--line);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;">You (owner) <span style="color:#9aa;">· '+((currentProfile&&currentProfile.email)||'')+'</span></div>';
+    html+=members.map(m=>'<div style="border:1px solid var(--line);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;">'+(m.email||'member')+' <span style="color:#3a9e52;font-size:11px;">· active</span></div>').join('');
+    html+=pending.map(p=>'<div style="border:1px solid var(--line);border-radius:8px;padding:10px 12px;color:#bdbdbd;font-size:13px;">'+(p.email||'')+' <span style="color:#c9a227;font-size:11px;">· invited</span></div>').join('');
     document.getElementById('teamList').innerHTML=html;
     const full=_plan!=='crew' && used>=capNum;
     document.getElementById('teamInviteWrap').style.display=full?'none':'block';
@@ -2324,7 +2371,7 @@ function renderAnalytics(quotes, leads, usage){
   const followupsDue=quotes.filter(q=>(q.status==='sent'||q.status==='viewed')&&!(q.payload&&q.payload.followedUp)&&((Date.now()-new Date(q.sent_at||q.created_at).getTime())>3*DAY)).length;
   const projCount={}; quotes.forEach(q=>{ const p=(q.payload&&q.payload.project)||''; p.split(',').map(s=>s.trim()).filter(Boolean).forEach(t=>{projCount[t]=(projCount[t]||0)+1;}); });
   let topProject='—', topN=0; Object.keys(projCount).forEach(k=>{ if(projCount[k]>topN){topProject=k;topN=projCount[k];} });
-  const card=(label,val,sub)=>'<div style="flex:1;min-width:130px;background:#181818;border:1px solid #2a2a2a;border-radius:8px;padding:14px;"><div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.06em;">'+label+'</div><div style="font-size:22px;color:#fff;font-weight:700;margin-top:3px;">'+val+'</div>'+(sub?'<div style="font-size:11px;color:#9aa;margin-top:2px;">'+sub+'</div>':'')+'</div>';
+  const card=(label,val,sub)=>'<div style="flex:1;min-width:130px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:14px;"><div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.06em;">'+label+'</div><div style="font-size:22px;color:var(--text);font-weight:700;margin-top:3px;">'+val+'</div>'+(sub?'<div style="font-size:11px;color:#9aa;margin-top:2px;">'+sub+'</div>':'')+'</div>';
   document.getElementById('anStats').innerHTML=
     card('Total quotes',String(totalQuotes),money(totalValue)+' value')+
     card('Accepted value',money(acceptedValue),approved.length+' won')+
@@ -2341,12 +2388,20 @@ function renderAnalytics(quotes, leads, usage){
   const vals=months.map(m=>byMonth[m.key]||0); const max=Math.max(1,...vals);
   document.getElementById('anChart').innerHTML='<div style="display:flex;gap:8px;align-items:flex-end;height:140px;">'+months.map((m,i)=>{const h=Math.round((vals[i]/max)*110);return '<div style="flex:1;text-align:center;"><div style="font-size:10px;color:#9aa;margin-bottom:4px;height:14px;">'+(vals[i]?money(vals[i]):'')+'</div><div style="height:'+Math.max(h,2)+'px;background:#3a9e52;border-radius:4px 4px 0 0;"></div><div style="font-size:10px;color:#888;margin-top:5px;">'+m.label+'</div></div>';}).join('')+'</div>';
   const sc={}; leads.forEach(l=>{const s=l.source||'direct'; sc[s]=(sc[s]||0)+1;});
-  document.getElementById('anSources').innerHTML=Object.keys(sc).length?Object.keys(sc).map(k=>'<span style="display:inline-block;border:1px solid #2a2a2a;border-radius:99px;padding:4px 12px;font-size:12px;color:#cfd;margin:0 6px 6px 0;">'+k+': '+sc[k]+'</span>').join(''):'<span style="color:#777;font-size:13px;">No leads yet.</span>';
+  document.getElementById('anSources').innerHTML=Object.keys(sc).length?Object.keys(sc).map(k=>'<span style="display:inline-block;border:1px solid var(--line);border-radius:99px;padding:4px 12px;font-size:12px;color:#cfd;margin:0 6px 6px 0;">'+k+': '+sc[k]+'</span>').join(''):'<span style="color:#777;font-size:13px;">No leads yet.</span>';
   const goal=anGoal(); const gw=document.getElementById('anGoalWrap');
   if(goal>0){ const pct=Math.min(100,Math.round(wonMonth/goal*100)); gw.innerHTML='<div style="font-size:12px;color:#9aa;margin-bottom:6px;">This month: '+money(wonMonth)+' of '+money(goal)+' goal ('+pct+'%)</div><div style="height:10px;background:#222;border-radius:99px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:#3a9e52;"></div></div>'; }
   else { gw.innerHTML=''; }
   const gi=document.getElementById('anGoalInput'); if(gi&&!gi.value&&goal) gi.value=goal;
 }
+
+function toggleTheme(){
+  const isLight=document.documentElement.getAttribute('data-theme')==='light';
+  if(isLight){ document.documentElement.removeAttribute('data-theme'); } else { document.documentElement.setAttribute('data-theme','light'); }
+  try{ localStorage.setItem('fl_theme', isLight?'dark':'light'); }catch(e){}
+  const b=document.getElementById('themeBtn'); if(b) b.textContent=isLight?'🌙':'☀️';
+}
+(function(){ const b=document.getElementById('themeBtn'); if(b) b.textContent=document.documentElement.getAttribute('data-theme')==='light'?'☀️':'🌙'; })();
 
 // check on load
 checkSession();
@@ -2354,35 +2409,35 @@ checkSession();
 
 <!-- ===== Phase 2D: Upgrade / limit-reached overlay ===== -->
 <div id="upgradeGate" style="position:fixed;inset:0;z-index:1100;background:rgba(8,8,8,.85);display:none;align-items:center;justify-content:center;padding:20px;">
-  <div style="max-width:420px;width:100%;background:#121212;border:1px solid #2a2a2a;border-radius:12px;padding:28px;font-family:'Inter',sans-serif;">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;color:#fff;">UPGRADE <span style="color:#3a9e52;">FINALOOK</span></div>
+  <div style="max-width:420px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:28px;font-family:'Inter',sans-serif;">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;color:var(--text);">UPGRADE <span style="color:#3a9e52;">FINALOOK</span></div>
     <p id="upgradeMsg" style="color:#bbb;font-size:14px;line-height:1.6;margin:12px 0 14px;">You've reached your render limit.</p>
     <div style="display:flex;justify-content:center;margin-bottom:14px;">
-      <div style="display:inline-flex;gap:4px;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:999px;padding:4px;">
+      <div style="display:inline-flex;gap:4px;background:var(--inset);border:1px solid var(--line);border-radius:999px;padding:4px;">
         <button id="upgMonthly" onclick="setUpgPeriod('monthly')" style="background:#3a9e52;border:none;color:#06210f;font-weight:700;font-size:12px;padding:6px 16px;border-radius:999px;cursor:pointer;">Monthly</button>
         <button id="upgAnnual" onclick="setUpgPeriod('annual')" style="background:transparent;border:none;color:#9aa;font-weight:700;font-size:12px;padding:6px 16px;border-radius:999px;cursor:pointer;">Annual −25%</button>
       </div>
     </div>
     <div style="display:grid;gap:10px;">
-      <button onclick="startUpgrade('core')" style="text-align:left;border:1px solid #2a2a2a;background:#181818;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Inter',sans-serif;"><span style="color:#fff;font-weight:600;">Core</span><span class="upg-price" data-m="$199/mo · 30 renders" data-a="$1,791/yr · 30 renders" style="color:#9aa;">$199/mo · 30 renders</span></button>
-      <button onclick="startUpgrade('pro')" style="text-align:left;border:1px solid #3a9e52;background:#13231a;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Inter',sans-serif;"><span style="color:#fff;font-weight:600;">Pro <span style="color:#3a9e52;font-weight:700;font-size:11px;">★ POPULAR</span></span><span class="upg-price" data-m="$299/mo · 100 + lead-gen" data-a="$2,691/yr · 100 + lead-gen" style="color:#9aa;">$299/mo · 100 + lead-gen</span></button>
+      <button onclick="startUpgrade('core')" style="text-align:left;border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Inter',sans-serif;"><span style="color:var(--text);font-weight:600;">Core</span><span class="upg-price" data-m="$199/mo · 30 renders" data-a="$1,791/yr · 30 renders" style="color:#9aa;">$199/mo · 30 renders</span></button>
+      <button onclick="startUpgrade('pro')" style="text-align:left;border:1px solid #3a9e52;background:#13231a;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Inter',sans-serif;"><span style="color:var(--text);font-weight:600;">Pro <span style="color:#3a9e52;font-weight:700;font-size:11px;">★ POPULAR</span></span><span class="upg-price" data-m="$299/mo · 100 + lead-gen" data-a="$2,691/yr · 100 + lead-gen" style="color:#9aa;">$299/mo · 100 + lead-gen</span></button>
     </div>
-    <button onclick="topUp()" style="margin-top:10px;width:100%;text-align:center;border:1px dashed #2a2a2a;background:#0f0f0f;border-radius:8px;padding:10px;color:#9aa;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;">+ Add 30 render credits &nbsp;·&nbsp; $59 Core / $39 Pro</button>
+    <button onclick="topUp()" style="margin-top:10px;width:100%;text-align:center;border:1px dashed var(--line);background:#0f0f0f;border-radius:8px;padding:10px;color:#9aa;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;">+ Add 30 render credits &nbsp;·&nbsp; $59 Core / $39 Pro</button>
     <p id="upgNote" style="color:#777;font-size:11px;line-height:1.5;margin:12px 0 0;">Card required. No charge until your 14-day trial ends. Cancel anytime.</p>
-    <button onclick="hideUpgrade()" style="margin-top:14px;width:100%;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:13px;padding:10px;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;">Not now</button>
+    <button onclick="hideUpgrade()" style="margin-top:14px;width:100%;background:transparent;border:1px solid var(--line);color:#888;font-size:13px;padding:10px;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;">Not now</button>
     <div style="text-align:center;margin-top:10px;"><a onclick="openBillingPortal()" style="color:#3a9e52;font-size:12px;cursor:pointer;text-decoration:underline;">Manage existing billing</a></div>
   </div>
 </div>
 
 <!-- ===== Phase 3: My Quotes (CRM) overlay ===== -->
 <div id="quotesGate" style="position:fixed;inset:0;z-index:1100;background:rgba(8,8,8,.9);display:none;align-items:flex-start;justify-content:center;padding:30px 20px;overflow:auto;">
-  <div style="max-width:720px;width:100%;background:#121212;border:1px solid #2a2a2a;border-radius:12px;padding:24px;font-family:'Inter',sans-serif;">
+  <div style="max-width:720px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:24px;font-family:'Inter',sans-serif;">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:#fff;">MY QUOTES</div>
-      <button onclick="hideQuotes()" style="margin-left:auto;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:13px;padding:7px 14px;border-radius:5px;cursor:pointer;">Close</button>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:var(--text);">MY QUOTES</div>
+      <button onclick="hideQuotes()" style="margin-left:auto;background:transparent;border:1px solid var(--line);color:#888;font-size:13px;padding:7px 14px;border-radius:5px;cursor:pointer;">Close</button>
     </div>
     <div id="quotesStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;"></div>
-    <input id="quotesSearch" oninput="renderQuotes()" placeholder="Search by client or quote #" style="width:100%;background:#0d0d0d;border:1px solid #2a2a2a;color:#ddd;border-radius:6px;padding:10px;font-size:13px;font-family:'Inter',sans-serif;margin-bottom:12px;"/>
+    <input id="quotesSearch" oninput="renderQuotes()" placeholder="Search by client or quote #" style="width:100%;background:var(--inset);border:1px solid var(--line);color:#ddd;border-radius:6px;padding:10px;font-size:13px;font-family:'Inter',sans-serif;margin-bottom:12px;"/>
     <div id="quotesList" style="display:grid;gap:8px;"></div>
     <div id="quotesEmpty" style="display:none;color:#777;font-size:13px;text-align:center;padding:24px;">No saved quotes yet. Build a quote, then "Save &amp; Send for Approval".</div>
   </div>
@@ -2390,16 +2445,16 @@ checkSession();
 
 <!-- ===== Phase 4: Leads inbox ===== -->
 <div id="leadsGate" style="position:fixed;inset:0;z-index:1100;background:rgba(8,8,8,.9);display:none;align-items:flex-start;justify-content:center;padding:30px 20px;overflow:auto;">
-  <div style="max-width:760px;width:100%;background:#121212;border:1px solid #2a2a2a;border-radius:12px;padding:24px;font-family:'Inter',sans-serif;">
+  <div style="max-width:760px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:24px;font-family:'Inter',sans-serif;">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:#fff;">LEADS</div>
-      <button onclick="hideLeads()" style="margin-left:auto;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:13px;padding:7px 14px;border-radius:5px;cursor:pointer;">Close</button>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:var(--text);">LEADS</div>
+      <button onclick="hideLeads()" style="margin-left:auto;background:transparent;border:1px solid var(--line);color:#888;font-size:13px;padding:7px 14px;border-radius:5px;cursor:pointer;">Close</button>
     </div>
     <div id="leadsShare" style="font-size:12px;color:#9aa;margin-bottom:14px;line-height:1.6;"></div>
-    <div id="qrBox" style="border:1px solid #2a2a2a;border-radius:8px;padding:14px;margin-bottom:14px;background:#0f0f0f;">
+    <div id="qrBox" style="border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:14px;background:#0f0f0f;">
       <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:8px;">QR code for signs, trucks &amp; cards</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <input id="qrSrc" placeholder="Where will it go? e.g. truck, lawn-sign" style="flex:1;min-width:160px;background:#0d0d0d;border:1px solid #2a2a2a;color:#ddd;border-radius:6px;padding:9px;font-size:13px;font-family:'Inter',sans-serif;"/>
+        <input id="qrSrc" placeholder="Where will it go? e.g. truck, lawn-sign" style="flex:1;min-width:160px;background:var(--inset);border:1px solid var(--line);color:#ddd;border-radius:6px;padding:9px;font-size:13px;font-family:'Inter',sans-serif;"/>
         <button onclick="makeQR()" style="background:#3a9e52;border:none;color:#06210f;font-weight:700;border-radius:6px;padding:9px 14px;cursor:pointer;font-size:13px;">Generate QR</button>
       </div>
       <div id="qrOut" style="display:none;margin-top:12px;text-align:center;">
@@ -2416,17 +2471,17 @@ checkSession();
 
 <!-- ===== Phase 6: Team modal ===== -->
 <div id="teamGate" style="position:fixed;inset:0;z-index:1100;background:rgba(8,8,8,.9);display:none;align-items:flex-start;justify-content:center;padding:30px 20px;overflow:auto;">
-  <div style="max-width:520px;width:100%;background:#121212;border:1px solid #2a2a2a;border-radius:12px;padding:24px;font-family:'Inter',sans-serif;">
+  <div style="max-width:520px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:24px;font-family:'Inter',sans-serif;">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:#fff;">TEAM</div>
-      <button onclick="hideTeam()" style="margin-left:auto;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:13px;padding:7px 14px;border-radius:5px;cursor:pointer;">Close</button>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:var(--text);">TEAM</div>
+      <button onclick="hideTeam()" style="margin-left:auto;background:transparent;border:1px solid var(--line);color:#888;font-size:13px;padding:7px 14px;border-radius:5px;cursor:pointer;">Close</button>
     </div>
     <div id="teamSeats" style="font-size:13px;color:#9aa;margin-bottom:14px;"></div>
     <div id="teamList" style="display:grid;gap:8px;margin-bottom:14px;"></div>
     <div id="teamInviteWrap">
       <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:6px;">Invite a teammate</div>
       <div style="display:flex;gap:8px;">
-        <input id="teamEmail" type="email" placeholder="teammate@email.com" style="flex:1;background:#0d0d0d;border:1px solid #2a2a2a;color:#ddd;border-radius:6px;padding:10px;font-size:13px;font-family:'Inter',sans-serif;"/>
+        <input id="teamEmail" type="email" placeholder="teammate@email.com" style="flex:1;background:var(--inset);border:1px solid var(--line);color:#ddd;border-radius:6px;padding:10px;font-size:13px;font-family:'Inter',sans-serif;"/>
         <button onclick="inviteMember()" style="background:#3a9e52;border:none;color:#06210f;font-weight:700;border-radius:6px;padding:10px 16px;cursor:pointer;font-size:13px;">Invite</button>
       </div>
       <p style="font-size:11px;color:#777;margin-top:6px;">They join your team automatically when they sign up at app.finalook.ai with that email.</p>
@@ -2437,10 +2492,10 @@ checkSession();
 
 <!-- ===== Phase 10: Analytics dashboard ===== -->
 <div id="analyticsGate" style="position:fixed;inset:0;z-index:1100;background:rgba(8,8,8,.9);display:none;align-items:flex-start;justify-content:center;padding:30px 20px;overflow:auto;">
-  <div style="max-width:680px;width:100%;background:#121212;border:1px solid #2a2a2a;border-radius:12px;padding:24px;font-family:'Inter',sans-serif;">
+  <div style="max-width:680px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:24px;font-family:'Inter',sans-serif;">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:#fff;">DASHBOARD</div>
-      <button onclick="hideAnalytics()" style="margin-left:auto;background:transparent;border:1px solid #2a2a2a;color:#888;font-size:13px;padding:7px 14px;border-radius:5px;cursor:pointer;">Close</button>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:var(--text);">DASHBOARD</div>
+      <button onclick="hideAnalytics()" style="margin-left:auto;background:transparent;border:1px solid var(--line);color:#888;font-size:13px;padding:7px 14px;border-radius:5px;cursor:pointer;">Close</button>
     </div>
     <div id="anStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;"></div>
     <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Revenue won — last 6 months</div>
@@ -2449,7 +2504,7 @@ checkSession();
     <div id="anSources" style="margin-bottom:20px;"></div>
     <div style="border-top:1px solid #222;padding-top:14px;">
       <div id="anGoalWrap" style="margin-bottom:10px;"></div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><span style="font-size:12px;color:#888;">Monthly revenue goal&nbsp;$</span><input id="anGoalInput" type="number" placeholder="20000" style="width:130px;background:#0d0d0d;border:1px solid #2a2a2a;color:#ddd;border-radius:6px;padding:8px;font-size:13px;font-family:'Inter',sans-serif;"/><button onclick="setAnGoal()" style="background:transparent;border:1px solid #3a9e52;color:#3a9e52;border-radius:6px;padding:8px 14px;cursor:pointer;font-size:12px;">Save goal</button></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><span style="font-size:12px;color:#888;">Monthly revenue goal&nbsp;$</span><input id="anGoalInput" type="number" placeholder="20000" style="width:130px;background:var(--inset);border:1px solid var(--line);color:#ddd;border-radius:6px;padding:8px;font-size:13px;font-family:'Inter',sans-serif;"/><button onclick="setAnGoal()" style="background:transparent;border:1px solid #3a9e52;color:#3a9e52;border-radius:6px;padding:8px 14px;cursor:pointer;font-size:12px;">Save goal</button></div>
     </div>
   </div>
 </div>

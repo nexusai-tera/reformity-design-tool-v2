@@ -1,5 +1,6 @@
 {
   "rewrites": [
-    { "source": "/q/:slug", "destination": "https://app.finalook.ai/q/?s=:slug" }
+    { "source": "/q/:slug", "destination": "https://app.finalook.ai/q/?s=:slug" },
+    { "source": "/approve", "destination": "https://app.finalook.ai/approve" }
   ]
 }

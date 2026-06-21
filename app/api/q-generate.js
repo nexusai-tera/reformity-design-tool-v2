@@ -97,23 +97,26 @@ NEVER: add people, pets, vehicles, furniture or décor; add any text, labels, lo
 
 OUTPUT: one photorealistic image indistinguishable from a professional DSLR photograph of the finished work — sharp focus, accurate natural lighting, shadows matching the original sun direction, realistic material textures, true-to-life colour, correct proportions and perspective, and the full uncropped frame at the original aspect ratio.`;
   let renderB64 = null;
-  try {
-    const r = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=${GEMINI}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: 'image/jpeg', data: imageB64 } }] }],
-          generationConfig: { responseModalities: ['IMAGE', 'TEXT'] },
-        }),
-      }
-    );
-    const data = await r.json();
-    const part = (data?.candidates?.[0]?.content?.parts || []).find((p) => p.inlineData || p.inline_data);
-    renderB64 = part ? (part.inlineData || part.inline_data).data : null;
-  } catch {
-    /* handled below */
+  for (let attempt = 1; attempt <= 2 && !renderB64; attempt++) {
+    try {
+      const r = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=${GEMINI}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: 'image/jpeg', data: imageB64 } }] }],
+            generationConfig: { responseModalities: ['IMAGE', 'TEXT'] },
+          }),
+        }
+      );
+      const data = await r.json();
+      const part = (data?.candidates?.[0]?.content?.parts || []).find((p) => p.inlineData || p.inline_data);
+      renderB64 = part ? (part.inlineData || part.inline_data).data : null;
+      if (!renderB64 && r.status === 429 && attempt < 2) await new Promise((s) => setTimeout(s, 3000));
+    } catch {
+      if (attempt < 2) await new Promise((s) => setTimeout(s, 1500));
+    }
   }
   if (!renderB64) {
     return res.status(502).json({ error: 'The preview could not be generated — please try a clearer photo.' });

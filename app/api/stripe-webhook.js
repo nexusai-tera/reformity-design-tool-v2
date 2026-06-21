@@ -96,7 +96,7 @@ export default async function handler(req, res) {
           // One-time render-credit top-up — add the credits to the buyer's account.
           const uid = s.metadata.user_id || s.client_reference_id;
           const credits = parseInt(s.metadata.credits || '0', 10) || 0;
-          if (uid && credits > 0) await rpc('add_render_credits', { p_user_id: uid, p_qty: credits });
+          if (uid && credits > 0) await rpc('grant_topup_credits', { p_session_id: s.id, p_user_id: uid, p_qty: credits });
         }
         break;
       }

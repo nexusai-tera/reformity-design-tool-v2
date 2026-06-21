@@ -145,8 +145,16 @@ export default async function handler(req, res) {
   const success = geminiStatus >= 200 && geminiStatus < 300 && hadImage;
   if (!success) {
     await rpc('refund_render', { p_user_id: user.id, p_bucket: q.bucket || 'monthly' }); // best-effort, refunds the bucket consumed
-    // Pass the upstream status through (429 stays 429 so the client can retry).
-    return res.status(geminiStatus).json(geminiData);
+    const upstream = (geminiData && geminiData.error && (geminiData.error.message || geminiData.error.status)) || '';
+    if (upstream) console.error('Gemini render failed', geminiStatus, upstream); // server logs only — never shown to users
+    if (geminiStatus === 429) {
+      return res.status(429).json({ error: 'The render service is busy right now — please wait a minute and try again.' });
+    }
+    let msg = 'The render could not be generated right now. Please try again in a moment.';
+    if (geminiStatus === 403 || /permission|billing|denied|dunning|quota|suspend|disabled/i.test(String(upstream))) {
+      msg = 'Renders are temporarily unavailable — please contact support.';
+    }
+    return res.status(502).json({ error: msg });
   }
 
   // 5) Success ---------------------------------------------------------------

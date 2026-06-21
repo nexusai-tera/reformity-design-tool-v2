@@ -51,7 +51,9 @@
 </div>
 
 <script>
-const slug=new URLSearchParams(location.search).get('s')||new URLSearchParams(location.search).get('slug');
+const _qp=new URLSearchParams(location.search);
+let slug=_qp.get('s')||_qp.get('slug');
+if(!slug){ const _m=location.pathname.match(/\/q\/([^\/?#]+)/); if(_m) slug=decodeURIComponent(_m[1]); }
 const source=(new URLSearchParams(location.search).get('src')||new URLSearchParams(location.search).get('source')||'virtual_quote');
 const TURNSTILE_SITEKEY='0x4AAAAAADosOwe7QDjLROna'; // Cloudflare Turnstile site key (public)
 const root=document.getElementById('root');

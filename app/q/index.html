@@ -53,7 +53,7 @@
 <script>
 const slug=new URLSearchParams(location.search).get('s')||new URLSearchParams(location.search).get('slug');
 const source=(new URLSearchParams(location.search).get('src')||new URLSearchParams(location.search).get('source')||'virtual_quote');
-const TURNSTILE_SITEKEY=''; // ← paste your Cloudflare Turnstile site key here to turn on bot protection
+const TURNSTILE_SITEKEY='0x4AAAAAADosOwe7QDjLROna'; // Cloudflare Turnstile site key (public)
 const root=document.getElementById('root');
 let info=null, trade='fence', photoB64='';
 const TRADES=[['fence','Fence'],['deck','Deck'],['interlock','Interlock'],['concrete','Concrete'],['landscaping','Landscaping'],['masonry','Masonry']];

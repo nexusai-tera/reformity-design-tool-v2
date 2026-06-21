@@ -998,14 +998,29 @@ function fenceHeightContext(h){
 function buildPrompt(){
   const parts=[];
   const deckMode=v('deckEnabled');
+  const lightingOn=v('lightingEnabled')==='yes';
+
+  // Which areas are actually being changed (used to scope the edit).
+  const enabled=[];
+  if(v('fenceEnabled')==='yes') enabled.push('the new fence');
+  if(deckMode==='yes') enabled.push('the new deck');
+  if(deckMode==='sub') enabled.push('the deck substructure');
+  if(v('interlockEnabled')==='yes') enabled.push('the new interlocking/paving');
+  if(v('concreteEnabled')==='yes') enabled.push('the new concrete');
+  if(v('asphaltEnabled')==='yes') enabled.push('the new asphalt');
+  if(v('masonryEnabled')==='yes') enabled.push('the new masonry');
+  if(v('landscapeEnabled')==='yes') enabled.push('the new landscaping');
+  if(lightingOn) enabled.push('the added lighting');
+
+  parts.push('ROLE: You are a professional architectural photo retoucher. You are given a REAL photograph of a property. EDIT that exact photograph — do not invent a new scene or change the viewpoint. Return the same photo with ONLY the changes listed below; every other pixel should stay faithful to the original.');
 
   if(deckMode==='sub'){
     const mat=v('subMat'),spacing=v('subSpacing');
-    parts.push('Transform this backyard photo into a photorealistic construction progress render showing only the deck substructure phase.');
+    parts.push('CHANGES — render this as a realistic in-progress construction photo, substructure phase only:');
     parts.push(`Remove any existing deck or structure completely. Show: concrete footings poured and cured in the ground at proper intervals, pressure treated dimensional lumber subframe and joists installed on top of the footings at ${spacing}, ledger board properly bolted flush against the house wall. The decking surface boards are NOT installed — only the raw structural frame is visible from above.`);
     parts.push(`The finished deck material will be ${mat}. This must look exactly like a real in-progress construction photo taken on a professional job site — raw lumber, visible hardware, dirt around footings.`);
   } else {
-    parts.push('Transform this backyard photo into a photorealistic finished renovation render showing the fully completed project.');
+    parts.push('CHANGES — add the following as fully completed, professionally built, ready-to-use work:');
   }
 
   if(v('fenceEnabled')==='yes'){
@@ -1095,11 +1110,21 @@ function buildPrompt(){
   const notes=document.getElementById('customNotes').value.trim();
   if(notes) parts.push(`Additional instructions: ${notes}`);
 
-  // Global realism booster — applied to every render
-  parts.push('QUALITY & REALISM: Render in sharp, high-resolution photorealistic detail with accurate natural lighting, correct shadows consistent with the sun direction in the original photo, realistic material textures (wood grain, stone texture, metal sheen), proper depth of field, and true-to-life colour. The result must be indistinguishable from a professional DSLR photograph of a real completed project. Avoid any CGI, cartoonish, over-saturated, or artificial 3D-render appearance. Maintain realistic proportions and perspective throughout.');
+  // SCOPE — fence the edit to only the quoted areas.
+  if(enabled.length) parts.push(`SCOPE: The ONLY changes to the scene are ${enabled.join(', ')}. Do not modify, redraw, "improve", or clean up the house, driveway, lawn, neighbouring properties, or any area that is not part of these changes.`);
 
-  parts.push('CRITICAL: Keep the exact same camera angle, perspective, sky, trees, background and lighting as the original photo unless a specific lighting scene was requested. Fences must extend fully into every corner. Everything must look like a real photograph of a completed professional job — photorealistic only.');
-  return parts.join(' ');
+  // PRESERVE — what must survive untouched.
+  let preserve='PRESERVE EXACTLY — keep these identical to the original photo: the house and all of its windows, doors, roof and siding; existing trees, plants and features that are not being replaced; neighbouring fences and buildings; and the camera angle, position, zoom, framing and aspect ratio (do not crop, rotate or zoom).';
+  if(!lightingOn) preserve+=' Also keep the sky, weather, time of day, and the direction and softness of the sun and shadows exactly as in the original.';
+  parts.push(preserve);
+
+  // NEVER — consolidated negative guidance.
+  parts.push('NEVER: add people, pets, vehicles, patio furniture or décor unless explicitly requested; add any text, captions, labels, logos or watermarks; duplicate the structure or leave any element floating, clipped or disconnected; bend or warp straight lines (keep all posts and verticals truly vertical, no lens distortion); or produce a CGI, video-game, cartoon, illustrated, HDR or over-saturated look.');
+
+  // OUTPUT — realism + framing.
+  parts.push('OUTPUT: one photorealistic image that is indistinguishable from a professional DSLR photograph of the finished job — sharp focus, accurate natural lighting, shadows consistent with the original sun direction, realistic material textures (wood grain, stone, metal sheen), true-to-life colour, correct proportions and perspective, and the full uncropped frame at the original aspect ratio. Structures (fences, decks, walls) must extend fully and cleanly into every corner they belong in.');
+
+  return parts.join('\n\n');
 }
 
 async function callAPI(prompt, b64, retries=3){

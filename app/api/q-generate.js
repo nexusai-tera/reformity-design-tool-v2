@@ -87,7 +87,15 @@ export default async function handler(req, res) {
 
   // 2) Render with Gemini.
   const subject = TRADE[String(trade || '').toLowerCase()] || 'a professional finished outdoor renovation';
-  const prompt = `Transform this photo of a property by adding ${subject}. Render in sharp, photorealistic detail with accurate natural lighting, correct shadows consistent with the original photo, and realistic material textures. Keep the exact same camera angle, perspective, sky, and background. The result must look like a real DSLR photograph of the completed work — avoid any CGI, cartoonish, or over-saturated appearance.`;
+  const prompt = `ROLE: You are a professional architectural photo retoucher. You are given a REAL photograph of a property. EDIT that exact photograph — do not invent a new scene or change the viewpoint. Return the same photo with ONLY the change below; every other pixel should stay faithful to the original.
+
+CHANGE: add ${subject}, fully completed and professionally finished, naturally integrated into the existing space.
+
+PRESERVE EXACTLY — keep identical to the original: the house and its windows, doors, roof and siding; existing trees and features not being replaced; neighbouring properties; the sky, weather, time of day and the direction of the sun and shadows; and the camera angle, position, framing and aspect ratio (do not crop, rotate or zoom).
+
+NEVER: add people, pets, vehicles, furniture or décor; add any text, labels, logos or watermarks; duplicate or float any element; bend or warp straight lines (keep verticals truly vertical); or produce a CGI, cartoon, illustrated, HDR or over-saturated look.
+
+OUTPUT: one photorealistic image indistinguishable from a professional DSLR photograph of the finished work — sharp focus, accurate natural lighting, shadows matching the original sun direction, realistic material textures, true-to-life colour, correct proportions and perspective, and the full uncropped frame at the original aspect ratio.`;
   let renderB64 = null;
   try {
     const r = await fetch(

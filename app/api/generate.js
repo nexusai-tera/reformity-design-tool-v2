@@ -124,7 +124,9 @@ export default async function handler(req, res) {
   let geminiData = null;
   let hadImage = false;
   try {
-    const wantHigh = req.body && req.body.quality === 'high';
+    // High-quality (Pro) model is gated to Pro/Crew plans — enforced here, not just in the UI.
+    const hqAllowed = ['pro', 'crew'].includes(String(q.plan || '').toLowerCase());
+    const wantHigh = !!(req.body && req.body.quality === 'high') && hqAllowed;
     const model = wantHigh ? 'gemini-3-pro-image-preview' : 'gemini-3.1-flash-image-preview';
     const { quality: _omitQuality, ...geminiBody } = req.body || {};
     const r = await fetch(

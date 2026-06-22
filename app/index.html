@@ -125,6 +125,8 @@ footer span{color:var(--green);}
 .q-add{width:100%;padding:13px;border:1px solid #2f5d3a;border-radius:8px;background:#13231a;color:var(--green-lt);font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;letter-spacing:0.02em;min-height:46px;transition:background .15s,border-color .15s;}
 .q-add:hover{border-color:var(--green-lt);background:#16291e;}
 .q-add:active{transform:translateY(1px);}
+.ex-chip{background:var(--panel2);border:1px solid var(--line);color:var(--green-lt);font-size:12px;padding:6px 11px;border-radius:99px;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;}
+.ex-chip:hover{border-color:var(--green-lt);background:#16291e;}
 .q-row{display:grid;gap:6px;margin-bottom:8px;align-items:center;}
 .q-row.rate{grid-template-columns:1.6fr 0.7fr 0.6fr 0.9fr 28px;}
 .q-row.manual{grid-template-columns:2.2fr 1fr 28px;}
@@ -352,6 +354,17 @@ footer span{color:var(--green);}
           </select>
         </div>
       </div>
+      <div class="field"><label>Coverage</label>
+        <select id="fenceCoverage">
+          <option value="full">Full perimeter (all sides)</option>
+          <option value="back">Back only</option>
+          <option value="back+left">Back + left side</option>
+          <option value="back+right">Back + right side</option>
+          <option value="left">Left side only</option>
+          <option value="right">Right side only</option>
+          <option value="sides">Both sides (no back)</option>
+        </select>
+      </div>
       <div id="woodDesigns">
         <div class="grid2">
           <div class="field"><label>Design</label>
@@ -459,6 +472,12 @@ footer span{color:var(--green);}
       </select>
     </div>
     <div class="subsection" id="deck-section">
+      <div class="field"><label>Tiers</label>
+        <select id="deckTiers">
+          <option value="single">Single tier</option>
+          <option value="two">Two-tier (upper + lower)</option>
+        </select>
+      </div>
       <div class="grid2">
         <div class="field"><label>Type</label>
           <select id="deckType">
@@ -762,8 +781,26 @@ footer span{color:var(--green);}
   </div>
 
   <div class="card">
-    <div class="card-title">Custom notes</div>
-    <textarea id="customNotes" placeholder="e.g. Add a gate on the left, keep the large tree, add post cap lights, show summer conditions..."></textarea>
+    <div class="card-title">Describe anything specific</div>
+    <div class="field-note" style="margin:-6px 0 10px;">The more detail you add, the more accurate the render. Tap an example to add it:</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+      <button type="button" class="ex-chip" onclick="addNote('Two-tier deck: upper tier off the back door with railing, 3-4 wide steps down to a larger lower tier at grade.')">+ Two-tier deck</button>
+      <button type="button" class="ex-chip" onclick="addNote('Fence only along the back and left side; leave the right side open.')">+ Partial fence</button>
+      <button type="button" class="ex-chip" onclick="addNote('Keep the existing tree and shed exactly as they are.')">+ Keep features</button>
+      <button type="button" class="ex-chip" onclick="addNote('Add a 4 ft wide gate on the right side.')">+ Add a gate</button>
+      <button type="button" class="ex-chip" onclick="addNote('Also add post-cap lights and show a dusk scene.')">+ Lighting</button>
+    </div>
+    <textarea id="customNotes" placeholder="Describe exact placement, multiple or multi-level structures, things to keep, or anything the dropdowns don't cover. Example: 'Two-tier deck — upper tier off the kitchen door, lower tier with a pergola; keep the apple tree.'"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Style reference · optional</div>
+    <div class="upload-area">
+      <input type="file" id="refInput" accept="image/*" onchange="handleRefPhoto(event)"/>
+      <div class="upload-icon">🎨</div>
+      <div class="upload-text">Optional: add a photo of a style or material to match<span>e.g. a deck or fence design you like — the AI will match its look, not its yard</span></div>
+    </div>
+    <img id="refPreview" class="preview-img"/>
   </div>
 
   <button class="generate-btn" id="generateBtn" onclick="generateDesign()">Generate Design Preview</button>
@@ -916,7 +953,7 @@ footer span{color:var(--green);}
 </div>
 
 <script>
-let originalImageB64='', resultB64='';
+let originalImageB64='', resultB64='', refImageB64='';
 
 function toggle(sec){
   const map={
@@ -983,6 +1020,27 @@ function handlePhoto(e){
   img.src=objectUrl;
 }
 
+function handleRefPhoto(e){
+  const file=e.target.files[0];if(!file)return;
+  const objectUrl=URL.createObjectURL(file);
+  const img=new Image();
+  img.onload=()=>{
+    const canvas=document.createElement('canvas');
+    const MAX=1280; let w=img.width,h=img.height;
+    if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+    if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
+    canvas.width=w;canvas.height=h;
+    canvas.getContext('2d').drawImage(img,0,0,w,h);
+    const dataUrl=canvas.toDataURL('image/jpeg',0.9);
+    refImageB64=dataUrl.split(',')[1];
+    const p=document.getElementById('refPreview'); p.src=dataUrl; p.style.display='block';
+    URL.revokeObjectURL(objectUrl);
+  };
+  img.onerror=()=>{ const reader=new FileReader(); reader.onload=ev=>{ refImageB64=ev.target.result.split(',')[1]; const p=document.getElementById('refPreview'); p.src=ev.target.result; p.style.display='block'; }; reader.readAsDataURL(file); URL.revokeObjectURL(objectUrl); };
+  img.src=objectUrl;
+}
+function addNote(t){ const el=document.getElementById('customNotes'); if(!el) return; el.value=(el.value.trim()?el.value.trim()+' ':'')+t; el.focus(); }
+
 function v(id){return document.getElementById(id).value;}
 
 function fenceHeightContext(h){
@@ -1028,7 +1086,17 @@ function buildPrompt(){
     const mat=v('fenceMaterial'), h=v('fenceHeight');
     const heightCtx=fenceHeightContext(h);
 
-    const perimeterRule='The fence MUST run continuously along the full perimeter of the yard, extending completely flush into every corner. The fence must never appear to float or stop mid-yard. Every visible property boundary must have fence on it.';
+    const cov=v('fenceCoverage');
+    const covMap={
+      full:'The fence MUST run continuously along the full perimeter of the yard, extending completely flush into every corner; every visible property boundary must have fence on it and it must never float or stop mid-yard.',
+      back:'Install the fence along the BACK property boundary only — do not add any fence to the left or right side boundaries.',
+      'back+left':'Install the fence along the BACK boundary and the LEFT side boundary only; leave the right side open with no fence.',
+      'back+right':'Install the fence along the BACK boundary and the RIGHT side boundary only; leave the left side open with no fence.',
+      left:'Install the fence along the LEFT side boundary only; leave the back and right boundaries open with no fence.',
+      right:'Install the fence along the RIGHT side boundary only; leave the back and left boundaries open with no fence.',
+      sides:'Install the fence along the LEFT and RIGHT side boundaries only; leave the back boundary open with no fence.'
+    };
+    const perimeterRule=covMap[cov]||covMap.full;
 
     if(mat==='pt'||mat==='cedar'){
       const label=mat==='cedar'?'cedar wood':'pressure treated wood';
@@ -1057,6 +1125,7 @@ function buildPrompt(){
       : 'The deck is a floating ground-level deck — it sits close to the ground with minimal clearance underneath.';
 
     parts.push(`Build a brand new ${deckType} constructed from ${mat} with a ${pattern} board layout. Subframe joists run at ${spacing} with ledger board bolted to the house. ${deckTypeCtx}`);
+    if(v('deckTiers')==='two') parts.push('Build this as a TWO-TIER deck: an upper tier connected to the house at the higher level, plus a separate, larger lower tier stepping down toward the yard, joined by a short flight of wide stairs between the two levels. Both tiers share the same material and railing style and read as one cohesive multi-level deck.');
     if(stairs!=='no stairs') parts.push(`Add ${stairs} with properly framed stringers, evenly spaced treads matching the deck material, and risers that are consistent in height.`);
     if(railing!=='no railing') parts.push(`Install ${railing} around the full perimeter of the deck. Railing posts are evenly spaced, balusters are plumb, top rail is perfectly level.`);
     if(stairRail==='matching railing on stairs'&&stairs!=='no stairs') parts.push('Add matching railing on both sides of the stairs, continuous from deck level to ground.');
@@ -1111,6 +1180,8 @@ function buildPrompt(){
   const notes=document.getElementById('customNotes').value.trim();
   if(notes) parts.push(`Additional instructions: ${notes}`);
 
+  if(refImageB64) parts.push('STYLE REFERENCE: A second image is attached only as a style/material reference. Match its materials, colours, textures and finish for the new work — but build everything into the FIRST photo\'s actual yard, keeping that photo\'s house, layout, camera angle and background. Do NOT copy the reference image\'s house, layout, or surroundings.');
+
   // SCOPE — fence the edit to only the quoted areas.
   if(enabled.length) parts.push(`SCOPE: The ONLY changes to the scene are ${enabled.join(', ')}. Do not modify, redraw, "improve", or clean up the house, driveway, lawn, neighbouring properties, or any area that is not part of these changes.`);
 
@@ -1128,7 +1199,7 @@ function buildPrompt(){
   return parts.join('\n\n');
 }
 
-async function callAPI(prompt, b64, retries=3){
+async function callAPI(prompt, b64, refB64, retries=3){
   const {data:{session}}=await sb.auth.getSession();
   if(!session){ authGateShow(); const e=new Error('Please sign in again.'); e.auth=true; throw e; }
   for(let i=1;i<=retries;i++){
@@ -1139,7 +1210,7 @@ async function callAPI(prompt, b64, retries=3){
         'Authorization':`Bearer ${session.access_token}`
       },
       body:JSON.stringify({
-        contents:[{parts:[{text:prompt},{inline_data:{mime_type:'image/jpeg',data:b64}}]}],
+        contents:[{parts:[{text:prompt},{inline_data:{mime_type:'image/jpeg',data:b64}}].concat(refB64?[{inline_data:{mime_type:'image/jpeg',data:refB64}}]:[])}],
         generationConfig:{responseModalities:['IMAGE','TEXT']}
       })
     });
@@ -1164,7 +1235,7 @@ async function generateDesign(){
   document.getElementById('errorMsg').className='error-msg';
   document.getElementById('resultsCard').className='results card';
   try{
-    const data=await callAPI(buildPrompt(),originalImageB64);
+    const data=await callAPI(buildPrompt(),originalImageB64,refImageB64);
     const imgPart=(data.candidates?.[0]?.content?.parts||[]).find(p=>p.inlineData);
     if(!imgPart)throw new Error('No image returned. Try adjusting your options or adding custom notes.');
     resultB64=imgPart.inlineData.data;

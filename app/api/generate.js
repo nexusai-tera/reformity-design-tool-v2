@@ -124,12 +124,15 @@ export default async function handler(req, res) {
   let geminiData = null;
   let hadImage = false;
   try {
+    const wantHigh = req.body && req.body.quality === 'high';
+    const model = wantHigh ? 'gemini-3-pro-image-preview' : 'gemini-3.1-flash-image-preview';
+    const { quality: _omitQuality, ...geminiBody } = req.body || {};
     const r = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(req.body),
+        body: JSON.stringify(geminiBody),
       }
     );
     geminiStatus = r.status;

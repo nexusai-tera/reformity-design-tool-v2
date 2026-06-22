@@ -318,6 +318,7 @@ footer span{color:var(--green);}
       <div class="upload-icon">📷</div>
       <div class="upload-text">Tap to upload or take a photo<span>JPG · PNG · HEIC</span></div>
     </div>
+    <div class="field-note">📸 Best results: shoot in good daylight, stand back so the whole area is in frame, and clear clutter (cars, bins, toys).</div>
     <img id="previewImg" class="preview-img"/>
   </div>
 
@@ -803,6 +804,7 @@ footer span{color:var(--green);}
     <img id="refPreview" class="preview-img"/>
   </div>
 
+  <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;color:var(--smoke);font-size:13px;cursor:pointer;"><input type="checkbox" id="hqToggle"/> <span>High quality — sharper &amp; more accurate, best for the version you send the client (a little slower)</span></label>
   <button class="generate-btn" id="generateBtn" onclick="generateDesign()">Generate Design Preview</button>
   <div class="status-msg" id="statusMsg"></div>
   <div class="error-msg" id="errorMsg"></div>
@@ -814,6 +816,7 @@ footer span{color:var(--green);}
       <div class="compare-item"><p>After — AI Render</p><img id="afterImg"/></div>
     </div>
     <button class="download-btn" onclick="downloadResult()">⬇ Download Render</button>
+    <button class="download-btn" style="margin-top:10px;" onclick="generateDesign()">↻ Regenerate — try another version</button>
     <button class="generate-btn" style="margin-top:10px;" onclick="openQuote()">Build Quote From This Design</button>
   </div>
 
@@ -1211,7 +1214,8 @@ async function callAPI(prompt, b64, refB64, retries=3){
       },
       body:JSON.stringify({
         contents:[{parts:[{text:prompt},{inline_data:{mime_type:'image/jpeg',data:b64}}].concat(refB64?[{inline_data:{mime_type:'image/jpeg',data:refB64}}]:[])}],
-        generationConfig:{responseModalities:['IMAGE','TEXT']}
+        generationConfig:{responseModalities:['IMAGE','TEXT']},
+        quality:(document.getElementById('hqToggle')&&document.getElementById('hqToggle').checked)?'high':'standard'
       })
     });
     if(res.status===429){

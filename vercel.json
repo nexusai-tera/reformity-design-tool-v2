@@ -1,3 +1,10 @@
 {
-  "rewrites": []
+  "rewrites": [
+    { "source": "/q/:slug", "destination": "https://app.finalook.ai/q/?s=:slug" },
+    { "source": "/approve", "destination": "https://app.finalook.ai/approve" },
+    { "source": "/api/q-info", "destination": "https://app.finalook.ai/api/q-info" },
+    { "source": "/api/q-generate", "destination": "https://app.finalook.ai/api/q-generate" },
+    { "source": "/api/quote-public", "destination": "https://app.finalook.ai/api/quote-public" },
+    { "source": "/api/quote-decide", "destination": "https://app.finalook.ai/api/quote-decide" }
+  ]
 }

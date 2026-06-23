@@ -239,7 +239,7 @@ footer span{color:var(--green);}
       </div>
       <div class="field" style="margin-bottom:14px;">
         <label style="font-size:11px;color:#888;display:block;margin-bottom:6px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Virtual Quote link <span style="color:#3a9e52;">· Pro+</span></label>
-        <div style="display:flex;gap:8px;align-items:center;"><span style="color:#666;font-size:13px;white-space:nowrap;">app.finalook.ai/q/?s=</span><input id="profSlug" type="text" placeholder="urbanfence" class="prof-in" style="flex:1;" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')"/></div>
+        <div style="display:flex;gap:8px;align-items:center;"><span style="color:#666;font-size:13px;white-space:nowrap;">finalook.ai/q/</span><input id="profSlug" type="text" placeholder="urbanfence" class="prof-in" style="flex:1;" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')"/></div>
         <label style="display:flex;align-items:center;gap:8px;margin-top:8px;color:#cfcfcf;font-size:13px;cursor:pointer;"><input type="checkbox" id="profPublic"/> Enable my public Virtual Quote page</label>
         <div id="profSlugLink" style="font-size:12px;color:#3a9e52;margin-top:6px;display:none;word-break:break-all;"></div>
       </div>
@@ -1947,7 +1947,7 @@ function effLimit(sub, usage){
 // Virtual Quote + Self-Sim are Pro features (trial users may demo them). Core/Solo: off.
 function vqAllowed(){ const p=(_plan||'').toLowerCase(); return p==='pro'||p==='crew'||p==='trial'||p===''; }
 // Branded public link — relies on the finalook.ai/q/:slug rewrite (vercel.json).
-function vqUrl(slug, src){ return 'https://app.finalook.ai/q/?s='+slug+(src?('&src='+encodeURIComponent(src)):''); }
+function vqUrl(slug, src){ return 'https://finalook.ai/q/'+slug+(src?('?src='+encodeURIComponent(src)):''); }
 async function refreshUsage(){
   try{
     const {data:{session}}=await sb.auth.getSession();
@@ -2071,7 +2071,7 @@ function b64ToBlob(b64,type){
   for(let i=0;i<len;i++)arr[i]=bin.charCodeAt(i);
   return new Blob([arr],{type});
 }
-function approvalUrlFor(token){ return 'https://app.finalook.ai/approve?token='+token; }
+function approvalUrlFor(token){ return 'https://finalook.ai/approve?token='+token; }
 function copyApproveLink(){
   const el=document.getElementById('approveLink');
   el.select(); try{navigator.clipboard.writeText(el.value);}catch(e){}

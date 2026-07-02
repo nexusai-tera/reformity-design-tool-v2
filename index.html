@@ -5,18 +5,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Finalook — Show the Finished Job Before You Build It</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
-<meta name="description" content="Finalook turns a photo of your client's backyard into a photorealistic render of the finished job in seconds — then builds the quote. Close more jobs. Built for contractors."/>
+<meta name="description" content="Finalook turns a photo of your client's yard into a photorealistic render of the finished job — then builds the branded quote. Built for contractors."/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://finalook.ai/"/>
-<meta property="og:title" content="Finalook — Show homeowners their finished yard. Close 3× more jobs."/>
+<meta property="og:title" content="Finalook — Show the Finished Job Before You Build It"/>
 <meta property="og:description" content="Snap a photo, generate a photorealistic render of the finished job, and send a branded quote clients approve in one tap. Built for contractors."/>
 <meta property="og:image" content="https://finalook.ai/og-image.png"/>
 <meta property="og:image:width" content="1200"/>
 <meta property="og:image:height" content="630"/>
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="Finalook — Show homeowners their finished yard."/>
+<meta name="twitter:title" content="Finalook — Show the Finished Job Before You Build It"/>
 <meta name="twitter:description" content="AI renders, branded quotes, one-tap client approvals. Built for contractors."/>
 <meta name="twitter:image" content="https://finalook.ai/og-image.png"/>
+<meta property="og:site_name" content="Finalook"/>
+<meta name="theme-color" content="#0a0a0a"/>
+<link rel="canonical" href="https://finalook.ai/"/>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Finalook",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "url": "https://finalook.ai/",
+  "description": "Finalook turns a photo of a client's yard into a photorealistic render of the finished job, then builds a branded quote homeowners approve in one tap. Built for fence, deck and hardscape contractors.",
+  "offers": [
+    { "@type": "Offer", "name": "Finalook Core", "price": "99", "priceCurrency": "CAD" },
+    { "@type": "Offer", "name": "Finalook Pro", "price": "199", "priceCurrency": "CAD" }
+  ]
+}
+</script>
+<script>document.documentElement.classList.add('js');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -63,23 +84,7 @@ nav{position:sticky;top:0;z-index:50;background:rgba(10,10,10,0.82);backdrop-fil
 .btn-ghost:hover{border-color:var(--green-lt);}
 .hero .micro{font-size:12px;color:var(--ash);letter-spacing:0.04em;}
 
-/* BEFORE/AFTER SLIDER */
-.demo{position:relative;z-index:1;padding:24px 0 80px;}
-.ba{position:relative;max-width:920px;margin:0 auto;border-radius:10px;overflow:hidden;border:1px solid var(--steel);aspect-ratio:16/9;user-select:none;box-shadow:0 40px 120px -40px rgba(0,0,0,0.9);}
-.ba-layer{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.ba-after{clip-path:inset(0 0 0 50%);}
-.ba-divider{position:absolute;top:0;bottom:0;left:50%;width:2px;background:var(--green-lt);transform:translateX(-1px);z-index:3;}
-.ba-handle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:var(--green);border:3px solid var(--white);z-index:4;cursor:ew-resize;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;box-shadow:0 4px 16px rgba(0,0,0,0.5);}
-.ba-tag{position:absolute;top:14px;z-index:3;font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;padding:5px 11px;border-radius:3px;background:rgba(10,10,10,0.75);backdrop-filter:blur(4px);}
-.ba-tag.before{left:14px;color:var(--smoke);}
-.ba-tag.after{right:14px;color:var(--green-lt);}
-.ba-range{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;z-index:5;margin:0;}
 .demo-cap{text-align:center;font-size:13px;color:var(--ash);margin-top:18px;letter-spacing:0.03em;}
-
-/* PLACEHOLDER images via CSS gradient (replace with real renders) */
-.ph-before{background:linear-gradient(135deg,#2b2b28,#3a3a34 60%,#444);position:relative;}
-.ph-after{background:linear-gradient(135deg,#1f3d24,#2a5c34 55%,#3a9e52);position:relative;}
-.ph-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.35);text-align:center;padding:20px;}
 
 /* SECTION SHELL */
 section{position:relative;z-index:1;}
@@ -144,11 +149,11 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
 .foot-links{display:flex;gap:24px;}
 .foot-links a{color:var(--ash);text-decoration:none;font-size:13px;transition:color .15s;}
 .foot-links a:hover{color:var(--white);}
-.foot-copy{font-size:12px;color:var(--steel);letter-spacing:0.04em;}
+.foot-copy{font-size:12px;color:var(--ash);letter-spacing:0.04em;}
 
-/* reveal on scroll */
-.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
-.reveal.in{opacity:1;transform:none;}
+/* reveal on scroll — only hidden when JS is running, so the page is never blank without it */
+.js .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+.js .reveal.in{opacity:1;transform:none;}
 
 /* STAT BAND */
 .statband{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:radial-gradient(ellipse 60% 130% at 50% 0,rgba(31,92,46,.16),transparent 70%),var(--void);padding:60px 0;text-align:center;}
@@ -193,6 +198,16 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
 .bt-opt.active .bt-save{background:rgba(255,255,255,.2);color:#fff;}
 .price-billnote{font-size:12px;color:var(--green-lt);margin-top:6px;min-height:16px;font-weight:500;}
 
+/* FAQ */
+.faq{max-width:760px;margin:0 auto;}
+.faq details{background:var(--void);border:1px solid var(--line);border-radius:9px;margin-bottom:10px;}
+.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 22px;font-family:'Oswald',sans-serif;font-size:15px;font-weight:600;letter-spacing:.02em;}
+.faq summary::-webkit-details-marker{display:none;}
+.faq summary::after{content:'+';color:var(--green-lt);font-size:20px;line-height:1;flex-shrink:0;}
+.faq details[open] summary::after{content:'−';}
+.faq details p{padding:0 22px 18px;color:var(--ash);font-size:14px;font-weight:300;line-height:1.6;}
+.faq a{color:var(--green-lt);}
+
 /* TESTIMONIALS */
 .tg{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
 @media(max-width:860px){.tg{grid-template-columns:1fr;}}
@@ -203,7 +218,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
 .tcard .ava{width:40px;height:40px;border-radius:50%;background:var(--steel);display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;color:var(--smoke);font-size:15px;flex-shrink:0;}
 .tcard .nm{font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;letter-spacing:.02em;}
 .tcard .rl{font-size:12px;color:var(--ash);}
-.tcard.tph{outline:1px dashed var(--steel);outline-offset:4px;}
 
 /* THREE-TOOL STACK */
 .stack-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch;}
@@ -278,27 +292,11 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
 .btn-demo{display:inline-flex;align-items:center;gap:9px;}
 .btn-demo .cal-ico{font-size:16px;line-height:1;filter:saturate(1.2);}
 
-/* HERO ROTATING HEADLINE */
-.hero-rotate{display:grid;grid-template-columns:minmax(0,1fr);max-width:100%;}
-.hero-rotate .rot-line{grid-area:1/1;opacity:0;transform:translateY(22px);transition:opacity .6s cubic-bezier(.22,.7,.12,1),transform .6s cubic-bezier(.22,.7,.12,1);will-change:opacity,transform;pointer-events:none;min-width:0;overflow-wrap:break-word;word-wrap:break-word;}
-.hero-rotate .rot-line.is-active{opacity:1;transform:none;pointer-events:auto;}
-
-/* HIGHLIGHTED PHRASE — premium glow + animated underline shimmer */
+/* HIGHLIGHTED PHRASE — premium glow + underline */
 .hl{position:relative;display:inline-block;padding:0 .04em;white-space:nowrap;}
 .hl::after{content:'';position:absolute;left:.06em;right:.06em;bottom:.04em;height:.14em;border-radius:2px;opacity:.55;}
 .hl-green{color:#4ed479;text-shadow:0 0 36px rgba(78,212,121,.42),0 0 10px rgba(78,212,121,.28);}
 .hl-green::after{background:linear-gradient(90deg,rgba(78,212,121,0),rgba(78,212,121,.85) 50%,rgba(78,212,121,0));box-shadow:0 0 18px rgba(78,212,121,.75);}
-.hl-gold{color:#f0c45a;text-shadow:0 0 36px rgba(240,196,90,.44),0 0 10px rgba(240,196,90,.28);}
-.hl-gold::after{background:linear-gradient(90deg,rgba(240,196,90,0),rgba(240,196,90,.9) 50%,rgba(240,196,90,0));box-shadow:0 0 18px rgba(240,196,90,.75);}
-
-/* shimmer pulse on the active line's highlight */
-@keyframes hlShimmer{
-  0%{transform:scaleX(.4);opacity:0;}
-  35%{transform:scaleX(1);opacity:.95;}
-  85%{transform:scaleX(1);opacity:.7;}
-  100%{transform:scaleX(1);opacity:.55;}
-}
-.rot-line.is-active .hl::after{animation:hlShimmer 1.2s cubic-bezier(.22,.7,.12,1) both;transform-origin:left center;}
 
 /* FEATURES v2 — media-anchored 2-col cards */
 .feat-grid-v2{grid-template-columns:repeat(2,1fr);gap:16px;}
@@ -311,9 +309,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
 .feat-content{padding:16px 20px 18px;}
 .feat-grid-v2 .feat h3{font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px;color:var(--white);}
 .feat-grid-v2 .feat p{color:var(--smoke);font-size:13px;font-weight:300;line-height:1.55;margin:0;}
-
-/* "video coming" media slot ribbon (delete once video is added) */
-.media-slot{position:absolute;top:9px;right:9px;background:rgba(10,10,10,.78);color:var(--ash);font-family:'Oswald',sans-serif;font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:4px 9px;border-radius:20px;border:1px solid rgba(255,255,255,.06);}
 
 /* Virtual Quote mini phone placeholder */
 .ph-vq{background:linear-gradient(160deg,#0e1a12,#080808);}
@@ -439,7 +434,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
   .hero-cta .btn-primary,.hero-cta .btn-ghost{flex:1;text-align:center;padding:14px 18px;font-size:13.5px;min-height:48px;display:inline-flex;align-items:center;justify-content:center;}
   /* tone down glow on mobile (perf + visual breathing room) */
   .hl-green{text-shadow:0 0 22px rgba(78,212,121,.4),0 0 6px rgba(78,212,121,.25);}
-  .hl-gold{text-shadow:0 0 22px rgba(240,196,90,.42),0 0 6px rgba(240,196,90,.25);}
 
   /* THREE-TOOL STACK */
   .tool{padding:22px 20px;}
@@ -528,7 +522,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
       <a href="#how">How it works</a>
       <a href="#features">Features</a>
       <a href="#pricing">Pricing</a>
-      <a href="#trial" class="nav-cta">Start Free</a>
+      <a href="https://app.finalook.ai/?utm_source=landing&utm_medium=cta&utm_campaign=nav" class="nav-cta">Start Free</a>
     </div>
   </div>
 </nav>
@@ -537,17 +531,13 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
 <header class="hero">
   <div class="wrap">
     <div class="eyebrow reveal">AI Design Preview · Built for Contractors</div>
-    <h1 class="reveal hero-rotate">
-      <span class="rot-line is-active">Show clients their <span class="hl hl-green">Transformed Landscapes.</span></span>
-      <span class="rot-line">Close <span class="hl hl-gold">3X more</span> jobs.</span>
-      <span class="rot-line">Let the transformation <span class="hl hl-green">sell itself.</span></span>
-    </h1>
-    <p class="sub reveal">Photorealistic yard renders in seconds. Branded quotes in minutes. <strong>When clients see it, they say yes.</strong></p>
+    <h1 class="reveal">Show the finished job <span class="hl hl-green">before you build it.</span></h1>
+    <p class="sub reveal">Snap a photo of the yard, show a photorealistic render of the finished job in about 90 seconds, and send a branded quote they approve in one tap. <strong>When clients see it, they say yes.</strong></p>
     <div class="hero-cta reveal">
-      <a href="https://app.finalook.ai" class="btn-primary">Get Access Now</a>
-      <a href="https://calendly.com/nexusaigta-info/finalook-demo" class="btn-ghost btn-demo"><span class="cal-ico">📅</span> Book a Demo</a>
+      <a href="https://app.finalook.ai/?utm_source=landing&utm_medium=cta&utm_campaign=hero" class="btn-primary">Start Free Trial</a>
+      <a href="https://calendly.com/nexusaigta-info/finalook-demo" class="btn-ghost btn-demo"><span class="cal-ico" aria-hidden="true">📅</span> Book a 15-Min Demo</a>
     </div>
-    <div class="micro reveal">Try free for 14 days · Works on any phone</div>
+    <div class="micro reveal">Free for 14 days · Card required, not charged until day 15 · Works on any phone</div>
   </div>
 </header>
 
@@ -571,8 +561,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
           </div>
         </div>
         <div class="tool-media tool-media-ba">
-          <img src="images/before.jpeg" alt="Yard before"/>
-          <img src="images/after.png" class="ba-clip" alt="Render of finished job"/>
+          <img src="images/before.jpg" alt="Yard before" width="1200" height="900"/>
+          <img src="images/after.jpg" class="ba-clip" alt="Render of finished job" width="1195" height="896"/>
           <div class="ba-mini-div"></div>
           <span class="ba-mini-tag b">Before</span>
           <span class="ba-mini-tag a">After</span>
@@ -618,8 +608,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
         </div>
         <p class="tool-body">A <strong>branded lead page in 5 seconds</strong>. Homeowners upload a yard photo; you reply with a render and a quote — straight from your CRM.</p>
         <div class="tool-stat">
-          <div class="tool-stat-num">5×</div>
-          <div class="tool-stat-cap">more website visitors converted into booked quotes</div>
+          <div class="tool-stat-num">24/7</div>
+          <div class="tool-stat-cap">lead capture — your branded page turns visitors into booked quotes while you work</div>
         </div>
         <ul class="tool-list">
           <li>Your branded page on a Finalook URL — live in 5 seconds</li>
@@ -640,7 +630,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
           <div class="qr-banner">See your yard transformed<small>Scan with your phone · free &amp; instant</small></div>
           <div class="qr-row">
             <div class="qr-box">
-              <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+              <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
                 <rect width="21" height="21" fill="#fff"/>
                 <rect x="0" y="0" width="7" height="7" fill="#000"/>
                 <rect x="1" y="1" width="5" height="5" fill="#fff"/>
@@ -722,7 +712,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
   <div class="wrap reveal">
     <div class="big">3× More Closes</div>
     <p class="lead">Close 3× more jobs when clients can see the finished result before they commit. Showing the render turns "let me think about it" into "let's book it."</p>
-    <p class="fine">Seeing beats imagining — give every quote a picture your client can say yes to.</p>
+    <p class="fine">Reported by early Finalook contractors. Seeing beats imagining — give every quote a picture your client can say yes to.</p>
   </div>
 </section>
 
@@ -744,7 +734,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="sec-kicker">How it works</div>
-      <h2 class="sec-title">Three steps. Thirty seconds.</h2>
+      <h2 class="sec-title">Three steps. Ninety seconds.</h2>
       <p class="sec-sub">No CAD software. No design degree. No waiting weeks for a rendering.</p>
     </div>
     <div class="steps">
@@ -799,7 +789,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
 
       <!-- Live Render — uses after render image -->
       <div class="feat reveal">
-        <div class="feat-media-block"><img src="images/after.png" alt="Photorealistic yard render"/></div>
+        <div class="feat-media-block"><img src="images/after.jpg" alt="Photorealistic yard render" width="1195" height="896" loading="lazy" decoding="async"/></div>
         <div class="feat-content">
           <h3>Live Render</h3>
           <p>Snap a yard photo → photorealistic before &amp; after in ~90 seconds. Fence, deck, interlock, concrete, masonry, landscaping — day, dusk, or night.</p>
@@ -808,7 +798,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
 
       <!-- Branded Quote PDF — uses quote sample image -->
       <div class="feat reveal">
-        <div class="feat-media-block"><img src="images/quote-sample.png" alt="Branded Finalook quote PDF"/></div>
+        <div class="feat-media-block"><img src="images/quote-sample.jpg" alt="Branded Finalook quote PDF" width="1275" height="1650" loading="lazy" decoding="async"/></div>
         <div class="feat-content">
           <h3>Branded Quote PDF</h3>
           <p>Logo, line items, tax, deposit, warranty, terms — render embedded. Polished quote in under a minute, ready to email or text.</p>
@@ -822,7 +812,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
             <div class="ph-url">finalook.ai/q/yourbrand</div>
             <div class="ph-up">↑ Add a photo</div>
           </div>
-          <span class="media-slot">video coming</span>
+
         </div>
         <div class="feat-content">
           <h3>Virtual Quote</h3>
@@ -833,7 +823,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
       <!-- Self-Sim QR — placeholder for usage video -->
       <div class="feat reveal">
         <div class="feat-media-block placeholder ph-qr">
-          <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" class="ph-qr-svg">
+          <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" class="ph-qr-svg" aria-hidden="true" focusable="false">
             <rect width="21" height="21" fill="#f4f4f2"/>
             <rect x="0" y="0" width="7" height="7" fill="#0a0a0a"/><rect x="1" y="1" width="5" height="5" fill="#f4f4f2"/><rect x="2" y="2" width="3" height="3" fill="#0a0a0a"/>
             <rect x="14" y="0" width="7" height="7" fill="#0a0a0a"/><rect x="15" y="1" width="5" height="5" fill="#f4f4f2"/><rect x="16" y="2" width="3" height="3" fill="#0a0a0a"/>
@@ -850,7 +840,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
             <rect x="9" y="16" width="1" height="1" fill="#0a0a0a"/><rect x="12" y="16" width="1" height="1" fill="#0a0a0a"/><rect x="14" y="16" width="2" height="1" fill="#0a0a0a"/><rect x="18" y="16" width="1" height="1" fill="#0a0a0a"/>
             <rect x="8" y="18" width="2" height="1" fill="#0a0a0a"/><rect x="12" y="18" width="1" height="1" fill="#0a0a0a"/><rect x="14" y="18" width="1" height="1" fill="#0a0a0a"/><rect x="16" y="18" width="1" height="1" fill="#0a0a0a"/><rect x="19" y="18" width="1" height="1" fill="#0a0a0a"/>
           </svg>
-          <span class="media-slot">video coming</span>
+
         </div>
         <div class="feat-content">
           <h3>Self-Sim QR</h3>
@@ -860,7 +850,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
 
       <!-- CRM — uses approval preview image -->
       <div class="feat reveal">
-        <div class="feat-media-block"><img src="images/approval-preview.svg" alt="Built-in CRM and client approval" style="background:#0c0c0c;object-fit:contain;padding:18px;"/></div>
+        <div class="feat-media-block"><img src="images/approval-preview.svg" alt="Built-in CRM and client approval" loading="lazy" decoding="async" style="background:#0c0c0c;object-fit:contain;padding:18px;"/></div>
         <div class="feat-content">
           <h3>Built-in CRM</h3>
           <p>Every quote saved, searchable, status-tagged. Sent, approved, declined — at a glance. Re-open or duplicate any quote.</p>
@@ -875,7 +865,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
             <div class="ph-pill"><span class="ph-dot pending"></span> Sent · awaiting response</div>
             <div class="ph-pill"><span class="ph-dot off"></span> Declined · note attached</div>
           </div>
-          <span class="media-slot">video coming</span>
+
         </div>
         <div class="feat-content">
           <h3>Follow-up Tracking</h3>
@@ -890,7 +880,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
             <div class="ph-deliver-chip"><span>✉</span> Email</div>
             <div class="ph-deliver-chip"><span>💬</span> Text</div>
           </div>
-          <span class="media-slot">video coming</span>
+
         </div>
         <div class="feat-content">
           <h3>Email &amp; SMS Delivery</h3>
@@ -907,7 +897,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
             <div class="ph-spec-row"><span>Paver</span><b>Holland · running bond</b></div>
             <div class="ph-spec-row"><span>Edge</span><b>Aluminum restraint</b></div>
           </div>
-          <span class="media-slot">video coming</span>
+
         </div>
         <div class="feat-content">
           <h3>Trade-accurate Specs</h3>
@@ -920,7 +910,6 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
 </section>
 
 <!-- SHOWCASE: QUOTE GENERATOR + CRM -->
-<!-- Swap the placeholder media for real screenshots of your quote PDF and the client approval screen when you have them. -->
 <section class="sec-pad" id="showcase">
   <div class="wrap">
     <div class="sec-head reveal">
@@ -930,7 +919,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
     </div>
 
     <div class="showcase reveal">
-      <div class="sc-media"><img src="images/quote-sample.png" alt="Branded Finalook quote PDF with before/after render, line items and total" style="object-position:top;"/></div>
+      <div class="sc-media"><img src="images/quote-sample.jpg" alt="Branded Finalook quote PDF with before/after render, line items and total" width="1275" height="1650" loading="lazy" decoding="async" style="object-position:top;"/></div>
       <div class="sc-body">
         <div class="sc-kick">Quote Generator</div>
         <h3>A branded quote in under a minute.</h3>
@@ -945,7 +934,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
     </div>
 
     <div class="showcase flip reveal">
-      <div class="sc-media"><img src="images/approval-preview.svg" alt="Finalook client approval screen — Approve or Decline a quote" style="background:#0c0c0c;"/></div>
+      <div class="sc-media"><img src="images/approval-preview.svg" alt="Finalook client approval screen — Approve or Decline a quote" loading="lazy" decoding="async" style="background:#0c0c0c;"/></div>
       <div class="sc-body">
         <div class="sc-kick">Built-in CRM + Client Approvals</div>
         <h3>Send it. Track it. Get the yes.</h3>
@@ -1006,17 +995,17 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
     </div>
     <div class="tg">
       <div class="tcard reveal">
-        <div class="stars">★★★★★</div>
+        <div class="stars" aria-hidden="true">★★★★★</div>
         <blockquote>"Using Finalook has significantly improved my sales operations. My sales reps are closing more deals than ever. Highly recommend."</blockquote>
         <div class="who"><div class="ava">D</div><div><div class="nm">Dario</div><div class="rl">Ontario Terra · Burlington</div></div></div>
       </div>
       <div class="tcard reveal">
-        <div class="stars">★★★★★</div>
+        <div class="stars" aria-hidden="true">★★★★★</div>
         <blockquote>"Our close rate has increased by over 40%. We are overbooked and are enjoying this problem! I would definitely recommend Finalook."</blockquote>
         <div class="who"><div class="ava">M</div><div><div class="nm">Mark</div><div class="rl">Urban Fence · Vaughan</div></div></div>
       </div>
       <div class="tcard reveal">
-        <div class="stars">★★★★★</div>
+        <div class="stars" aria-hidden="true">★★★★★</div>
         <blockquote>"Our clients see their before/after pictures and this is what helps them choose us over competitors. Stand out from the competition by using Finalook!"</blockquote>
         <div class="who"><div class="ava">J</div><div><div class="nm">Joe</div><div class="rl">Vinyl Fence Forever · Toronto</div></div></div>
       </div>
@@ -1030,10 +1019,10 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
     <div class="sec-head reveal">
       <div class="sec-kicker">Pricing</div>
       <h2 class="sec-title">One closed job pays for the year.</h2>
-      <p class="sec-sub">Start free. Upgrade when you're closing more. Cancel anytime.</p>
+      <p class="sec-sub">Every plan starts with a 14-day free trial. Cancel anytime.</p>
       <div class="bill-toggle reveal">
-        <button id="billMonthly" class="bt-opt active" onclick="setBilling('monthly')">Monthly</button>
-        <button id="billAnnual" class="bt-opt" onclick="setBilling('annual')">Annual <span class="bt-save">Save 25%</span></button>
+        <button id="billMonthly" class="bt-opt active" aria-pressed="true" onclick="setBilling('monthly')">Monthly</button>
+        <button id="billAnnual" class="bt-opt" aria-pressed="false" onclick="setBilling('annual')">Annual <span class="bt-save">Save 25%</span></button>
       </div>
     </div>
     <div class="price-grid price-grid-2">
@@ -1042,10 +1031,10 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
       <div class="price price-card-v2 reveal">
         <div class="price-name">Finalook Core</div>
         <p class="price-tag">Win the job on-site — show clients their finished yard and close on the spot.</p>
-        <div class="price-amt" data-mamt="$99" data-mper="/month" data-aamt="$891" data-aper="/year"><span class="bamt">$99</span><span class="per">/month</span></div>
+        <div class="price-amt" data-mamt="$99" data-mper="/mo CAD" data-aamt="$891" data-aper="/yr CAD"><span class="bamt">$99</span><span class="per">/mo CAD</span></div>
         <div class="price-billnote" data-anote="Save $297/year"></div>
         <div class="price-cta-row">
-          <a href="https://app.finalook.ai" class="btn-core">Get Access</a>
+          <a href="https://app.finalook.ai/?utm_source=landing&utm_medium=cta&utm_campaign=pricing-core" class="btn-core">Start Free Trial</a>
           <a href="https://calendly.com/nexusaigta-info/finalook-demo" class="btn-ghost">Free Demo</a>
         </div>
         <div class="price-incl-h">What's included</div>
@@ -1068,16 +1057,16 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
         <div class="price-badge"><span class="badge-ico">✦</span> Most Popular</div>
         <div class="price-name">Finalook Pro</div>
         <p class="price-tag">Capture, convert, and close everywhere — before, during, and after the sales call.</p>
-        <div class="price-amt" data-mamt="$199" data-mper="/month" data-aamt="$1,791" data-aper="/year"><span class="bamt">$199</span><span class="per">/month</span></div>
+        <div class="price-amt" data-mamt="$199" data-mper="/mo CAD" data-aamt="$1,791" data-aper="/yr CAD"><span class="bamt">$199</span><span class="per">/mo CAD</span></div>
         <div class="price-billnote" data-anote="Save $597/year"></div>
         <div class="price-cta-row">
-          <a href="https://app.finalook.ai" class="btn-primary">Get Access</a>
+          <a href="https://app.finalook.ai/?utm_source=landing&utm_medium=cta&utm_campaign=pricing-pro" class="btn-primary">Start Free Trial</a>
           <a href="https://calendly.com/nexusaigta-info/finalook-demo" class="btn-ghost">Free Demo</a>
         </div>
         <div class="price-incl-h">What's included</div>
         <ul class="price-incl">
           <li><strong>Everything in Core</strong></li>
-          <li><strong>100 render credits</strong> / month, top up anytime for $39</li>
+          <li><strong>100 render credits</strong> / month, top up 30 for $39</li>
           <li><strong>HD studio-quality renders</strong> — sharper, more accurate output for client-ready quotes</li>
           <li>Priority support</li>
         </ul>
@@ -1101,7 +1090,47 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
       </div>
 
     </div>
-    <p class="demo-cap" style="margin-top:26px;">All plans include a 14-day free trial. Prices in CAD.</p>
+    <p class="demo-cap" style="margin-top:26px;">All plans include a 14-day free trial — card required, you won't be charged until day 15. Prices in CAD.</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec-pad" id="faq">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-kicker">Questions</div>
+      <h2 class="sec-title">Before you ask.</h2>
+    </div>
+    <div class="faq reveal">
+      <details>
+        <summary>Do I need a credit card to start the trial?</summary>
+        <p>Yes — the 14-day free trial requires a card, but you're not charged until day 15. Cancel anytime before then and you pay nothing.</p>
+      </details>
+      <details>
+        <summary>What happens after the 14 days?</summary>
+        <p>Your plan starts automatically — $99/mo CAD for Core or $199/mo CAD for Pro. You can cancel or switch plans yourself from the billing portal, no phone call needed.</p>
+      </details>
+      <details>
+        <summary>Does it work on my phone?</summary>
+        <p>Yes. Finalook runs in the browser on any phone, tablet, or computer — nothing to install. Snap the photo and show the render on the same device, right in the client's driveway.</p>
+      </details>
+      <details>
+        <summary>What can it render?</summary>
+        <p>Fences, decks, interlock, patios, concrete, asphalt, masonry, and landscaping — in daylight, dusk, or night. Renders are built with trade-accurate specs like post sizes and paver patterns.</p>
+      </details>
+      <details>
+        <summary>How accurate are the renders?</summary>
+        <p>They're photorealistic previews built from your actual jobsite photo — a closing tool, not a construction drawing. Every quote notes that final materials and colours follow the written scope.</p>
+      </details>
+      <details>
+        <summary>Who owns the photos and quotes?</summary>
+        <p>You do. Your photos, renders, quotes, and client list stay in your account — see our <a href="/privacy.html">Privacy Policy</a>.</p>
+      </details>
+      <details>
+        <summary>Can I cancel anytime?</summary>
+        <p>Yes — self-serve from the billing portal inside the app, effective at the end of your billing period.</p>
+      </details>
+    </div>
   </div>
 </section>
 
@@ -1110,7 +1139,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
   <div class="wrap">
     <h2>STOP LOSING JOBS TO<br><span class="g">BETTER PICTURES.</span></h2>
     <p>Your client can't picture it. Now they can. Start your free trial and close your next job with a render they can see.</p>
-    <a href="https://app.finalook.ai" class="btn-primary">Start Your Free Trial</a>
+    <a href="https://app.finalook.ai/?utm_source=landing&utm_medium=cta&utm_campaign=cta-band" class="btn-primary">Start Your Free Trial</a>
   </div>
 </section>
 
@@ -1126,23 +1155,11 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
       <a href="/terms.html">Terms</a>
       <a href="/contact.html">Contact</a>
     </div>
-    <div class="foot-copy">© 2026 Finalook · Built in Canada 🍁</div>
+    <div class="foot-copy">© 2026 Reformity Inc. o/a Finalook · Built in Canada 🍁</div>
   </div>
 </footer>
 
 <script>
-// Hero rotating headline
-(function(){
-  const lines=document.querySelectorAll('.hero-rotate .rot-line');
-  if(lines.length<2) return;
-  let i=0;
-  setInterval(()=>{
-    lines[i].classList.remove('is-active');
-    i=(i+1)%lines.length;
-    lines[i].classList.add('is-active');
-  },3200);
-})();
-
 // Cursor-following ambient green light
 (function(){
   if(!window.matchMedia) return;
@@ -1184,10 +1201,13 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:40px
   els.forEach(el=>io.observe(el));
 })();
 
-// Billing toggle (display only — to actually charge annually, add annual Stripe prices + pass the period to checkout)
+// Billing toggle — informational here; the actual monthly/annual choice happens
+// in the app at checkout (create-checkout supports period=annual).
 function setBilling(mode){
   document.getElementById('billMonthly').classList.toggle('active',mode==='monthly');
   document.getElementById('billAnnual').classList.toggle('active',mode==='annual');
+  document.getElementById('billMonthly').setAttribute('aria-pressed',String(mode==='monthly'));
+  document.getElementById('billAnnual').setAttribute('aria-pressed',String(mode==='annual'));
   document.querySelectorAll('.price-amt').forEach(el=>{
     el.querySelector('.bamt').textContent = mode==='annual'?el.dataset.aamt:el.dataset.mamt;
     el.querySelector('.per').textContent  = mode==='annual'?el.dataset.aper:el.dataset.mper;

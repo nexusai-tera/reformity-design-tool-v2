@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /q/
+Disallow: /approve
+
+Sitemap: https://finalook.ai/sitemap.xml
